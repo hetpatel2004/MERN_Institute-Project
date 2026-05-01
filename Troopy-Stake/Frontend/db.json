@@ -1,0 +1,138 @@
+{
+  "superadmins": [
+    {
+      "id": 1,
+      "name": "het",
+      "email": "het@gmail.com",
+      "password": "het123",
+      "role": "superadmin"
+    }
+  ]
+  ,
+  "institutes": [
+    {
+      "name": "framboxx",
+      "code": "235",
+      "city": "AHMEDABAD",
+      "admin": "jay",
+      "email": "jay@gmail.com",
+      "phone": "09375122976",
+      "courses": "1",
+      "students": "10",
+      "faculty": "2",
+      "revenue": "0L",
+      "status": "Active",
+      "interestedCourses": [
+        "ui ux"
+      ],
+      "id": "omAD1wmHuEQ"
+    },
+    {
+      "name": "dfbdfd",
+      "code": "dhrd",
+      "city": "AHMEDABAD",
+      "admin": "erhe",
+      "email": "het.patel.010420047@gmail.com",
+      "phone": "09375122976",
+      "courses": 1,
+      "students": 0,
+      "faculty": 0,
+      "revenue": "0L",
+      "status": "Active",
+      "interestedCourses": [
+        "MERN"
+      ],
+      "id": "UvF5M0Zd7Fg"
+    }
+  ],
+  "courses": [
+    {
+      "name": "ui ux",
+      "code": "121",
+      "duration": "6",
+      "fees": "30000",
+      "level": "Beginner",
+      "category": "It",
+      "modules": [
+        {
+          "moduleName": "Figma",
+          "topics": [
+            "Introduction to Figma",
+            "Wireframes",
+            "Prototyping"
+          ]
+        },
+        {
+          "moduleName": "HTML",
+          "topics": [
+            "Basic Tags",
+            "Forms",
+            "Tables"
+          ]
+        },
+        {
+          "moduleName": "CSS",
+          "topics": [
+            "Selectors",
+            "Flexbox",
+            "Grid"
+          ]
+        },
+        {
+          "moduleName": "Basic JS",
+          "topics": [
+            "Variables",
+            "Functions",
+            "DOM"
+          ]
+        }
+      ],
+      "content": "Figma, HTML, CSS, Basic JS",
+      "description": "",
+      "status": "Active",
+      "id": "iTU8TH01PpU"
+    },
+    {
+      "name": "MERN",
+      "duration": "8 ",
+      "fees": "80000",
+      "description": "abc",
+      "modules": [
+        {
+          "moduleName": "Mongodb",
+          "topics": [
+            "connect with express"
+          ]
+        },
+        {
+          "moduleName": "Experss",
+          "topics": [
+            "routs",
+            "custom url ",
+            "jwt tokan ",
+            "middelw"
+          ]
+        },
+        {
+          "moduleName": "react",
+          "topics": [
+            "jsx",
+            "import export",
+            "hooks"
+          ]
+        },
+        {
+          "moduleName": "node",
+          "topics": [
+            "create port",
+            "fs module "
+          ]
+        }
+      ],
+      "id": "WMyehdxjNVE"
+    }
+  ],
+  "admins": [],
+  "companies": [],
+  "$schema": "./node_modules/json-server/schema.json"
+}
