@@ -3,7 +3,6 @@ import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 
 function Login() {
-  const [role, setRole] = useState("student");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -18,101 +17,126 @@ function Login() {
     }
 
     try {
-      if (role === "superadmin") {
-        const res = await axios.get(
-          `http://localhost:3000/superadmins?email=${email}&password=${password}`
-        );
+      const res = await axios.post("http://localhost:5000/api/auth/login", {
+        email,
+        password,
+      });
 
-        if (res.data.length > 0) {
-          const superAdmin = res.data[0];
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
 
-          localStorage.setItem("superAdmin", JSON.stringify(superAdmin));
+      alert("Login successful");
 
-          alert(`Welcome ${superAdmin.name}`);
-          navigate("/superadmin");
-        } else {
-          alert("Invalid Super Admin email or password");
-        }
-      } 
-      
-      else if (role === "instituteadmin") {
+      if (res.data.user.role === "superadmin") {
+        navigate("/superadmin");
+      } else if (res.data.user.role === "instituteadmin") {
         navigate("/institute-admin");
-      } 
-      
-      else {
+      } else {
         navigate("/student");
       }
     } catch (error) {
-      console.log(error);
-      alert("Login failed. Please start json-server.");
+      alert(error.response?.data?.message || "Login failed");
     }
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "linear-gradient(135deg, #0f172a, #0f766e)",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
+    <>
+      <style>{`
+        .login-card {
+          transition: 0.4s ease;
+        }
+
+        .login-card:hover {
+          transform: translateY(-10px) scale(1.02);
+          box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .input-custom {
+          border-radius: 12px;
+          transition: 0.3s;
+        }
+
+        .input-custom:focus {
+          border-color: #2563eb;
+          box-shadow: 0 0 10px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-custom {
+          border-radius: 12px;
+          background: linear-gradient(135deg, #2563eb, #1e40af);
+          border: none;
+          transition: 0.3s;
+        }
+
+        .btn-custom:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 10px 20px rgba(37, 99, 235, 0.4);
+          background: linear-gradient(135deg, #1e40af, #1e3a8a);
+        }
+
+        .link-hover:hover {
+          text-decoration: underline;
+          color: #1e40af !important;
+        }
+      `}</style>
+
       <div
-        className="card shadow-lg p-4"
-        style={{ width: "400px", borderRadius: "18px" }}
+        className="min-vh-100 d-flex align-items-center justify-content-center"
+        style={{
+          background: "linear-gradient(135deg, #1e3a8a, #2563eb, #60a5fa)",
+        }}
       >
-        <h3 className="text-center mb-2">Welcome Back</h3>
-        <p className="text-center text-muted mb-4">
-          Login according to your role
-        </p>
+        <div
+          className="card shadow-lg p-5 login-card"
+          style={{
+            width: "400px",
+          }}
+        >
+          <h2 className="text-center fw-bold mb-2">Welcome Back 👋</h2>
+          <p className="text-center text-muted mb-4">
+            Login to continue
+          </p>
 
-        <form onSubmit={handleLogin}>
-          <div className="mb-3">
-            <label>Select Role</label>
-            <select
-              className="form-control"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
+          <form onSubmit={handleLogin}>
+            <div className="mb-3">
+              <label className="form-label fw-semibold">Email</label>
+              <input
+                type="email"
+                className="form-control py-3 input-custom"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="form-label fw-semibold">Password</label>
+              <input
+                type="password"
+                className="form-control py-3 input-custom"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+
+            <button
+              className="btn btn-primary w-100 py-3 fw-semibold btn-custom"
+              type="submit"
             >
-              <option value="superadmin">Super Admin</option>
-              <option value="instituteadmin">Institute Admin</option>
-              <option value="student">Student</option>
-            </select>
-          </div>
+              Login
+            </button>
+          </form>
 
-          <div className="mb-3">
-            <label>Email</label>
-            <input
-              type="email"
-              className="form-control"
-              placeholder="Enter email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-
-          <div className="mb-3">
-            <label>Password</label>
-            <input
-              type="password"
-              className="form-control"
-              placeholder="Enter password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-
-          <button className="btn btn-success w-100 mt-2">
-            Login
-          </button>
-        </form>
-
-        <p className="text-center mt-3">
-          Don’t have an account? <Link to="/registration">Register</Link>
-        </p>
+          <p className="text-center mt-4 mb-0">
+            Don&apos;t have an account?{" "}
+            <Link to="/registration" className="fw-semibold link-hover">
+              Register
+            </Link>
+          </p>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
