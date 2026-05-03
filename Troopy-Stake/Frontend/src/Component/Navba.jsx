@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Navbar, Container, Nav, Button } from "react-bootstrap";
+import { ROUTES } from "../constants/routes";
 
 function Navba() {
   return (
@@ -9,11 +10,11 @@ function Navba() {
         <Navbar.Brand>Car Rental</Navbar.Brand>
 
         <Nav className="ms-auto align-items-center">
-          <Link to="/" className="text-white me-3 text-decoration-none">
+          <Link to={ROUTES.home} className="text-white me-3 text-decoration-none">
             Home
           </Link>
 
-          <Link to="/login">
+          <Link to={ROUTES.login}>
             <Button className="ms-2">Login</Button>
           </Link>
         </Nav>

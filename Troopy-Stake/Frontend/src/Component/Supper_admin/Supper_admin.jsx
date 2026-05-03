@@ -13,6 +13,8 @@ import {
   LogOut,
 } from "lucide-react";
 
+import { ROUTES } from "../../constants/routes";
+import { clearAuthData } from "../../utils/storage";
 import "./Supper_admin.css";
 
 function Dashboard({ institutes, courses, companies, navigate }) {
@@ -32,7 +34,7 @@ function Dashboard({ institutes, courses, companies, navigate }) {
 
         <button
           className="sa-primary-btn"
-          onClick={() => navigate("/superadmin/institute")}
+          onClick={() => navigate(ROUTES.superAdminInstitute)}
         >
           <Plus size={20} />
           Add Institute
@@ -112,6 +114,12 @@ function Dashboard({ institutes, courses, companies, navigate }) {
 function Supper_admin({ children, page }) {
   const navigate = useNavigate();
 
+  const handleLogout = () => {
+    clearAuthData();
+
+    navigate(ROUTES.login, { replace: true });
+  };
+
   const [institutes, setInstitutes] = useState([
     {
       id: 1,
@@ -179,22 +187,22 @@ function Supper_admin({ children, page }) {
         </div>
 
         <div className="sa-menu">
-          <NavLink to="/superadmin/dashboard">
+          <NavLink to={ROUTES.superAdminDashboard}>
             <LayoutDashboard size={20} />
             Dashboard
           </NavLink>
 
-          <NavLink to="/superadmin/institute">
+          <NavLink to={ROUTES.superAdminInstitute}>
             <Building2 size={20} />
             Institute
           </NavLink>
 
-          <NavLink to="/superadmin/course">
+          <NavLink to={ROUTES.superAdminCourse}>
             <BookOpen size={20} />
             Course
           </NavLink>
 
-          <NavLink to="/superadmin/company">
+          <NavLink to={ROUTES.superAdminCompany}>
             <BriefcaseBusiness size={20} />
             Company
           </NavLink>
@@ -206,13 +214,7 @@ function Supper_admin({ children, page }) {
           <span>All modules are running properly.</span>
         </div>
 
-        <button
-          className="sa-logout"
-          onClick={() => {
-            localStorage.removeItem("superAdmin");
-navigate("/login");
-          }}
-        >
+        <button className="sa-logout" onClick={handleLogout}>
           <LogOut size={18} />
           <span>Logout</span>
         </button>

@@ -1,159 +1,168 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Pencil, Trash2, Search } from "lucide-react";
+import {
+  Building2,
+  Search,
+  Plus,
+  Trash2,
+  RefreshCcw,
+  Edit,
+} from "lucide-react";
+import "./Supper_admin.css";
 
 function Institutes() {
-  const INSTITUTE_API = "http://localhost:3000/institutes";
-  const COURSE_API = "http://localhost:3000/courses";
-
   const [institutes, setInstitutes] = useState([]);
-  const [coursesList, setCoursesList] = useState([]);
   const [search, setSearch] = useState("");
+  const [message, setMessage] = useState("");
   const [editId, setEditId] = useState(null);
 
-  const [form, setForm] = useState({
+  const [formData, setFormData] = useState({
     name: "",
     code: "",
     city: "",
-    admin: "",
     email: "",
     phone: "",
-    courses: 1,
-    students: 0,
-    faculty: 0,
-    revenue: "0L",
     status: "Active",
-    interestedCourses: [],
   });
 
   const getInstitutes = async () => {
     try {
-      const res = await axios.get(INSTITUTE_API);
+      const res = await axios.get("http://localhost:5000/api/institutes");
       setInstitutes(res.data);
+      setMessage("");
     } catch (error) {
-      console.log(error);
-      alert("Institutes API not connected");
-    }
-  };
-
-  const getCourses = async () => {
-    try {
-      const res = await axios.get(COURSE_API);
-      setCoursesList(res.data);
-    } catch (error) {
-      console.log(error);
-      alert("Courses API not connected");
+      setMessage("Backend not connected: Failed to fetch institutes");
     }
   };
 
   useEffect(() => {
     getInstitutes();
-    getCourses();
   }, []);
 
-  const handleCourseInterest = (courseName) => {
-    if (form.interestedCourses.includes(courseName)) {
-      setForm({
-        ...form,
-        interestedCourses: form.interestedCourses.filter(
-          (item) => item !== courseName
-        ),
-      });
-    } else {
-      setForm({
-        ...form,
-        interestedCourses: [...form.interestedCourses, courseName],
-      });
-    }
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleEditInstitute = (item) => {
+    setFormData({
+      name: item.name,
+      code: item.code,
+      city: item.city,
+      email: item.email,
+      phone: item.phone,
+      status: item.status,
+    });
+
+    setEditId(item._id);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!form.name || !form.code || !form.city || !form.admin) {
-      alert("Please fill Institute Name, Code, City and Institute Admin");
+    if (
+      !formData.name ||
+      !formData.code ||
+      !formData.city ||
+      !formData.email ||
+      !formData.phone
+    ) {
+      alert("Please fill all required fields");
       return;
     }
 
     try {
       if (editId) {
-        await axios.put(`${INSTITUTE_API}/${editId}`, form);
-        setEditId(null);
+        await axios.put(
+          `http://localhost:5000/api/institutes/${editId}`,
+          formData
+        );
+
+        alert("Institute updated successfully");
       } else {
-        await axios.post(INSTITUTE_API, form);
+        await axios.post("http://localhost:5000/api/institutes", formData);
+
+        alert("Institute added successfully");
       }
 
-      clearForm();
+      handleClear();
       getInstitutes();
     } catch (error) {
-      console.log(error);
-      alert("Something went wrong while saving institute");
+      alert(error.response?.data?.message || "Operation failed");
     }
   };
 
-  const editInstitute = (item) => {
-    setForm({
-      name: item.name || "",
-      code: item.code || "",
-      city: item.city || "",
-      admin: item.admin || "",
-      email: item.email || "",
-      phone: item.phone || "",
-      courses: item.courses || 1,
-      students: item.students || 0,
-      faculty: item.faculty || 0,
-      revenue: item.revenue || "0L",
-      status: item.status || "Active",
-      interestedCourses: item.interestedCourses || [],
-    });
+  const handleDeleteInstitute = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this institute?"
+    );
 
-    setEditId(item.id);
-  };
+    if (!confirmDelete) return;
 
-  const deleteInstitute = async (id) => {
     try {
-      await axios.delete(`${INSTITUTE_API}/${id}`);
+      await axios.delete(`http://localhost:5000/api/institutes/${id}`);
+      alert("Institute deleted successfully");
       getInstitutes();
     } catch (error) {
-      console.log(error);
-      alert("Delete failed");
+      alert("Failed to delete institute");
     }
   };
 
-  const clearForm = () => {
-    setForm({
+  const handleClear = () => {
+    setFormData({
       name: "",
       code: "",
       city: "",
-      admin: "",
       email: "",
       phone: "",
-      courses: 1,
-      students: 0,
-      faculty: 0,
-      revenue: "0L",
       status: "Active",
-      interestedCourses: [],
     });
 
     setEditId(null);
   };
 
-  const filteredInstitutes = institutes.filter((item) =>
-    item.name?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredInstitutes = institutes.filter((item) => {
+    return (
+      item.name?.toLowerCase().includes(search.toLowerCase()) ||
+      item.code?.toLowerCase().includes(search.toLowerCase()) ||
+      item.city?.toLowerCase().includes(search.toLowerCase()) ||
+      item.email?.toLowerCase().includes(search.toLowerCase())
+    );
+  });
 
   return (
     <>
       <div className="sa-header">
         <div>
-          <p className="sa-tag">SUPER ADMIN CONTROL</p>
+          <p className="sa-tag">SUPER ADMIN / INSTITUTES</p>
           <h1>Institute Management</h1>
         </div>
+
+        <button className="sa-primary-btn" type="button">
+          <Plus size={18} />
+          Add Institute
+        </button>
       </div>
 
+      {message && (
+        <div
+          style={{
+            marginBottom: "20px",
+            padding: "14px",
+            borderRadius: "12px",
+            background: "#fee2e2",
+            color: "#b91c1c",
+            fontWeight: "700",
+          }}
+        >
+          {message}
+        </div>
+      )}
+
       <div className="institute-page-grid">
-        {/* LEFT SIDE LIST */}
+        {/* LEFT SIDE RECORDS */}
         <div className="institute-list-card">
           <div className="institute-list-header">
             <div>
@@ -177,60 +186,53 @@ function Institutes() {
               <thead>
                 <tr>
                   <th>Institute</th>
-                  <th>Admin</th>
-                  <th>Courses</th>
-                  <th>Students</th>
+                  <th>Code</th>
+                  <th>City</th>
+                  <th>Email</th>
+                  <th>Phone</th>
                   <th>Status</th>
-                  <th>Interested Courses</th>
                   <th>Actions</th>
                 </tr>
               </thead>
 
               <tbody>
-                {filteredInstitutes.length === 0 ? (
-                  <tr>
-                    <td colSpan="7">No institute records match your search.</td>
-                  </tr>
-                ) : (
+                {filteredInstitutes.length > 0 ? (
                   filteredInstitutes.map((item) => (
-                    <tr key={item.id}>
+                    <tr key={item._id}>
                       <td>
-                        <b>{item.name}</b>
-                        <br />
-                        <small>{item.city}</small>
+                        <Building2 size={17} color="#0f766e" />{" "}
+                        <strong>{item.name}</strong>
                       </td>
-
-                      <td>{item.admin}</td>
-                      <td>{item.courses}</td>
-                      <td>{item.students}</td>
-
+                      <td>{item.code}</td>
+                      <td>{item.city}</td>
+                      <td>{item.email}</td>
+                      <td>{item.phone}</td>
                       <td>
                         <span className="sa-status">{item.status}</span>
                       </td>
-
-                      <td>
-                        {item.interestedCourses?.length > 0
-                          ? item.interestedCourses.join(", ")
-                          : "No courses selected"}
-                      </td>
-
                       <td>
                         <button
+                          type="button"
                           className="sa-icon-btn edit"
-                          onClick={() => editInstitute(item)}
+                          onClick={() => handleEditInstitute(item)}
                         >
-                          <Pencil size={16} />
+                          <Edit size={15} />
                         </button>
 
                         <button
+                          type="button"
                           className="sa-icon-btn delete"
-                          onClick={() => deleteInstitute(item.id)}
+                          onClick={() => handleDeleteInstitute(item._id)}
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={15} />
                         </button>
                       </td>
                     </tr>
                   ))
+                ) : (
+                  <tr>
+                    <td colSpan="7">No institute records found.</td>
+                  </tr>
                 )}
               </tbody>
             </table>
@@ -240,8 +242,12 @@ function Institutes() {
         {/* RIGHT SIDE FORM */}
         <div className="institute-form-card">
           <div className="institute-form-head">
-            <h2>{editId ? "Update Institute" : "Add Institute"}</h2>
-            <p>Create a new campus workspace.</p>
+            <h2>{editId ? "Edit Institute" : "Add Institute"}</h2>
+            <p>
+              {editId
+                ? "Update selected institute details."
+                : "Create a new campus workspace."}
+            </p>
           </div>
 
           <form onSubmit={handleSubmit}>
@@ -250,10 +256,9 @@ function Institutes() {
                 <label>Institute Name</label>
                 <input
                   type="text"
-                  value={form.name}
-                  onChange={(e) =>
-                    setForm({ ...form, name: e.target.value })
-                  }
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
                 />
               </div>
 
@@ -261,10 +266,9 @@ function Institutes() {
                 <label>Code</label>
                 <input
                   type="text"
-                  value={form.code}
-                  onChange={(e) =>
-                    setForm({ ...form, code: e.target.value })
-                  }
+                  name="code"
+                  value={formData.code}
+                  onChange={handleChange}
                 />
               </div>
 
@@ -272,32 +276,9 @@ function Institutes() {
                 <label>City</label>
                 <input
                   type="text"
-                  value={form.city}
-                  onChange={(e) =>
-                    setForm({ ...form, city: e.target.value })
-                  }
-                />
-              </div>
-
-              <div>
-                <label>Institute Admin</label>
-                <input
-                  type="text"
-                  value={form.admin}
-                  onChange={(e) =>
-                    setForm({ ...form, admin: e.target.value })
-                  }
-                />
-              </div>
-
-              <div>
-                <label>Email</label>
-                <input
-                  type="email"
-                  value={form.email}
-                  onChange={(e) =>
-                    setForm({ ...form, email: e.target.value })
-                  }
+                  name="city"
+                  value={formData.city}
+                  onChange={handleChange}
                 />
               </div>
 
@@ -305,100 +286,41 @@ function Institutes() {
                 <label>Phone</label>
                 <input
                   type="text"
-                  value={form.phone}
-                  onChange={(e) =>
-                    setForm({ ...form, phone: e.target.value })
-                  }
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
                 />
               </div>
 
-              <div>
-                <label>Courses</label>
+              <div className="full-width">
+                <label>Email</label>
                 <input
-                  type="number"
-                  value={form.courses}
-                  onChange={(e) =>
-                    setForm({ ...form, courses: e.target.value })
-                  }
-                />
-              </div>
-
-              <div>
-                <label>Students</label>
-                <input
-                  type="number"
-                  value={form.students}
-                  onChange={(e) =>
-                    setForm({ ...form, students: e.target.value })
-                  }
-                />
-              </div>
-
-              <div>
-                <label>Faculty</label>
-                <input
-                  type="number"
-                  value={form.faculty}
-                  onChange={(e) =>
-                    setForm({ ...form, faculty: e.target.value })
-                  }
-                />
-              </div>
-
-              <div>
-                <label>Revenue</label>
-                <input
-                  type="text"
-                  value={form.revenue}
-                  onChange={(e) =>
-                    setForm({ ...form, revenue: e.target.value })
-                  }
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
                 />
               </div>
 
               <div className="full-width">
                 <label>Status</label>
                 <select
-                  value={form.status}
-                  onChange={(e) =>
-                    setForm({ ...form, status: e.target.value })
-                  }
+                  name="status"
+                  value={formData.status}
+                  onChange={handleChange}
                 >
-                  <option>Active</option>
-                  <option>Inactive</option>
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
                 </select>
-              </div>
-
-              <div className="full-width">
-                <label>Interested Courses</label>
-
-                <div className="course-access-box">
-                  {coursesList.length === 0 ? (
-                    <p>No courses available. First add courses.</p>
-                  ) : (
-                    coursesList.map((course) => (
-                      <label className="course-check" key={course.id}>
-                        <input
-                          type="checkbox"
-                          checked={form.interestedCourses.includes(
-                            course.name
-                          )}
-                          onChange={() => handleCourseInterest(course.name)}
-                        />
-                        <span>{course.name}</span>
-                      </label>
-                    ))
-                  )}
-                </div>
               </div>
             </div>
 
             <div className="institute-form-actions">
-              <button type="button" className="clear-btn" onClick={clearForm}>
-                Clear
+              <button type="button" className="clear-btn" onClick={handleClear}>
+                <RefreshCcw size={16} /> Clear
               </button>
 
-              <button className="sa-primary-btn">
+              <button type="submit" className="sa-primary-btn">
                 {editId ? "Update Institute" : "Create Institute"}
               </button>
             </div>

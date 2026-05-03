@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import { ROUTES } from "../../constants/routes";
+import { registerUser } from "../../services/authService";
 
 function Registration() {
   const [role, setRole] = useState("student");
@@ -19,15 +20,10 @@ function Registration() {
     }
 
     try {
-      await axios.post("http://localhost:5000/api/auth/register", {
-        name,
-        email,
-        password,
-        role,
-      });
+      await registerUser({ name, email, password, role });
 
       alert("Registration successful");
-      navigate("/login");
+      navigate(ROUTES.login);
     } catch (error) {
       alert(error.response?.data?.message || "Registration failed");
     }
@@ -148,7 +144,7 @@ function Registration() {
 
           <p className="text-center mt-4 mb-0">
             Already have an account?{" "}
-            <Link to="/login" className="fw-semibold link-hover">
+            <Link to={ROUTES.login} className="fw-semibold link-hover">
               Login
             </Link>
           </p>

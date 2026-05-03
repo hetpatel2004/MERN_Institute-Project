@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import Navba from "./Navba";
+import { ROUTES } from "../constants/routes";
 
 function Index() {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ function Index() {
 
         <button
           className="btn btn-primary mt-4 px-4"
-          onClick={() => navigate("login")}
+          onClick={() => navigate(ROUTES.login)}
         >
           Get Started
         </button>

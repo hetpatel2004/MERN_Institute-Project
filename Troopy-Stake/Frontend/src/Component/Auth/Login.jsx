@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import { ROUTES } from "../../constants/routes";
+import { loginUser } from "../../services/authService";
+import { setAuthData } from "../../utils/storage";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -17,22 +19,25 @@ function Login() {
     }
 
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
-        email,
-        password,
-      });
+      const res = await loginUser({ email, password });
 
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      const user = res.data.user;
+      const token = res.data.token;
+
+      setAuthData({ token, user });
 
       alert("Login successful");
 
-      if (res.data.user.role === "superadmin") {
-        navigate("/superadmin");
-      } else if (res.data.user.role === "instituteadmin") {
-        navigate("/institute-admin");
+      const role = user.role?.toLowerCase();
+
+      if (role === "superadmin") {
+        navigate(ROUTES.superAdminDashboard);
+      } else if (role === "instituteadmin") {
+        navigate(ROUTES.instituteAdmin);
+      } else if (role === "student") {
+        navigate(ROUTES.student);
       } else {
-        navigate("/student");
+        alert("Role not found");
       }
     } catch (error) {
       alert(error.response?.data?.message || "Login failed");
@@ -93,9 +98,7 @@ function Login() {
           }}
         >
           <h2 className="text-center fw-bold mb-2">Welcome Back 👋</h2>
-          <p className="text-center text-muted mb-4">
-            Login to continue
-          </p>
+          <p className="text-center text-muted mb-4">Login to continue</p>
 
           <form onSubmit={handleLogin}>
             <div className="mb-3">
@@ -130,7 +133,7 @@ function Login() {
 
           <p className="text-center mt-4 mb-0">
             Don&apos;t have an account?{" "}
-            <Link to="/registration" className="fw-semibold link-hover">
+            <Link to={ROUTES.registration} className="fw-semibold link-hover">
               Register
             </Link>
           </p>

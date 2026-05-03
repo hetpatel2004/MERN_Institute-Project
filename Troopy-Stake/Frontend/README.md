@@ -1,16 +1,43 @@
-# React + Vite
+# Troopy Stack Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Industry-cleaned React frontend for the Troopy Stack institute management project.
 
-Currently, two official plugins are available:
+## What was cleaned
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Removed `node_modules` from the project zip.
+- Removed unwanted `src/Component/Supper_admin.zip` file.
+- Added central route constants in `src/constants/routes.js`.
+- Added API endpoint constants in `src/config/api.js`.
+- Added auth storage helpers in `src/utils/storage.js`.
+- Moved API calls into service files under `src/services`.
+- Kept the same UI and same working behavior.
 
-## React Compiler
+## Run project
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm install
+npm run dev
+```
 
-## Expanding the ESLint configuration
+## Run JSON Server
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm run server
+```
+
+## Backend auth API expected
+
+Login and registration use:
+
+```txt
+POST http://localhost:5000/api/auth/login
+POST http://localhost:5000/api/auth/register
+```
+
+JSON Server data uses:
+
+```txt
+http://localhost:3000/institutes
+http://localhost:3000/courses
+http://localhost:3000/companies
+```

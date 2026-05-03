@@ -1,40 +1,42 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Pencil, Trash2, Search } from "lucide-react";
-
+import { Building2, Search, Trash2, RefreshCcw } from "lucide-react";
+import "./Supper_admin.css"
 function Companies() {
-  const API = "http://localhost:3000/companies";
-
   const [companies, setCompanies] = useState([]);
   const [search, setSearch] = useState("");
+  const [message, setMessage] = useState("");
   const [editId, setEditId] = useState(null);
 
-  const [form, setForm] = useState({
-    companyName: "",
-    companyCode: "",
-    industryType: "",
-    website: "",
-    email: "",
-    phone: "",
-    address: "",
-    city: "",
-    state: "",
-    country: "",
-    hrName: "",
-    hrEmail: "",
-    hrPhone: "",
-    collaborationType: "Placement Partner",
-    status: "Pending",
-    description: "",
+  const [formData, setFormData] = useState({
+    name: "",
+    HR_name: "",
+    contact_email: "",
+    contact_phone: "",
+    job_roles: "",
+    package_range: "",
   });
+
+  const handleEdit = (item) => {
+    setFormData({
+      name: item.name,
+      HR_name: item.HR_name,
+      contact_email: item.contact_email,
+      contact_phone: item.contact_phone,
+      job_roles: item.job_roles,
+      package_range: item.package_range,
+    });
+
+    setEditId(item._id);
+  };
 
   const getCompanies = async () => {
     try {
-      const res = await axios.get(API);
+      const res = await axios.get("http://localhost:5000/api/companies");
       setCompanies(res.data);
+      setMessage("");
     } catch (error) {
-      console.log(error);
-      alert("Companies API not connected");
+      setMessage("Backend not connected: Failed to fetch companies");
     }
   };
 
@@ -42,372 +44,256 @@ function Companies() {
     getCompanies();
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
 
-    if (!form.companyName || !form.companyCode || !form.email || !form.phone) {
-      alert("Please fill company name, code, email and phone");
-      return;
-    }
+  const handleAddCompany = async (e) => {
+    e.preventDefault();
 
     try {
       if (editId) {
-        await axios.put(`${API}/${editId}`, form);
+        // UPDATE
+        await axios.put(
+          `http://localhost:5000/api/companies/${editId}`,
+          formData,
+        );
+
+        alert("Company updated successfully");
       } else {
-        await axios.post(API, form);
+        // ADD
+        await axios.post("http://localhost:5000/api/companies", formData);
+
+        alert("Company added successfully");
       }
 
-      clearForm();
+      setFormData({
+        name: "",
+        HR_name: "",
+        contact_email: "",
+        contact_phone: "",
+        job_roles: "",
+        package_range: "",
+      });
+
+      setEditId(null);
       getCompanies();
     } catch (error) {
-      console.log(error);
-      alert("Something went wrong");
+      alert(error.response?.data?.message || "Operation failed");
     }
   };
 
-  const editCompany = (company) => {
-    setForm(company);
-    setEditId(company.id);
-  };
+  const handleDeleteCompany = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this company?",
+    );
 
-  const deleteCompany = async (id) => {
+    if (!confirmDelete) return;
+
     try {
-      await axios.delete(`${API}/${id}`);
+      await axios.delete(`http://localhost:5000/api/companies/${id}`);
+      alert("Company deleted successfully");
       getCompanies();
     } catch (error) {
-      console.log(error);
-      alert("Delete failed");
+      alert("Failed to delete company");
     }
   };
 
-  const clearForm = () => {
-    setForm({
-      companyName: "",
-      companyCode: "",
-      industryType: "",
-      website: "",
-      email: "",
-      phone: "",
-      address: "",
-      city: "",
-      state: "",
-      country: "",
-      hrName: "",
-      hrEmail: "",
-      hrPhone: "",
-      collaborationType: "Placement Partner",
-      status: "Pending",
-      description: "",
+  const handleClear = () => {
+    setFormData({
+      name: "",
+      HR_name: "",
+      contact_email: "",
+      contact_phone: "",
+      job_roles: "",
+      package_range: "",
     });
-    setEditId(null);
   };
 
-  const filteredCompanies = companies.filter((company) =>
-    company.companyName?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredCompanies = companies.filter((item) => {
+    return (
+      item.name?.toLowerCase().includes(search.toLowerCase()) ||
+      item.HR_name?.toLowerCase().includes(search.toLowerCase()) ||
+      item.contact_email?.toLowerCase().includes(search.toLowerCase()) ||
+      item.job_roles?.toLowerCase().includes(search.toLowerCase())
+    );
+  });
 
   return (
-    <>
-      <div className="sa-header">
-        <div>
-          <p className="sa-tag">COMPANY COLLABORATION</p>
-          <h1>Company Management</h1>
+    <div className="company-page-grid">
+      <div className="company-list-card">
+        <div className="company-list-header">
+          <div>
+            <h2>Companies</h2>
+            <p>Add, update, remove and monitor hiring companies.</p>
+          </div>
+
+          <div className="company-search">
+            <Search size={18} />
+            <input
+              type="text"
+              placeholder="Search company"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {message && (
+          <div
+            style={{
+              margin: "20px",
+              padding: "14px",
+              borderRadius: "12px",
+              background: "#fee2e2",
+              color: "#b91c1c",
+              fontWeight: "700",
+            }}
+          >
+            {message}
+          </div>
+        )}
+
+        <div className="company-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>HR Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Job Roles</th>
+                <th>Package</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {filteredCompanies.length > 0 ? (
+                filteredCompanies.map((item) => (
+                  <tr key={item._id}>
+                    <td>
+                      <Building2 size={17} color="#0f766e" />{" "}
+                      <strong>{item.name}</strong>
+                    </td>
+                    <td>{item.HR_name}</td>
+                    <td>{item.contact_email}</td>
+                    <td>{item.contact_phone}</td>
+                    <td>{item.job_roles}</td>
+                    <td>{item.package_range}</td>
+                    <td>
+                      <button
+                        className="sa-icon-btn edit"
+                        onClick={() => handleEdit(item)}
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        className="sa-icon-btn delete"
+                        onClick={() => handleDeleteCompany(item._id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="7">No company records match your search.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <div className="company-page-grid">
-        {/* LEFT SIDE LIST */}
-        <div className="company-list-card">
-          <div className="company-list-header">
-            <div>
-              <h2>Companies</h2>
-              <p>Add, update, remove and monitor company collaborations.</p>
-            </div>
+      <div className="company-form-card">
+        <div className="company-form-head">
+          <h2>Add Company</h2>
+          <p>Create a new hiring company record.</p>
+        </div>
 
-            <div className="company-search">
-              <Search size={18} />
+        <form onSubmit={handleAddCompany}>
+          <div className="company-form-grid">
+            <div>
+              <label>Company Name</label>
               <input
                 type="text"
-                placeholder="Search company"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <label>HR Name</label>
+              <input
+                type="text"
+                name="HR_name"
+                value={formData.HR_name}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <label>Contact Email</label>
+              <input
+                type="email"
+                name="contact_email"
+                value={formData.contact_email}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <label>Contact Phone</label>
+              <input
+                type="text"
+                name="contact_phone"
+                value={formData.contact_phone}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="full-width">
+              <label>Job Roles</label>
+              <input
+                type="text"
+                name="job_roles"
+                value={formData.job_roles}
+                onChange={handleChange}
+                placeholder="Frontend, Backend, UI/UX"
+              />
+            </div>
+
+            <div className="full-width">
+              <label>Package Range</label>
+              <input
+                type="text"
+                name="package_range"
+                value={formData.package_range}
+                onChange={handleChange}
+                placeholder="3 LPA - 8 LPA"
               />
             </div>
           </div>
 
-          <div className="company-table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Company</th>
-                  <th>Industry</th>
-                  <th>HR Contact</th>
-                  <th>Phone</th>
-                  <th>Collaboration</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
+          <div className="company-form-actions">
+            <button type="button" className="clear-btn" onClick={handleClear}>
+              <RefreshCcw size={16} /> Clear
+            </button>
 
-              <tbody>
-                {filteredCompanies.length === 0 ? (
-                  <tr>
-                    <td colSpan="7">No company records found.</td>
-                  </tr>
-                ) : (
-                  filteredCompanies.map((company) => (
-                    <tr key={company.id}>
-                      <td>
-                        <b>{company.companyName}</b>
-                        <br />
-                        <small>{company.city}</small>
-                      </td>
-
-                      <td>{company.industryType}</td>
-
-                      <td>
-                        <b>{company.hrName}</b>
-                        <br />
-                        <small>{company.hrEmail}</small>
-                      </td>
-
-                      <td>{company.phone}</td>
-                      <td>{company.collaborationType}</td>
-
-                      <td>
-                        <span className="sa-status">{company.status}</span>
-                      </td>
-
-                      <td>
-                        <button
-                          className="sa-icon-btn edit"
-                          onClick={() => editCompany(company)}
-                        >
-                          <Pencil size={16} />
-                        </button>
-
-                        <button
-                          className="sa-icon-btn delete"
-                          onClick={() => deleteCompany(company.id)}
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+            <button type="submit" className="sa-primary-btn">
+              {editId ? "Update Company" : "Create Company"}
+            </button>
           </div>
-        </div>
-
-        {/* RIGHT SIDE FORM */}
-        <div className="company-form-card">
-          <div className="company-form-head">
-            <h2>{editId ? "Update Company" : "Add Company"}</h2>
-            <p>Create a new company collaboration record.</p>
-          </div>
-
-          <form onSubmit={handleSubmit}>
-            <div className="company-form-grid">
-              <div>
-                <label>Company Name</label>
-                <input
-                  type="text"
-                  value={form.companyName}
-                  onChange={(e) =>
-                    setForm({ ...form, companyName: e.target.value })
-                  }
-                />
-              </div>
-
-              <div>
-                <label>Company Code</label>
-                <input
-                  type="text"
-                  value={form.companyCode}
-                  onChange={(e) =>
-                    setForm({ ...form, companyCode: e.target.value })
-                  }
-                />
-              </div>
-
-              <div>
-                <label>Industry Type</label>
-                <input
-                  type="text"
-                  placeholder="IT / Finance / Education"
-                  value={form.industryType}
-                  onChange={(e) =>
-                    setForm({ ...form, industryType: e.target.value })
-                  }
-                />
-              </div>
-
-              <div>
-                <label>Website</label>
-                <input
-                  type="text"
-                  value={form.website}
-                  onChange={(e) =>
-                    setForm({ ...form, website: e.target.value })
-                  }
-                />
-              </div>
-
-              <div>
-                <label>Company Email</label>
-                <input
-                  type="email"
-                  value={form.email}
-                  onChange={(e) =>
-                    setForm({ ...form, email: e.target.value })
-                  }
-                />
-              </div>
-
-              <div>
-                <label>Company Phone</label>
-                <input
-                  type="text"
-                  value={form.phone}
-                  onChange={(e) =>
-                    setForm({ ...form, phone: e.target.value })
-                  }
-                />
-              </div>
-
-              <div className="full-width">
-                <label>Company Address</label>
-                <input
-                  type="text"
-                  value={form.address}
-                  onChange={(e) =>
-                    setForm({ ...form, address: e.target.value })
-                  }
-                />
-              </div>
-
-              <div>
-                <label>City</label>
-                <input
-                  type="text"
-                  value={form.city}
-                  onChange={(e) =>
-                    setForm({ ...form, city: e.target.value })
-                  }
-                />
-              </div>
-
-              <div>
-                <label>State</label>
-                <input
-                  type="text"
-                  value={form.state}
-                  onChange={(e) =>
-                    setForm({ ...form, state: e.target.value })
-                  }
-                />
-              </div>
-
-              <div className="full-width">
-                <label>Country</label>
-                <input
-                  type="text"
-                  value={form.country}
-                  onChange={(e) =>
-                    setForm({ ...form, country: e.target.value })
-                  }
-                />
-              </div>
-
-              <div>
-                <label>HR / Contact Person Name</label>
-                <input
-                  type="text"
-                  value={form.hrName}
-                  onChange={(e) =>
-                    setForm({ ...form, hrName: e.target.value })
-                  }
-                />
-              </div>
-
-              <div>
-                <label>HR Email</label>
-                <input
-                  type="email"
-                  value={form.hrEmail}
-                  onChange={(e) =>
-                    setForm({ ...form, hrEmail: e.target.value })
-                  }
-                />
-              </div>
-
-              <div>
-                <label>HR Phone</label>
-                <input
-                  type="text"
-                  value={form.hrPhone}
-                  onChange={(e) =>
-                    setForm({ ...form, hrPhone: e.target.value })
-                  }
-                />
-              </div>
-
-              <div>
-                <label>Collaboration Type</label>
-                <select
-                  value={form.collaborationType}
-                  onChange={(e) =>
-                    setForm({ ...form, collaborationType: e.target.value })
-                  }
-                >
-                  <option>Placement Partner</option>
-                  <option>Internship Partner</option>
-                  <option>Training Partner</option>
-                  <option>Hiring Partner</option>
-                  <option>Other</option>
-                </select>
-              </div>
-
-              <div className="full-width">
-                <label>Status</label>
-                <select
-                  value={form.status}
-                  onChange={(e) =>
-                    setForm({ ...form, status: e.target.value })
-                  }
-                >
-                  <option>Active</option>
-                  <option>Pending</option>
-                  <option>Inactive</option>
-                </select>
-              </div>
-
-              <div className="full-width">
-                <label>Notes / Description</label>
-                <textarea
-                  value={form.description}
-                  onChange={(e) =>
-                    setForm({ ...form, description: e.target.value })
-                  }
-                ></textarea>
-              </div>
-            </div>
-
-            <div className="company-form-actions">
-              <button type="button" className="clear-btn" onClick={clearForm}>
-                Clear
-              </button>
-
-              <button className="sa-primary-btn">
-                {editId ? "Update Company" : "Create Company"}
-              </button>
-            </div>
-          </form>
-        </div>
+        </form>
       </div>
-    </>
+    </div>
   );
 }
 

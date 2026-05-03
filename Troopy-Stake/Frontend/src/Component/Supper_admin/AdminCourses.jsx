@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import "./AdminCourses.css";
+import { createCourse, getCourses as fetchCourses } from "../../services/superAdminService";
 
 function AdminCourses() {
   const [courses, setCourses] = useState([]);
@@ -19,7 +19,7 @@ function AdminCourses() {
   });
 
   const getCourses = async () => {
-    const res = await axios.get("http://localhost:3000/courses");
+    const res = await fetchCourses();
     setCourses(res.data);
   };
 
@@ -104,7 +104,7 @@ function AdminCourses() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await axios.post("http://localhost:3000/courses", course);
+    await createCourse(course);
 
     alert("Course Added Successfully");
 
