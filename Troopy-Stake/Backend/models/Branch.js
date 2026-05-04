@@ -1,42 +1,38 @@
 const mongoose = require("mongoose");
 
-const userSchema = new mongoose.Schema(
+const branchSchema = new mongoose.Schema(
   {
     institute_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Institute",
+      required: true,
     },
-    branch_id: {   // ✅ ADDED THIS
+    admin_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Branch",
+      ref: "User",
     },
-    name: {
+    branch_name: {
       type: String,
       required: true,
       trim: true,
     },
-    email: {
+    city: {
       type: String,
       required: true,
-      unique: true,
-      lowercase: true,
       trim: true,
     },
-    password: {
+    address: {
       type: String,
       required: true,
+      trim: true,
     },
-    role: {
+    status: {
       type: String,
-      enum: ["superadmin", "instituteadmin", "branchadmin", "student"],
-      required: true,
-    },
-    isApproved: {
-      type: Boolean,
-      default: true,
+      enum: ["Active", "Inactive"],
+      default: "Active",
     },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model("Branch", branchSchema);

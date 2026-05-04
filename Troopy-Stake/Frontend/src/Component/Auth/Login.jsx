@@ -34,6 +34,8 @@ function Login() {
         navigate(ROUTES.superAdminDashboard);
       } else if (role === "instituteadmin") {
         navigate(ROUTES.instituteAdmin);
+      } else if (role === "branchadmin") {
+        navigate(ROUTES.branchAdmin);
       } else if (role === "student") {
         navigate(ROUTES.student);
       } else {

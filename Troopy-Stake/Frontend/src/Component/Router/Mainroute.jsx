@@ -6,13 +6,12 @@ import Index from "../Index";
 import Login from "../Auth/Login";
 import Registration from "../Auth/Registration";
 import ProtectedRoute from "../Auth/ProtectedRoute";
-import InstituteAdmin from "../Institute_admin/Institute_admin";
-import Student from "../Student/Student";
 import SuperAdmin from "../Supper_admin/Supper_admin";
 import Institutes from "../Supper_admin/Institutes";
 import Courses from "../Supper_admin/AdminCourses";
 import Companies from "../Supper_admin/Companies";
 import { ROUTES } from "../../constants/routes";
+import Branches from "../Supper_admin/Branches";
 
 function Mainroute() {
   return (
@@ -73,23 +72,17 @@ function Mainroute() {
       />
 
       <Route
-        path={ROUTES.instituteAdmin}
+        path="/superadmin/branch"
         element={
-          <ProtectedRoute role="instituteadmin">
-            <InstituteAdmin />
+          <ProtectedRoute role="superadmin">
+            <SuperAdmin page="branch">
+              <Branches />
+            </SuperAdmin>
           </ProtectedRoute>
         }
       />
 
-      <Route
-        path={ROUTES.student}
-        element={
-          <ProtectedRoute role="student">
-            <Student />
-          </ProtectedRoute>
-        }
-      />
-
+      
       <Route path="*" element={<Navigate to={ROUTES.login} replace />} />
     </Routes>
   );

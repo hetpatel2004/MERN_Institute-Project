@@ -6,6 +6,7 @@ require("dotenv").config();
 const authRoutes = require("./routes/authRoutes");
 const instituteRoutes = require("./routes/instituteRoutes");
 const companyRoutes = require("./routes/companyRoutes");
+const branchRoutes = require("./routes/branchRoutes");
 
 const app = express();
 
@@ -13,25 +14,30 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/institutes", instituteRoutes);
-app.use("/api/companies", companyRoutes);
-
-
 // Test route
 app.get("/", (req, res) => {
   res.send("Backend is running successfully");
 });
 
+// Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/institutes", instituteRoutes);
+app.use("/api/companies", companyRoutes);
+app.use("/api/branches", branchRoutes);
+
+// ENV fallback
+const PORT = process.env.PORT || 5000;
+const MONGO_URL =
+  process.env.MONGO_URL || "mongodb://127.0.0.1:27017/institute_project";
+
 // MongoDB connection
 mongoose
-  .connect(process.env.MONGO_URL)
+  .connect(MONGO_URL)
   .then(() => {
     console.log("MongoDB connected successfully");
 
-    app.listen(process.env.PORT, () => {
-      console.log(`Server running on port ${process.env.PORT}`);
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
     });
   })
   .catch((error) => {

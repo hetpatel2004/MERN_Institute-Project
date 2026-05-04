@@ -23,18 +23,26 @@ function Institutes() {
     email: "",
     phone: "",
     status: "Active",
+    branches: [
+      {
+        branch_name: "",
+        branch_city: "",
+        branch_address: "",
+        admin_email: "",
+        admin_password: "",
+      },
+    ],
   });
 
-  const getInstitutes = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/api/institutes");
-      setInstitutes(res.data);
-      setMessage("");
-    } catch (error) {
-      setMessage("Backend not connected: Failed to fetch institutes");
-    }
-  };
-
+const getInstitutes = async () => {
+  try {
+    const res = await axios.get("http://localhost:5000/api/institutes");
+    setInstitutes(res.data);
+    setMessage("");
+  } catch (error) {
+    setMessage("Backend not connected: Failed to fetch institutes");
+  }
+};
   useEffect(() => {
     getInstitutes();
   }, []);
@@ -46,69 +54,117 @@ function Institutes() {
     });
   };
 
-  const handleEditInstitute = (item) => {
+  const handleBranchChange = (index, e) => {
+    const updatedBranches = [...formData.branches];
+
+    updatedBranches[index][e.target.name] = e.target.value;
+
     setFormData({
-      name: item.name,
-      code: item.code,
-      city: item.city,
-      email: item.email,
-      phone: item.phone,
-      status: item.status,
+      ...formData,
+      branches: updatedBranches,
     });
-
-    setEditId(item._id);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (
-      !formData.name ||
-      !formData.code ||
-      !formData.city ||
-      !formData.email ||
-      !formData.phone
-    ) {
-      alert("Please fill all required fields");
-      return;
-    }
-
-    try {
-      if (editId) {
-        await axios.put(
-          `http://localhost:5000/api/institutes/${editId}`,
-          formData
-        );
-
-        alert("Institute updated successfully");
-      } else {
-        await axios.post("http://localhost:5000/api/institutes", formData);
-
-        alert("Institute added successfully");
-      }
-
-      handleClear();
-      getInstitutes();
-    } catch (error) {
-      alert(error.response?.data?.message || "Operation failed");
-    }
+  const addBranch = () => {
+    setFormData({
+      ...formData,
+      branches: [
+        ...formData.branches,
+        {
+          branch_name: "",
+          branch_city: "",
+          branch_address: "",
+          admin_email: "",
+          admin_password: "",
+        },
+      ],
+    });
   };
+
+  const removeBranch = (index) => {
+    const updatedBranches = formData.branches.filter((_, i) => i !== index);
+
+    setFormData({
+      ...formData,
+      branches: updatedBranches,
+    });
+  };
+
+ const handleEditInstitute = (item) => {
+  setFormData({
+    name: item.name || "",
+    code: item.code || "",
+    city: item.city || "",
+    email: item.email || "",
+    phone: item.phone || "",
+    status: item.status || "Active",
+    branches:
+      item.branches && item.branches.length > 0
+        ? item.branches
+        : [
+            {
+              branch_name: "",
+              branch_city: "",
+              branch_address: "",
+              admin_email: "",
+              admin_password: "",
+            },
+          ],
+  });
+
+  setEditId(item._id);
+};
+
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (
+    !formData.name ||
+    !formData.code ||
+    !formData.city ||
+    !formData.email ||
+    !formData.phone
+  ) {
+    alert("Please fill institute details");
+    return;
+  }
+
+  try {
+    if (editId) {
+      await axios.put(
+        `http://localhost:5000/api/institutes/${editId}`,
+        formData
+      );
+
+      alert("Institute updated successfully");
+    } else {
+      await axios.post("http://localhost:5000/api/institutes", formData);
+
+      alert("Institute created successfully");
+    }
+
+    handleClear();
+    getInstitutes();
+  } catch (error) {
+    alert(error.response?.data?.message || "Operation failed");
+  }
+};
 
   const handleDeleteInstitute = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this institute?"
-    );
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this institute?"
+  );
 
-    if (!confirmDelete) return;
+  if (!confirmDelete) return;
 
-    try {
-      await axios.delete(`http://localhost:5000/api/institutes/${id}`);
-      alert("Institute deleted successfully");
-      getInstitutes();
-    } catch (error) {
-      alert("Failed to delete institute");
-    }
-  };
+  try {
+    await axios.delete(`http://localhost:5000/api/institutes/${id}`);
+  } catch (error) {
+    console.log("Backend delete failed, deleting from screen only");
+  }
+
+  setInstitutes(institutes.filter((item) => item._id !== id));
+};
 
   const handleClear = () => {
     setFormData({
@@ -118,6 +174,15 @@ function Institutes() {
       email: "",
       phone: "",
       status: "Active",
+      branches: [
+        {
+          branch_name: "",
+          branch_city: "",
+          branch_address: "",
+          admin_email: "",
+          admin_password: "",
+        },
+      ],
     });
 
     setEditId(null);
@@ -162,12 +227,11 @@ function Institutes() {
       )}
 
       <div className="institute-page-grid">
-        {/* LEFT SIDE RECORDS */}
         <div className="institute-list-card">
           <div className="institute-list-header">
             <div>
               <h2>Institutes</h2>
-              <p>Add, update, remove and monitor institute accounts.</p>
+              <p>Add institute with multiple branches and branch admins.</p>
             </div>
 
             <div className="institute-search">
@@ -239,14 +303,11 @@ function Institutes() {
           </div>
         </div>
 
-        {/* RIGHT SIDE FORM */}
         <div className="institute-form-card">
           <div className="institute-form-head">
             <h2>{editId ? "Edit Institute" : "Add Institute"}</h2>
             <p>
-              {editId
-                ? "Update selected institute details."
-                : "Create a new campus workspace."}
+              Add institute, branches and branch admin login credentials.
             </p>
           </div>
 
@@ -314,6 +375,99 @@ function Institutes() {
                 </select>
               </div>
             </div>
+
+            {!editId && (
+              <>
+                <h3 style={{ marginTop: "25px", marginBottom: "15px" }}>
+                  Branches + Branch Admin Login
+                </h3>
+
+                {formData.branches.map((branch, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      border: "1px solid #dbe3ec",
+                      borderRadius: "14px",
+                      padding: "15px",
+                      marginBottom: "15px",
+                      background: "#f8fafc",
+                    }}
+                  >
+                    <div className="institute-form-grid">
+                      <div>
+                        <label>Branch Name</label>
+                        <input
+                          type="text"
+                          name="branch_name"
+                          value={branch.branch_name}
+                          onChange={(e) => handleBranchChange(index, e)}
+                        />
+                      </div>
+
+                      <div>
+                        <label>Branch City</label>
+                        <input
+                          type="text"
+                          name="branch_city"
+                          value={branch.branch_city}
+                          onChange={(e) => handleBranchChange(index, e)}
+                        />
+                      </div>
+
+                      <div className="full-width">
+                        <label>Branch Address</label>
+                        <input
+                          type="text"
+                          name="branch_address"
+                          value={branch.branch_address}
+                          onChange={(e) => handleBranchChange(index, e)}
+                        />
+                      </div>
+
+                      <div>
+                        <label>Branch Admin Email</label>
+                        <input
+                          type="email"
+                          name="admin_email"
+                          value={branch.admin_email}
+                          onChange={(e) => handleBranchChange(index, e)}
+                        />
+                      </div>
+
+                      <div>
+                        <label>Branch Admin Password</label>
+                        <input
+                          type="text"
+                          name="admin_password"
+                          value={branch.admin_password}
+                          onChange={(e) => handleBranchChange(index, e)}
+                        />
+                      </div>
+                    </div>
+
+                    {formData.branches.length > 1 && (
+                      <button
+                        type="button"
+                        className="sa-icon-btn delete"
+                        style={{ marginTop: "12px" }}
+                        onClick={() => removeBranch(index)}
+                      >
+                        <Trash2 size={15} /> Remove Branch
+                      </button>
+                    )}
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  className="clear-btn"
+                  onClick={addBranch}
+                  style={{ marginBottom: "15px" }}
+                >
+                  <Plus size={16} /> Add Another Branch
+                </button>
+              </>
+            )}
 
             <div className="institute-form-actions">
               <button type="button" className="clear-btn" onClick={handleClear}>
