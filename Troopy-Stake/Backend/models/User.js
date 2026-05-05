@@ -27,10 +27,20 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     role: {
-      type: String,
-      enum: ["superadmin", "instituteadmin", "branchadmin", "student"],
-      required: true,
-    },
+  type: String,
+  enum: [
+    "superadmin",
+    "instituteadmin",
+    "branchadmin",
+    "companyadmin",
+    "student",
+  ],
+  required: true,
+},
+company_id: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "Company",
+},
     isApproved: {
       type: Boolean,
       default: true,

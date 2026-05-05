@@ -1,34 +1,31 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Building2, Search, Trash2, RefreshCcw } from "lucide-react";
-import "./Supper_admin.css"
+import "./Supper_admin.css";
+
 function Companies() {
   const [companies, setCompanies] = useState([]);
   const [search, setSearch] = useState("");
   const [message, setMessage] = useState("");
   const [editId, setEditId] = useState(null);
 
-  const [formData, setFormData] = useState({
+  const emptyForm = {
     name: "",
     HR_name: "",
     contact_email: "",
     contact_phone: "",
     job_roles: "",
     package_range: "",
-  });
-
-  const handleEdit = (item) => {
-    setFormData({
-      name: item.name,
-      HR_name: item.HR_name,
-      contact_email: item.contact_email,
-      contact_phone: item.contact_phone,
-      job_roles: item.job_roles,
-      package_range: item.package_range,
-    });
-
-    setEditId(item._id);
+    branches: [
+      {
+        branch_name: "",
+        admin_email: "",
+        admin_password: "",
+      },
+    ],
   };
+
+  const [formData, setFormData] = useState(emptyForm);
 
   const getCompanies = async () => {
     try {
@@ -44,10 +41,70 @@ function Companies() {
     getCompanies();
   }, []);
 
+  const handleEdit = (item) => {
+    setFormData({
+      name: item.name || "",
+      HR_name: item.HR_name || "",
+      contact_email: item.contact_email || "",
+      contact_phone: item.contact_phone || "",
+      job_roles: item.job_roles || "",
+      package_range: item.package_range || "",
+      branches:
+        item.branches && item.branches.length > 0
+          ? item.branches.map((branch) => ({
+              branch_name: branch.branch_name || "",
+              admin_email: branch.admin_email || "",
+              admin_password: "",
+            }))
+          : [
+              {
+                branch_name: "",
+                admin_email: "",
+                admin_password: "",
+              },
+            ],
+    });
+
+    setEditId(item._id);
+  };
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleBranchChange = (index, e) => {
+    const updatedBranches = [...formData.branches];
+    updatedBranches[index][e.target.name] = e.target.value;
+
+    setFormData({
+      ...formData,
+      branches: updatedBranches,
+    });
+  };
+
+  const addBranch = () => {
+    setFormData({
+      ...formData,
+      branches: [
+        ...formData.branches,
+        {
+          branch_name: "",
+          admin_email: "",
+          admin_password: "",
+        },
+      ],
+    });
+  };
+
+  const removeBranch = (index) => {
+    const updatedBranches = formData.branches.filter((_, i) => i !== index);
+
+    setFormData({
+      ...formData,
+      branches: updatedBranches,
     });
   };
 
@@ -56,29 +113,19 @@ function Companies() {
 
     try {
       if (editId) {
-        // UPDATE
         await axios.put(
           `http://localhost:5000/api/companies/${editId}`,
-          formData,
+          formData
         );
 
         alert("Company updated successfully");
       } else {
-        // ADD
         await axios.post("http://localhost:5000/api/companies", formData);
 
         alert("Company added successfully");
       }
 
-      setFormData({
-        name: "",
-        HR_name: "",
-        contact_email: "",
-        contact_phone: "",
-        job_roles: "",
-        package_range: "",
-      });
-
+      setFormData(emptyForm);
       setEditId(null);
       getCompanies();
     } catch (error) {
@@ -88,7 +135,7 @@ function Companies() {
 
   const handleDeleteCompany = async (id) => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this company?",
+      "Are you sure you want to delete this company?"
     );
 
     if (!confirmDelete) return;
@@ -103,14 +150,8 @@ function Companies() {
   };
 
   const handleClear = () => {
-    setFormData({
-      name: "",
-      HR_name: "",
-      contact_email: "",
-      contact_phone: "",
-      job_roles: "",
-      package_range: "",
-    });
+    setFormData(emptyForm);
+    setEditId(null);
   };
 
   const filteredCompanies = companies.filter((item) => {
@@ -167,6 +208,7 @@ function Companies() {
                 <th>Phone</th>
                 <th>Job Roles</th>
                 <th>Package</th>
+                <th>Branches</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -179,11 +221,25 @@ function Companies() {
                       <Building2 size={17} color="#0f766e" />{" "}
                       <strong>{item.name}</strong>
                     </td>
+
                     <td>{item.HR_name}</td>
                     <td>{item.contact_email}</td>
                     <td>{item.contact_phone}</td>
                     <td>{item.job_roles}</td>
                     <td>{item.package_range}</td>
+
+                    <td>
+                      {item.branches?.length > 0
+                        ? item.branches.map((branch, index) => (
+                            <div key={index} style={{ marginBottom: "8px" }}>
+                              <strong>{branch.branch_name}</strong>
+                              <br />
+                              {branch.admin_email}
+                            </div>
+                          ))
+                        : "No Branch"}
+                    </td>
+
                     <td>
                       <button
                         className="sa-icon-btn edit"
@@ -203,7 +259,7 @@ function Companies() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="7">No company records match your search.</td>
+                  <td colSpan="8">No company records match your search.</td>
                 </tr>
               )}
             </tbody>
@@ -213,7 +269,7 @@ function Companies() {
 
       <div className="company-form-card">
         <div className="company-form-head">
-          <h2>Add Company</h2>
+          <h2>{editId ? "Edit Company" : "Add Company"}</h2>
           <p>Create a new hiring company record.</p>
         </div>
 
@@ -281,6 +337,78 @@ function Companies() {
               />
             </div>
           </div>
+
+          <div className="full-width">
+            <h3 style={{ marginTop: "20px", marginBottom: "15px" }}>
+              Branches + Company Admin Login
+            </h3>
+          </div>
+
+          {formData.branches.map((branch, index) => (
+            <div
+              key={index}
+              className="full-width"
+              style={{
+                border: "1px solid #dbe3ec",
+                borderRadius: "14px",
+                padding: "15px",
+                marginBottom: "15px",
+                background: "#f8fafc",
+              }}
+            >
+              <div className="company-form-grid">
+                <div>
+                  <label>Branch Name</label>
+                  <input
+                    type="text"
+                    name="branch_name"
+                    value={branch.branch_name}
+                    onChange={(e) => handleBranchChange(index, e)}
+                  />
+                </div>
+
+                <div>
+                  <label>Company Admin Email</label>
+                  <input
+                    type="email"
+                    name="admin_email"
+                    value={branch.admin_email}
+                    onChange={(e) => handleBranchChange(index, e)}
+                  />
+                </div>
+
+                <div className="full-width">
+                  <label>Company Admin Password</label>
+                  <input
+                    type="text"
+                    name="admin_password"
+                    value={branch.admin_password}
+                    onChange={(e) => handleBranchChange(index, e)}
+                  />
+                </div>
+              </div>
+
+              {formData.branches.length > 1 && (
+                <button
+                  type="button"
+                  className="sa-icon-btn delete"
+                  style={{ marginTop: "12px" }}
+                  onClick={() => removeBranch(index)}
+                >
+                  Remove Branch
+                </button>
+              )}
+            </div>
+          ))}
+
+          <button
+            type="button"
+            className="clear-btn"
+            onClick={addBranch}
+            style={{ marginBottom: "15px" }}
+          >
+            Add Another Branch
+          </button>
 
           <div className="company-form-actions">
             <button type="button" className="clear-btn" onClick={handleClear}>

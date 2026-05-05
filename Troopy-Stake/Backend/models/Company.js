@@ -1,5 +1,26 @@
 const mongoose = require("mongoose");
 
+const companyBranchSchema = new mongoose.Schema(
+  {
+    branch_name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    admin_email: {
+      type: String,
+      required: true,
+      lowercase: true,
+      trim: true,
+    },
+    admin_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  },
+  { _id: true }
+);
+
 const companySchema = new mongoose.Schema(
   {
     name: {
@@ -38,6 +59,8 @@ const companySchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+
+    branches: [companyBranchSchema],
   },
   { timestamps: true }
 );
