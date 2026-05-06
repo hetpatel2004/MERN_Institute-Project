@@ -10,6 +10,33 @@ function Login() {
 
   const navigate = useNavigate();
 
+  const getLocation = () => {
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) {
+        resolve({
+          latitude: null,
+          longitude: null,
+        });
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+        },
+        () => {
+          resolve({
+            latitude: null,
+            longitude: null,
+          });
+        },
+      );
+    });
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -19,7 +46,14 @@ function Login() {
     }
 
     try {
-      const res = await loginUser({ email, password });
+      const location = await getLocation();
+
+      const res = await loginUser({
+        email,
+        password,
+        device: navigator.userAgent,
+        location,
+      });
 
       const user = res.data.user;
       const token = res.data.token;
@@ -38,6 +72,18 @@ function Login() {
         navigate(ROUTES.branchAdmin);
       } else if (role === "student") {
         navigate(ROUTES.student);
+      } else {
+        alert("Role not found");
+      }
+
+      if (role === "superadmin") {
+        navigate(ROUTES.superAdminDashboard);
+      } else if (role === "instituteadmin") {
+        navigate(ROUTES.instituteAdmin);
+      } else if (role === "companyadmin") {
+        navigate(ROUTES.companyAdmin);
+      } else if (role === "branchadmin") {
+        navigate(ROUTES.branchAdmin);
       } else {
         alert("Role not found");
       }

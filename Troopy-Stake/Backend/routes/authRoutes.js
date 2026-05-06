@@ -8,7 +8,7 @@ const router = express.Router();
 // REGISTER
 router.post("/register", async (req, res) => {
   try {
-    let { name, email, password, role } = req.body;
+    let { name, email, password, role , device, location} = req.body;
 
     // ❌ BLOCK superadmin registration from public
     if (role === "superadmin") {
@@ -46,13 +46,13 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, device, location } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ message: "Email and password are required" });
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email.toLowerCase() });
 
     if (!user) {
       return res.status(400).json({ message: "Invalid email" });
@@ -63,6 +63,25 @@ router.post("/login", async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid password" });
     }
+
+    const ipAddress =
+      req.headers["x-forwarded-for"]?.split(",")[0] ||
+      req.socket.remoteAddress ||
+      "";
+
+    user.loginInfo = {
+      ipAddress,
+      device: device || req.headers["user-agent"] || "",
+      location: location || {
+        latitude: null,
+        longitude: null,
+      },
+      loginTime: new Date(),
+    };
+
+    await user.save();
+
+    
 
     const token = jwt.sign(
       { id: user._id, role: user.role },
@@ -78,13 +97,13 @@ router.post("/login", async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        loginInfo: user.loginInfo,
+        loginInfo: user.loginInfo,
       },
     });
   } catch (error) {
     res.status(500).json({ message: "Login error", error: error.message });
   }
 });
-
-
 
 module.exports = router;

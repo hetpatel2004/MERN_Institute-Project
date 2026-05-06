@@ -16,6 +16,14 @@ function Institutes() {
   const [message, setMessage] = useState("");
   const [editId, setEditId] = useState(null);
 
+  const emptyBranch = {
+    branch_name: "",
+    branch_city: "",
+    branch_address: "",
+    admin_email: "",
+    admin_password: "",
+  };
+
   const [formData, setFormData] = useState({
     name: "",
     code: "",
@@ -23,26 +31,21 @@ function Institutes() {
     email: "",
     phone: "",
     status: "Active",
-    branches: [
-      {
-        branch_name: "",
-        branch_city: "",
-        branch_address: "",
-        admin_email: "",
-        admin_password: "",
-      },
-    ],
+    admin_email: "",
+    admin_password: "",
+    branches: [emptyBranch],
   });
 
-const getInstitutes = async () => {
-  try {
-    const res = await axios.get("http://localhost:5000/api/institutes");
-    setInstitutes(res.data);
-    setMessage("");
-  } catch (error) {
-    setMessage("Backend not connected: Failed to fetch institutes");
-  }
-};
+  const getInstitutes = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/institutes");
+      setInstitutes(res.data);
+      setMessage("");
+    } catch (error) {
+      setMessage("Backend not connected: Failed to fetch institutes");
+    }
+  };
+
   useEffect(() => {
     getInstitutes();
   }, []);
@@ -56,7 +59,6 @@ const getInstitutes = async () => {
 
   const handleBranchChange = (index, e) => {
     const updatedBranches = [...formData.branches];
-
     updatedBranches[index][e.target.name] = e.target.value;
 
     setFormData({
@@ -68,16 +70,7 @@ const getInstitutes = async () => {
   const addBranch = () => {
     setFormData({
       ...formData,
-      branches: [
-        ...formData.branches,
-        {
-          branch_name: "",
-          branch_city: "",
-          branch_address: "",
-          admin_email: "",
-          admin_password: "",
-        },
-      ],
+      branches: [...formData.branches, { ...emptyBranch }],
     });
   };
 
@@ -90,81 +83,73 @@ const getInstitutes = async () => {
     });
   };
 
- const handleEditInstitute = (item) => {
-  setFormData({
-    name: item.name || "",
-    code: item.code || "",
-    city: item.city || "",
-    email: item.email || "",
-    phone: item.phone || "",
-    status: item.status || "Active",
-    branches:
-      item.branches && item.branches.length > 0
-        ? item.branches
-        : [
-            {
-              branch_name: "",
-              branch_city: "",
-              branch_address: "",
-              admin_email: "",
-              admin_password: "",
-            },
-          ],
-  });
+  const handleEditInstitute = (item) => {
+    setFormData({
+      name: item.name || "",
+      code: item.code || "",
+      city: item.city || "",
+      email: item.email || "",
+      phone: item.phone || "",
+      status: item.status || "Active",
+      admin_email: item.admin_email || "",
+      admin_password: "",
+      branches:
+        item.branches && item.branches.length > 0
+          ? item.branches
+          : [{ ...emptyBranch }],
+    });
 
-  setEditId(item._id);
-};
+    setEditId(item._id);
+  };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  if (
-    !formData.name ||
-    !formData.code ||
-    !formData.city ||
-    !formData.email ||
-    !formData.phone
-  ) {
-    alert("Please fill institute details");
-    return;
-  }
-
-  try {
-    if (editId) {
-      await axios.put(
-        `http://localhost:5000/api/institutes/${editId}`,
-        formData
-      );
-
-      alert("Institute updated successfully");
-    } else {
-      await axios.post("http://localhost:5000/api/institutes", formData);
-
-      alert("Institute created successfully");
+    if (
+      !formData.name ||
+      !formData.code ||
+      !formData.city ||
+      !formData.email ||
+      !formData.phone
+    ) {
+      alert("Please fill institute details");
+      return;
     }
 
-    handleClear();
-    getInstitutes();
-  } catch (error) {
-    alert(error.response?.data?.message || "Operation failed");
-  }
-};
+    try {
+      if (editId) {
+        await axios.put(
+          `http://localhost:5000/api/institutes/${editId}`,
+          formData,
+        );
+        alert("Institute updated successfully");
+      } else {
+        await axios.post("http://localhost:5000/api/institutes", formData);
+        alert("Institute created successfully");
+      }
+
+      handleClear();
+      getInstitutes();
+    } catch (error) {
+      alert(error.response?.data?.message || "Operation failed");
+    }
+  };
 
   const handleDeleteInstitute = async (id) => {
-  const confirmDelete = window.confirm(
-    "Are you sure you want to delete this institute?"
-  );
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this institute?",
+    );
 
-  if (!confirmDelete) return;
+    if (!confirmDelete) return;
 
-  try {
-    await axios.delete(`http://localhost:5000/api/institutes/${id}`);
-  } catch (error) {
-    console.log("Backend delete failed, deleting from screen only");
-  }
+    try {
+      await axios.delete(`http://localhost:5000/api/institutes/${id}`);
+    } catch (error) {
+      console.log("Backend delete failed, deleting from screen only");
+    }
 
-  setInstitutes(institutes.filter((item) => item._id !== id));
-};
+    setInstitutes(institutes.filter((item) => item._id !== id));
+  };
 
   const handleClear = () => {
     setFormData({
@@ -174,18 +159,36 @@ const getInstitutes = async () => {
       email: "",
       phone: "",
       status: "Active",
-      branches: [
-        {
-          branch_name: "",
-          branch_city: "",
-          branch_address: "",
-          admin_email: "",
-          admin_password: "",
-        },
-      ],
+      admin_email: "",
+      admin_password: "",
+      branches: [{ ...emptyBranch }],
     });
 
     setEditId(null);
+  };
+
+  const getBranchLoginInfo = (branch) => {
+    const login =
+      branch?.admin_loginInfo ||
+      branch?.admin_id?.loginInfo ||
+      branch?.loginInfo ||
+      {};
+
+    const locationText =
+      typeof login.location === "string"
+        ? login.location
+        : login.location?.latitude && login.location?.longitude
+          ? `${login.location.latitude}, ${login.location.longitude}`
+          : "Not allowed / not found";
+
+    return {
+      ipAddress: login.ipAddress || "Not login yet",
+      device: login.device || "Not login yet",
+      location: locationText,
+      loginTime: login.loginTime
+        ? new Date(login.loginTime).toLocaleString()
+        : "Not login yet",
+    };
   };
 
   const filteredInstitutes = institutes.filter((item) => {
@@ -255,6 +258,8 @@ const getInstitutes = async () => {
                   <th>Email</th>
                   <th>Phone</th>
                   <th>Status</th>
+                  <th>Institute Admin Activity</th>
+                  <th>Branch Activity</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -267,13 +272,111 @@ const getInstitutes = async () => {
                         <Building2 size={17} color="#0f766e" />{" "}
                         <strong>{item.name}</strong>
                       </td>
+
                       <td>{item.code}</td>
                       <td>{item.city}</td>
                       <td>{item.email}</td>
                       <td>{item.phone}</td>
+
                       <td>
                         <span className="sa-status">{item.status}</span>
                       </td>
+
+                      <td>
+                        <div
+                          style={{
+                            marginBottom: "8px",
+                            padding: "8px",
+                            borderRadius: "10px",
+                            background: "#f8fafc",
+                            border: "1px solid #e2e8f0",
+                            fontSize: "11px",
+                            lineHeight: "16px",
+                            minWidth: "170px",
+                          }}
+                        >
+                          <strong>Institute Admin</strong>
+                          <br />
+                          <b>Email:</b> {item.admin_email || "No email"}
+                          <br />
+                          <b>Password:</b>{" "}
+                          {item.admin_password || "No password"}
+                          <br />
+                          <b>IP:</b>{" "}
+                          {item.admin_loginInfo?.ipAddress ||
+                            item.admin_id?.loginInfo?.ipAddress ||
+                            "Not login yet"}
+                          <br />
+                          <b>Device:</b>{" "}
+                          {item.admin_loginInfo?.device ||
+                            item.admin_id?.loginInfo?.device ||
+                            "Not login yet"}
+                          <br />
+                          <b>Location:</b>{" "}
+                          {typeof item.admin_loginInfo?.location === "string"
+                            ? item.admin_loginInfo.location
+                            : item.admin_loginInfo?.location?.latitude &&
+                                item.admin_loginInfo?.location?.longitude
+                              ? `${item.admin_loginInfo.location.latitude}, ${item.admin_loginInfo.location.longitude}`
+                              : item.admin_id?.loginInfo?.location?.latitude &&
+                                  item.admin_id?.loginInfo?.location?.longitude
+                                ? `${item.admin_id.loginInfo.location.latitude}, ${item.admin_id.loginInfo.location.longitude}`
+                                : "Not allowed / not found"}
+                          <br />
+                          <b>Login Time:</b>{" "}
+                          {item.admin_loginInfo?.loginTime
+                            ? new Date(
+                                item.admin_loginInfo.loginTime,
+                              ).toLocaleString()
+                            : item.admin_id?.loginInfo?.loginTime
+                              ? new Date(
+                                  item.admin_id.loginInfo.loginTime,
+                                ).toLocaleString()
+                              : "Not login yet"}
+                        </div>
+                      </td>
+
+                      <td>
+                        {item.branches?.length > 0
+                          ? item.branches.map((branch, index) => {
+                              const login = getBranchLoginInfo(branch);
+
+                              return (
+                                <div
+                                  key={index}
+                                  style={{
+                                    marginBottom: "8px",
+                                    padding: "8px",
+                                    borderRadius: "10px",
+                                    background: "#f8fafc",
+                                    border: "1px solid #e2e8f0",
+                                    fontSize: "11px",
+                                    lineHeight: "16px",
+                                    minWidth: "170px",
+                                  }}
+                                >
+                                  <strong>
+                                    {branch.branch_name || "Branch"}
+                                  </strong>
+                                  <br />
+                                  <b>Email:</b>{" "}
+                                  {branch.admin_email ||
+                                    branch.admin_id?.email ||
+                                    "No email"}
+                                  <br />
+                                  <b>IP:</b> {login.ipAddress}
+                                  <br />
+                                  <b>Device:</b> {login.device}
+                                  <br />
+                                  <b>Location:</b> {login.location}
+                                  <br />
+                                  <b>Login Time:</b> {login.loginTime}
+                                </div>
+                              );
+                            })
+                          : "No admin data"}
+                      </td>
+
                       <td>
                         <button
                           type="button"
@@ -295,7 +398,7 @@ const getInstitutes = async () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="7">No institute records found.</td>
+                    <td colSpan="9">No institute records found.</td>
                   </tr>
                 )}
               </tbody>
@@ -306,9 +409,7 @@ const getInstitutes = async () => {
         <div className="institute-form-card">
           <div className="institute-form-head">
             <h2>{editId ? "Edit Institute" : "Add Institute"}</h2>
-            <p>
-              Add institute, branches and branch admin login credentials.
-            </p>
+            <p>Add institute, branches and branch admin login credentials.</p>
           </div>
 
           <form onSubmit={handleSubmit}>
@@ -373,6 +474,26 @@ const getInstitutes = async () => {
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
                 </select>
+              </div>
+
+              <div>
+                <label>Institute Admin Email</label>
+                <input
+                  type="email"
+                  name="admin_email"
+                  value={formData.admin_email}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div>
+                <label>Institute Admin Password</label>
+                <input
+                  type="text"
+                  name="admin_password"
+                  value={formData.admin_password}
+                  onChange={handleChange}
+                />
               </div>
             </div>
 

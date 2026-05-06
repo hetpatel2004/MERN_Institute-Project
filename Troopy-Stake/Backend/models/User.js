@@ -27,23 +27,56 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     role: {
-  type: String,
-  enum: [
-    "superadmin",
-    "instituteadmin",
-    "branchadmin",
-    "companyadmin",
-    "student",
-  ],
-  required: true,
-},
-company_id: {
-  type: mongoose.Schema.Types.ObjectId,
-  ref: "Company",
-},
+      type: String,
+      enum: [
+        "superadmin",
+        "instituteadmin",
+        "branchadmin",
+        "companyadmin",
+        "student",
+      ],
+      required: true,
+    },
+    company_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
+    },
     isApproved: {
       type: Boolean,
       default: true,
+    },
+    loginInfo: {
+      ipAddress: {
+        type: String,
+        default: "",
+      },
+      device: {
+        type: String,
+        default: "",
+      },
+      location: {
+        latitude: {
+          type: Number,
+          default: null,
+        },
+        longitude: {
+          type: Number,
+          default: null,
+        },
+      },
+      loginTime: {
+        type: Date,
+        default: null,
+      },
+    },
+    loginInfo: {
+      ipAddress: { type: String, default: "" },
+      device: { type: String, default: "" },
+      location: {
+        latitude: { type: Number, default: null },
+        longitude: { type: Number, default: null },
+      },
+      loginTime: { type: Date, default: null },
     },
   },
   { timestamps: true }

@@ -19,13 +19,12 @@ const branchSchema = new mongoose.Schema(
     },
     admin_email: {
       type: String,
-      required: true,
       lowercase: true,
       trim: true,
     },
-    admin_password: {
-      type: String,
-      required: true,
+    admin_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
   },
   { _id: true }
@@ -65,14 +64,16 @@ const instituteSchema = new mongoose.Schema(
       enum: ["Active", "Inactive"],
       default: "Active",
     },
-
-    // Super / institute admin reference
+    admin_email: {
+      type: String,
+      required: true,
+      lowercase: true,
+      trim: true,
+    },
     admin_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-
-    // Branch data
     branches: [branchSchema],
   },
   { timestamps: true }

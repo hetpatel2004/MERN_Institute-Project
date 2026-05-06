@@ -96,7 +96,7 @@ router.post("/", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     const companies = await Company.find()
-      .populate("branches.admin_id", "email role")
+      .populate("branches.admin_id", "email role loginInfo")
       .sort({ createdAt: -1 });
 
     res.status(200).json(companies);

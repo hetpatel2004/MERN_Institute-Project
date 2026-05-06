@@ -56,33 +56,20 @@ function Companies() {
               admin_email: branch.admin_email || "",
               admin_password: "",
             }))
-          : [
-              {
-                branch_name: "",
-                admin_email: "",
-                admin_password: "",
-              },
-            ],
+          : emptyForm.branches,
     });
 
     setEditId(item._id);
   };
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleBranchChange = (index, e) => {
     const updatedBranches = [...formData.branches];
     updatedBranches[index][e.target.name] = e.target.value;
-
-    setFormData({
-      ...formData,
-      branches: updatedBranches,
-    });
+    setFormData({ ...formData, branches: updatedBranches });
   };
 
   const addBranch = () => {
@@ -90,22 +77,14 @@ function Companies() {
       ...formData,
       branches: [
         ...formData.branches,
-        {
-          branch_name: "",
-          admin_email: "",
-          admin_password: "",
-        },
+        { branch_name: "", admin_email: "", admin_password: "" },
       ],
     });
   };
 
   const removeBranch = (index) => {
     const updatedBranches = formData.branches.filter((_, i) => i !== index);
-
-    setFormData({
-      ...formData,
-      branches: updatedBranches,
-    });
+    setFormData({ ...formData, branches: updatedBranches });
   };
 
   const handleAddCompany = async (e) => {
@@ -115,13 +94,11 @@ function Companies() {
       if (editId) {
         await axios.put(
           `http://localhost:5000/api/companies/${editId}`,
-          formData
+          formData,
         );
-
         alert("Company updated successfully");
       } else {
         await axios.post("http://localhost:5000/api/companies", formData);
-
         alert("Company added successfully");
       }
 
@@ -134,11 +111,8 @@ function Companies() {
   };
 
   const handleDeleteCompany = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this company?"
-    );
-
-    if (!confirmDelete) return;
+    if (!window.confirm("Are you sure you want to delete this company?"))
+      return;
 
     try {
       await axios.delete(`http://localhost:5000/api/companies/${id}`);
@@ -152,6 +126,17 @@ function Companies() {
   const handleClear = () => {
     setFormData(emptyForm);
     setEditId(null);
+  };
+
+  const getLoginInfo = (branch) => {
+    return branch?.admin_id?.loginInfo || branch?.admin_loginInfo || {};
+  };
+
+  const showLocation = (info) => {
+    if (info?.location?.latitude && info?.location?.longitude) {
+      return `${info.location.latitude}, ${info.location.longitude}`;
+    }
+    return "Not allowed / not found";
   };
 
   const filteredCompanies = companies.filter((item) => {
@@ -169,7 +154,7 @@ function Companies() {
         <div className="company-list-header">
           <div>
             <h2>Companies</h2>
-            <p>Add, update, remove and monitor hiring companies.</p>
+            <p>Super Admin can view company admin login tracking here.</p>
           </div>
 
           <div className="company-search">
@@ -208,7 +193,8 @@ function Companies() {
                 <th>Phone</th>
                 <th>Job Roles</th>
                 <th>Package</th>
-                <th>Branches</th>
+                <th>Company Admin Activity</th>
+                <th>Company Admin Login Data</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -229,15 +215,95 @@ function Companies() {
                     <td>{item.package_range}</td>
 
                     <td>
+                      {(() => {
+                        const login =
+                          item.admin_loginInfo ||
+                          item.admin_id?.loginInfo ||
+                          {};
+
+                        const locationText =
+                          typeof login.location === "string"
+                            ? login.location
+                            : login.location?.latitude &&
+                                login.location?.longitude
+                              ? `${login.location.latitude}, ${login.location.longitude}`
+                              : "Not allowed / not found";
+
+                        const loginTimeText = login.loginTime
+                          ? new Date(login.loginTime).toLocaleString()
+                          : "Not login yet";
+
+                        return (
+                          <div
+                            style={{
+                              marginBottom: "8px",
+                              padding: "8px",
+                              borderRadius: "10px",
+                              background: "#f8fafc",
+                              border: "1px solid #e2e8f0",
+                              fontSize: "11px",
+                              lineHeight: "16px",
+                              minWidth: "170px",
+                            }}
+                          >
+                            <strong>Company Admin</strong>
+                            <br />
+                            <b>Email:</b> {item.admin_email || "No email"}
+                            <br />
+                            <b>Password:</b>{" "}
+                            {item.admin_password || "No password"}
+                            <br />
+                            <b>IP:</b> {login.ipAddress || "Not login yet"}
+                            <br />
+                            <b>Device:</b> {login.device || "Not login yet"}
+                            <br />
+                            <b>Location:</b> {locationText}
+                            <br />
+                            <b>Login Time:</b> {loginTimeText}
+                          </div>
+                        );
+                      })()}
+                    </td>
+                    
+                    <td>
                       {item.branches?.length > 0
-                        ? item.branches.map((branch, index) => (
-                            <div key={index} style={{ marginBottom: "8px" }}>
-                              <strong>{branch.branch_name}</strong>
-                              <br />
-                              {branch.admin_email}
-                            </div>
-                          ))
-                        : "No Branch"}
+                        ? item.branches.map((branch, index) => {
+                            const info = getLoginInfo(branch);
+
+                            return (
+                              <div
+                                key={index}
+                                style={{
+                                  marginBottom: "12px",
+                                  padding: "10px",
+                                  borderRadius: "10px",
+                                  background: "#f8fafc",
+                                  border: "1px solid #e2e8f0",
+                                  fontSize: "13px",
+                                }}
+                              >
+                                <strong>{branch.branch_name}</strong>
+                                <br />
+                                <b>Email:</b>{" "}
+                                {branch.admin_email ||
+                                  branch.admin_id?.email ||
+                                  "No email"}
+                                <br />
+                                <b>IP Address:</b>{" "}
+                                {info.ipAddress || "Not login yet"}
+                                <br />
+                                <b>Device:</b> {info.device || "Not login yet"}
+                                <br />
+                                <b>Location:</b> {showLocation(info)}
+                                <br />
+                                <b>Login Time:</b>{" "}
+                                {info.loginTime
+                                  ? new Date(info.loginTime).toLocaleString()
+                                  : "Not login yet"}
+                              </div>
+                            );
+                          })
+                        : "No company admin data"}
                     </td>
 
                     <td>
@@ -259,7 +325,7 @@ function Companies() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="8">No company records match your search.</td>
+                  <td colSpan="9">No company records match your search.</td>
                 </tr>
               )}
             </tbody>
@@ -270,7 +336,7 @@ function Companies() {
       <div className="company-form-card">
         <div className="company-form-head">
           <h2>{editId ? "Edit Company" : "Add Company"}</h2>
-          <p>Create a new hiring company record.</p>
+          <p>Create company and company admin login.</p>
         </div>
 
         <form onSubmit={handleAddCompany}>
@@ -278,7 +344,6 @@ function Companies() {
             <div>
               <label>Company Name</label>
               <input
-                type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
@@ -288,7 +353,6 @@ function Companies() {
             <div>
               <label>HR Name</label>
               <input
-                type="text"
                 name="HR_name"
                 value={formData.HR_name}
                 onChange={handleChange}
@@ -308,7 +372,6 @@ function Companies() {
             <div>
               <label>Contact Phone</label>
               <input
-                type="text"
                 name="contact_phone"
                 value={formData.contact_phone}
                 onChange={handleChange}
@@ -318,36 +381,29 @@ function Companies() {
             <div className="full-width">
               <label>Job Roles</label>
               <input
-                type="text"
                 name="job_roles"
                 value={formData.job_roles}
                 onChange={handleChange}
-                placeholder="Frontend, Backend, UI/UX"
               />
             </div>
 
             <div className="full-width">
               <label>Package Range</label>
               <input
-                type="text"
                 name="package_range"
                 value={formData.package_range}
                 onChange={handleChange}
-                placeholder="3 LPA - 8 LPA"
               />
             </div>
           </div>
 
-          <div className="full-width">
-            <h3 style={{ marginTop: "20px", marginBottom: "15px" }}>
-              Branches + Company Admin Login
-            </h3>
-          </div>
+          <h3 style={{ marginTop: "20px", marginBottom: "15px" }}>
+            Branches + Company Admin Login
+          </h3>
 
           {formData.branches.map((branch, index) => (
             <div
               key={index}
-              className="full-width"
               style={{
                 border: "1px solid #dbe3ec",
                 borderRadius: "14px",
@@ -360,7 +416,6 @@ function Companies() {
                 <div>
                   <label>Branch Name</label>
                   <input
-                    type="text"
                     name="branch_name"
                     value={branch.branch_name}
                     onChange={(e) => handleBranchChange(index, e)}
@@ -401,12 +456,7 @@ function Companies() {
             </div>
           ))}
 
-          <button
-            type="button"
-            className="clear-btn"
-            onClick={addBranch}
-            style={{ marginBottom: "15px" }}
-          >
+          <button type="button" className="clear-btn" onClick={addBranch}>
             Add Another Branch
           </button>
 

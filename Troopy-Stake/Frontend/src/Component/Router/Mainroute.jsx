@@ -12,6 +12,8 @@ import Courses from "../Supper_admin/AdminCourses";
 import Companies from "../Supper_admin/Companies";
 import { ROUTES } from "../../constants/routes";
 import Branches from "../Supper_admin/Branches";
+import CompanyAdmin from "../Company_admin/Company_Admin";
+import InstituteAdmin from "../Institute_admin/Institute_admin";
 
 function Mainroute() {
   return (
@@ -81,8 +83,24 @@ function Mainroute() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path={ROUTES.instituteAdmin}
+        element={
+          <ProtectedRoute role="instituteadmin">
+            <InstituteAdmin />
+          </ProtectedRoute>
+        }
+      />
 
-      
+      <Route
+        path={ROUTES.companyAdmin}
+        element={
+          <ProtectedRoute role="companyadmin">
+            <CompanyAdmin />
+          </ProtectedRoute>
+        }
+      />
+
       <Route path="*" element={<Navigate to={ROUTES.login} replace />} />
     </Routes>
   );
