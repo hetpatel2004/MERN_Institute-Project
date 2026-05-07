@@ -1307,3 +1307,60 @@
   color: white;
   transform: scale(1.15);
 }
+
+
+/* FORM TOP FIX */
+.institute-page-grid,
+.company-page-grid {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 24px;
+}
+
+.institute-form-card,
+.company-form-card {
+  order: -1;
+  width: 100%;
+}
+
+.institute-list-card,
+.company-list-card {
+  width: 100%;
+}
+
+/* FIX INSTITUTE TABLE SIDE SCROLL */
+.institute-list-card {
+  width: 100%;
+  overflow-x: hidden !important;
+}
+
+.institute-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.institute-table th,
+.institute-table td {
+  white-space: normal !important;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  vertical-align: middle;
+  font-size: 13px;
+  padding: 14px 10px;
+}
+
+/* make activity boxes smaller */
+.admin-activity-box,
+.branch-activity-box {
+  max-width: 180px;
+  font-size: 11px !important;
+  line-height: 15px !important;
+  padding: 8px !important;
+}
+
+/* action buttons fit */
+.institute-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}

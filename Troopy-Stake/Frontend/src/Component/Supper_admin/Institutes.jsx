@@ -249,7 +249,7 @@ function Institutes() {
           </div>
 
           <div className="institute-table-wrap">
-            <table>
+            <table className="institute-table">
               <thead>
                 <tr>
                   <th>Institute</th>
@@ -292,7 +292,6 @@ function Institutes() {
                             border: "1px solid #e2e8f0",
                             fontSize: "11px",
                             lineHeight: "16px",
-                            minWidth: "170px",
                           }}
                         >
                           <strong>Institute Admin</strong>
@@ -352,7 +351,6 @@ function Institutes() {
                                     border: "1px solid #e2e8f0",
                                     fontSize: "11px",
                                     lineHeight: "16px",
-                                    minWidth: "170px",
                                   }}
                                 >
                                   <strong>
@@ -477,7 +475,7 @@ function Institutes() {
               </div>
 
               <div>
-                <label>Institute Admin Email</label>
+                <label>Institute Admin Email <span style={{ color: "#64748b" }}>(Optional)</span></label>
                 <input
                   type="email"
                   name="admin_email"
@@ -487,7 +485,7 @@ function Institutes() {
               </div>
 
               <div>
-                <label>Institute Admin Password</label>
+                <label>Institute Admin Password <span style={{ color: "#64748b" }}>(Optional)</span></label>
                 <input
                   type="text"
                   name="admin_password"

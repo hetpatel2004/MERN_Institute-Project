@@ -423,7 +423,7 @@ function Companies() {
                 </div>
 
                 <div>
-                  <label>Company Admin Email</label>
+                  <label>Company Admin Email <span style={{ color: "#64748b" }}>(Optional)</span></label>
                   <input
                     type="email"
                     name="admin_email"
@@ -433,7 +433,7 @@ function Companies() {
                 </div>
 
                 <div className="full-width">
-                  <label>Company Admin Password</label>
+                  <label>Company Admin Password <span style={{ color: "#64748b" }}>(Optional)</span></label>
                   <input
                     type="text"
                     name="admin_password"
