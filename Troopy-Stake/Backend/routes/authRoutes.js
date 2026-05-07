@@ -8,7 +8,7 @@ const router = express.Router();
 // REGISTER
 router.post("/register", async (req, res) => {
   try {
-    let { name, email, password, role , device, location} = req.body;
+    let { name, email, password, role, device, location } = req.body;
 
     // ❌ BLOCK superadmin registration from public
     if (role === "superadmin") {
@@ -81,7 +81,7 @@ router.post("/login", async (req, res) => {
 
     await user.save();
 
-    
+
 
     const token = jwt.sign(
       { id: user._id, role: user.role },
@@ -97,7 +97,10 @@ router.post("/login", async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        loginInfo: user.loginInfo,
+        institute_id: user.institute_id,
+        branch_id: user.branch_id,
+        company_id: user.company_id,
+        menuAccess: user.menuAccess || [],
         loginInfo: user.loginInfo,
       },
     });

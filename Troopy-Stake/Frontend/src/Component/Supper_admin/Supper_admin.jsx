@@ -6,7 +6,7 @@ import {
   BookOpen,
   BriefcaseBusiness,
   ShieldCheck,
-  Users,
+  Users as UsersIcon,
   GraduationCap,
   Plus,
   TrendingUp,
@@ -20,7 +20,7 @@ import "./Supper_admin.css";
 function Dashboard({ institutes, courses, companies, navigate }) {
   const totalStudents = institutes.reduce(
     (total, item) => total + Number(item.students || 0),
-    0,
+    0
   );
 
   return (
@@ -50,10 +50,10 @@ function Dashboard({ institutes, courses, companies, navigate }) {
         </div>
 
         <div className="sa-stat-card">
-          <Users size={32} />
+          <UsersIcon size={32} />
           <p>Total Students</p>
           <h2>{totalStudents}</h2>
-          <span>All institutes</span>
+          <span>All students</span>
         </div>
 
         <div className="sa-stat-card">
@@ -116,7 +116,6 @@ function Supper_admin({ children, page }) {
 
   const handleLogout = () => {
     clearAuthData();
-
     navigate(ROUTES.login, { replace: true });
   };
 
@@ -202,22 +201,23 @@ function Supper_admin({ children, page }) {
             Course
           </NavLink>
 
+          <NavLink to="/superadmin/users">
+            <UsersIcon size={20} />
+            Users
+          </NavLink>
+
           <NavLink to={ROUTES.superAdminCompany}>
             <BriefcaseBusiness size={20} />
             Company
           </NavLink>
         </div>
 
-        <div className="sa-health">
-          <p>System Health</p>
-          <h2>98.4%</h2>
-          <span>All modules are running properly.</span>
-        </div>
-
         <button className="sa-logout" onClick={handleLogout}>
           <LogOut size={18} />
           <span>Logout</span>
         </button>
+
+        
       </aside>
 
       <main className="sa-main">

@@ -1,38 +1,39 @@
 import React from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
+import { Route, Routes, Navigate } from "react-router-dom";
 
 import Index from "../Index";
 import Login from "../Auth/Login";
 import Registration from "../Auth/Registration";
-import ProtectedRoute from "../Auth/ProtectedRoute";
+
 import SuperAdmin from "../Supper_admin/Supper_admin";
 import Institutes from "../Supper_admin/Institutes";
 import Courses from "../Supper_admin/AdminCourses";
 import Companies from "../Supper_admin/Companies";
+import Users from "../Supper_admin/Users";
+
+import UserDashboard from "../User_dashboard/UserDashboard";
+
+import ProtectedRoute from "../Auth/ProtectedRoute";
 import { ROUTES } from "../../constants/routes";
-import Branches from "../Supper_admin/Branches";
-import CompanyAdmin from "../Company_admin/Company_Admin";
-import InstituteAdmin from "../Institute_admin/Institute_admin";
+
+import "bootstrap/dist/css/bootstrap.min.css";
 
 function Mainroute() {
   return (
     <Routes>
-      <Route path={ROUTES.home} element={<Index />} />
-      <Route path={ROUTES.login} element={<Login />} />
-      <Route path={ROUTES.registration} element={<Registration />} />
+      <Route path="/" element={<Index />} />
+
+      <Route path="/login" element={<Login />} />
+
+      <Route path="/registration" element={<Registration />} />
 
       <Route
-        path={ROUTES.superAdmin}
-        element={
-          <ProtectedRoute role="superadmin">
-            <Navigate to={ROUTES.superAdminDashboard} replace />
-          </ProtectedRoute>
-        }
+        path="/superadmin"
+        element={<Navigate to="/superadmin/dashboard" replace />}
       />
 
       <Route
-        path={ROUTES.superAdminDashboard}
+        path="/superadmin/dashboard"
         element={
           <ProtectedRoute role="superadmin">
             <SuperAdmin page="dashboard" />
@@ -41,7 +42,7 @@ function Mainroute() {
       />
 
       <Route
-        path={ROUTES.superAdminInstitute}
+        path="/superadmin/institute"
         element={
           <ProtectedRoute role="superadmin">
             <SuperAdmin page="institute">
@@ -52,7 +53,7 @@ function Mainroute() {
       />
 
       <Route
-        path={ROUTES.superAdminCourse}
+        path="/superadmin/course"
         element={
           <ProtectedRoute role="superadmin">
             <SuperAdmin page="course">
@@ -63,7 +64,7 @@ function Mainroute() {
       />
 
       <Route
-        path={ROUTES.superAdminCompany}
+        path="/superadmin/company"
         element={
           <ProtectedRoute role="superadmin">
             <SuperAdmin page="company">
@@ -74,20 +75,30 @@ function Mainroute() {
       />
 
       <Route
-        path="/superadmin/branch"
+        path="/superadmin/users"
         element={
           <ProtectedRoute role="superadmin">
-            <SuperAdmin page="branch">
-              <Branches />
+            <SuperAdmin page="users">
+              <Users />
             </SuperAdmin>
           </ProtectedRoute>
         }
       />
+
       <Route
         path={ROUTES.instituteAdmin}
         element={
           <ProtectedRoute role="instituteadmin">
-            <InstituteAdmin />
+            <UserDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path={ROUTES.branchAdmin}
+        element={
+          <ProtectedRoute role="branchadmin">
+            <UserDashboard />
           </ProtectedRoute>
         }
       />
@@ -96,12 +107,12 @@ function Mainroute() {
         path={ROUTES.companyAdmin}
         element={
           <ProtectedRoute role="companyadmin">
-            <CompanyAdmin />
+            <UserDashboard />
           </ProtectedRoute>
         }
       />
 
-      <Route path="*" element={<Navigate to={ROUTES.login} replace />} />
+      <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 }

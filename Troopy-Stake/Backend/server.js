@@ -7,6 +7,7 @@ const authRoutes = require("./routes/authRoutes");
 const instituteRoutes = require("./routes/instituteRoutes");
 const companyRoutes = require("./routes/companyRoutes");
 const branchRoutes = require("./routes/branchRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/institutes", instituteRoutes);
 app.use("/api/companies", companyRoutes);
 app.use("/api/branches", branchRoutes);
+app.use("/api/users", userRoutes);
 
 // ENV fallback
 const PORT = process.env.PORT || 5000;
