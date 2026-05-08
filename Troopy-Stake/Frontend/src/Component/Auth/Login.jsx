@@ -66,24 +66,12 @@ function Login() {
 
       if (role === "superadmin") {
         navigate(ROUTES.superAdminDashboard);
-      } else if (role === "instituteadmin") {
-        navigate(ROUTES.instituteAdmin);
       } else if (role === "branchadmin") {
         navigate(ROUTES.branchAdmin);
-      } else if (role === "student") {
-        navigate(ROUTES.student);
-      } else {
-        alert("Role not found");
-      }
-
-      if (role === "superadmin") {
-        navigate(ROUTES.superAdminDashboard);
-      } else if (role === "instituteadmin") {
-        navigate(ROUTES.instituteAdmin);
       } else if (role === "companyadmin") {
         navigate(ROUTES.companyAdmin);
-      } else if (role === "branchadmin") {
-        navigate(ROUTES.branchAdmin);
+      } else if (role === "student") {
+        navigate(ROUTES.student);
       } else {
         alert("Role not found");
       }

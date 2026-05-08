@@ -7,26 +7,42 @@ const branchSchema = new mongoose.Schema(
       ref: "Institute",
       required: true,
     },
+
     admin_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
+
     branch_name: {
       type: String,
       required: true,
       trim: true,
     },
-    city: {
+
+    branch_city: {
       type: String,
       required: true,
       trim: true,
     },
-    address: {
+
+    branch_address: {
       type: String,
       required: true,
       trim: true,
     },
-    status: {
+
+    branch_email: {
+      type: String,
+      lowercase: true,
+      trim: true,
+    },
+
+    branch_phone: {
+      type: String,
+      trim: true,
+    },
+
+    branch_status: {
       type: String,
       enum: ["Active", "Inactive"],
       default: "Active",

@@ -8,51 +8,13 @@ const router = express.Router();
 
 router.post("/", async (req, res) => {
   try {
-    const {
-      name,
-      code,
-      city,
-      email,
-      phone,
-      status,
-      admin_email,
-      admin_password,
-      branches,
-    } = req.body;
+    const { name, code, city, email, phone, status, branches } = req.body;
 
-    if (
-      !name ||
-      !code ||
-      !city ||
-      !email ||
-      !phone ||
-      !admin_email ||
-      !admin_password
-    ) {
+    if (!name || !code || !city || !email || !phone) {
       return res.status(400).json({
-        message: "Institute and admin fields are required",
+        message: "Institute details are required",
       });
     }
-
-    const existingInstituteAdmin = await User.findOne({
-      email: admin_email.toLowerCase(),
-    });
-
-    if (existingInstituteAdmin) {
-      return res.status(400).json({
-        message: "Institute admin email already exists",
-      });
-    }
-
-    const instituteAdminPassword = await bcrypt.hash(admin_password, 10);
-
-    const instituteAdmin = await User.create({
-      name: `${name} Admin`,
-      email: admin_email.toLowerCase(),
-      password: instituteAdminPassword,
-      role: "instituteadmin",
-      isApproved: true,
-    });
 
     const finalBranches = [];
 
@@ -75,12 +37,12 @@ router.post("/", async (req, res) => {
             });
           }
 
-          const branchPassword = await bcrypt.hash(branch.admin_password, 10);
+          const hashedPassword = await bcrypt.hash(branch.admin_password, 10);
 
           const branchAdmin = await User.create({
             name: `${branch.branch_name} Admin`,
             email: branch.admin_email.toLowerCase(),
-            password: branchPassword,
+            password: hashedPassword,
             role: "branchadmin",
             isApproved: true,
           });
@@ -89,6 +51,9 @@ router.post("/", async (req, res) => {
             branch_name: branch.branch_name,
             branch_city: branch.branch_city,
             branch_address: branch.branch_address,
+            branch_email: branch.branch_email || "",
+            branch_phone: branch.branch_phone || "",
+            branch_status: branch.branch_status || "Active",
             admin_email: branch.admin_email.toLowerCase(),
             admin_id: branchAdmin._id,
           });
@@ -103,24 +68,26 @@ router.post("/", async (req, res) => {
       email,
       phone,
       status,
-      admin_email: admin_email.toLowerCase(),
-      admin_id: instituteAdmin._id,
       branches: finalBranches,
     });
 
-    instituteAdmin.institute_id = institute._id;
-    await instituteAdmin.save();
-
     for (const branch of institute.branches) {
-      await User.findByIdAndUpdate(branch.admin_id, {
-        institute_id: institute._id,
-        branch_id: branch._id,
-      });
+      if (branch.admin_id) {
+        await User.findByIdAndUpdate(branch.admin_id, {
+          institute_id: institute._id,
+          branch_id: branch._id,
+        });
+      }
     }
+
+    const populatedInstitute = await Institute.findById(institute._id).populate(
+      "branches.admin_id",
+      "name email role loginInfo"
+    );
 
     res.status(201).json({
       message: "Institute created successfully",
-      institute,
+      institute: populatedInstitute,
     });
   } catch (error) {
     res.status(500).json({
@@ -133,8 +100,7 @@ router.post("/", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     const institutes = await Institute.find()
-      .populate("admin_id", "email role loginInfo")
-      .populate("branches.admin_id", "email role loginInfo")
+      .populate("branches.admin_id", "name email role loginInfo")
       .sort({ createdAt: -1 });
 
     res.status(200).json(institutes);
@@ -152,9 +118,16 @@ router.put("/:id", async (req, res) => {
 
     const updatedInstitute = await Institute.findByIdAndUpdate(
       req.params.id,
-      { name, code, city, email, phone, status },
+      {
+        name,
+        code,
+        city,
+        email,
+        phone,
+        status,
+      },
       { new: true }
-    );
+    ).populate("branches.admin_id", "name email role loginInfo");
 
     res.status(200).json(updatedInstitute);
   } catch (error) {
@@ -169,11 +142,13 @@ router.delete("/:id", async (req, res) => {
   try {
     const institute = await Institute.findById(req.params.id);
 
-    if (institute?.admin_id) {
-      await User.findByIdAndDelete(institute.admin_id);
+    if (!institute) {
+      return res.status(404).json({
+        message: "Institute not found",
+      });
     }
 
-    if (institute?.branches?.length > 0) {
+    if (institute.branches?.length > 0) {
       for (const branch of institute.branches) {
         if (branch.admin_id) {
           await User.findByIdAndDelete(branch.admin_id);

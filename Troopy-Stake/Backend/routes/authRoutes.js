@@ -1,35 +1,44 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+
 const User = require("../models/User");
 
 const router = express.Router();
 
-// REGISTER
 router.post("/register", async (req, res) => {
   try {
-    let { name, email, password, role, device, location } = req.body;
+    let { name, email, password, role } = req.body;
 
-    // ❌ BLOCK superadmin registration from public
     if (role === "superadmin") {
       return res.status(403).json({
         message: "You are not allowed to register as Super Admin",
       });
     }
 
-    // default role
+    if (role === "instituteadmin") {
+      return res.status(403).json({
+        message: "Institute Admin role removed. Use Branch Admin only.",
+      });
+    }
+
     if (!role) role = "student";
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({
+      email: email.toLowerCase(),
+    });
+
     if (existingUser) {
-      return res.status(400).json({ message: "Email already exists" });
+      return res.status(400).json({
+        message: "Email already exists",
+      });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
       name,
-      email,
+      email: email.toLowerCase(),
       password: hashedPassword,
       role,
     });
@@ -38,9 +47,10 @@ router.post("/register", async (req, res) => {
       message: "User registered successfully",
       user,
     });
-
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      message: error.message,
+    });
   }
 });
 
@@ -48,11 +58,9 @@ router.post("/login", async (req, res) => {
   try {
     const { email, password, device, location } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ message: "Email and password are required" });
-    }
-
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const user = await User.findOne({
+      email: email.toLowerCase(),
+    });
 
     if (!user) {
       return res.status(400).json({ message: "Invalid email" });
@@ -81,10 +89,11 @@ router.post("/login", async (req, res) => {
 
     await user.save();
 
-
-
     const token = jwt.sign(
-      { id: user._id, role: user.role },
+      {
+        id: user._id,
+        role: user.role,
+      },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
@@ -99,13 +108,14 @@ router.post("/login", async (req, res) => {
         role: user.role,
         institute_id: user.institute_id,
         branch_id: user.branch_id,
-        company_id: user.company_id,
-        menuAccess: user.menuAccess || [],
         loginInfo: user.loginInfo,
       },
     });
   } catch (error) {
-    res.status(500).json({ message: "Login error", error: error.message });
+    res.status(500).json({
+      message: "Login error",
+      error: error.message,
+    });
   }
 });
 

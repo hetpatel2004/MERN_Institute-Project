@@ -20,6 +20,9 @@ function Institutes() {
     branch_name: "",
     branch_city: "",
     branch_address: "",
+    branch_email: "",
+    branch_phone: "",
+    branch_status: "Active",
     admin_email: "",
     admin_password: "",
   };
@@ -31,9 +34,7 @@ function Institutes() {
     email: "",
     phone: "",
     status: "Active",
-    admin_email: "",
-    admin_password: "",
-    branches: [emptyBranch],
+    branches: [{ ...emptyBranch }],
   });
 
   const getInstitutes = async () => {
@@ -79,7 +80,7 @@ function Institutes() {
 
     setFormData({
       ...formData,
-      branches: updatedBranches,
+      branches: updatedBranches.length > 0 ? updatedBranches : [{ ...emptyBranch }],
     });
   };
 
@@ -91,11 +92,18 @@ function Institutes() {
       email: item.email || "",
       phone: item.phone || "",
       status: item.status || "Active",
-      admin_email: item.admin_email || "",
-      admin_password: "",
       branches:
         item.branches && item.branches.length > 0
-          ? item.branches
+          ? item.branches.map((branch) => ({
+              branch_name: branch.branch_name || "",
+              branch_city: branch.branch_city || "",
+              branch_address: branch.branch_address || "",
+              branch_email: branch.branch_email || "",
+              branch_phone: branch.branch_phone || "",
+              branch_status: branch.branch_status || "Active",
+              admin_email: branch.admin_email || branch.admin_id?.email || "",
+              admin_password: "",
+            }))
           : [{ ...emptyBranch }],
     });
 
@@ -120,7 +128,7 @@ function Institutes() {
       if (editId) {
         await axios.put(
           `http://localhost:5000/api/institutes/${editId}`,
-          formData,
+          formData
         );
         alert("Institute updated successfully");
       } else {
@@ -137,7 +145,7 @@ function Institutes() {
 
   const handleDeleteInstitute = async (id) => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this institute?",
+      "Are you sure you want to delete this institute?"
     );
 
     if (!confirmDelete) return;
@@ -159,8 +167,6 @@ function Institutes() {
       email: "",
       phone: "",
       status: "Active",
-      admin_email: "",
-      admin_password: "",
       branches: [{ ...emptyBranch }],
     });
 
@@ -258,8 +264,7 @@ function Institutes() {
                   <th>Email</th>
                   <th>Phone</th>
                   <th>Status</th>
-                  <th>Institute Admin Activity</th>
-                  <th>Branch Activity</th>
+                  <th style={{ minWidth: "360px" }}>Branch Activity</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -285,94 +290,66 @@ function Institutes() {
                       <td>
                         <div
                           style={{
-                            marginBottom: "8px",
-                            padding: "8px",
-                            borderRadius: "10px",
-                            background: "#f8fafc",
-                            border: "1px solid #e2e8f0",
-                            fontSize: "11px",
-                            lineHeight: "16px",
+                            maxHeight: "170px",
+                            overflowY: "auto",
+                            paddingRight: "6px",
                           }}
                         >
-                          <strong>Institute Admin</strong>
-                          <br />
-                          <b>Email:</b> {item.admin_email || "No email"}
-                          <br />
-                          <b>Password:</b>{" "}
-                          {item.admin_password || "No password"}
-                          <br />
-                          <b>IP:</b>{" "}
-                          {item.admin_loginInfo?.ipAddress ||
-                            item.admin_id?.loginInfo?.ipAddress ||
-                            "Not login yet"}
-                          <br />
-                          <b>Device:</b>{" "}
-                          {item.admin_loginInfo?.device ||
-                            item.admin_id?.loginInfo?.device ||
-                            "Not login yet"}
-                          <br />
-                          <b>Location:</b>{" "}
-                          {typeof item.admin_loginInfo?.location === "string"
-                            ? item.admin_loginInfo.location
-                            : item.admin_loginInfo?.location?.latitude &&
-                                item.admin_loginInfo?.location?.longitude
-                              ? `${item.admin_loginInfo.location.latitude}, ${item.admin_loginInfo.location.longitude}`
-                              : item.admin_id?.loginInfo?.location?.latitude &&
-                                  item.admin_id?.loginInfo?.location?.longitude
-                                ? `${item.admin_id.loginInfo.location.latitude}, ${item.admin_id.loginInfo.location.longitude}`
-                                : "Not allowed / not found"}
-                          <br />
-                          <b>Login Time:</b>{" "}
-                          {item.admin_loginInfo?.loginTime
-                            ? new Date(
-                                item.admin_loginInfo.loginTime,
-                              ).toLocaleString()
-                            : item.admin_id?.loginInfo?.loginTime
-                              ? new Date(
-                                  item.admin_id.loginInfo.loginTime,
-                                ).toLocaleString()
-                              : "Not login yet"}
+                          {item.branches?.length > 0
+                            ? item.branches.map((branch, index) => {
+                                const login = getBranchLoginInfo(branch);
+
+                                return (
+                                  <div
+                                    key={index}
+                                    style={{
+                                      marginBottom: "8px",
+                                      padding: "8px",
+                                      borderRadius: "10px",
+                                      background: "#f8fafc",
+                                      border: "1px solid #e2e8f0",
+                                      fontSize: "11px",
+                                      lineHeight: "16px",
+                                    }}
+                                  >
+                                    <strong>
+                                      {branch.branch_name || "Branch"}
+                                    </strong>
+                                    <br />
+
+                                    <b>Branch Email:</b>{" "}
+                                    {branch.branch_email || "No email"}
+                                    <br />
+
+                                    <b>Branch Phone:</b>{" "}
+                                    {branch.branch_phone || "No phone"}
+                                    <br />
+
+                                    <b>Status:</b>{" "}
+                                    {branch.branch_status || "Active"}
+                                    <br />
+
+                                    <b>Admin Email:</b>{" "}
+                                    {branch.admin_email ||
+                                      branch.admin_id?.email ||
+                                      "No admin email"}
+                                    <br />
+
+                                    <b>IP:</b> {login.ipAddress}
+                                    <br />
+
+                                    <b>Device:</b> {login.device}
+                                    <br />
+
+                                    <b>Location:</b> {login.location}
+                                    <br />
+
+                                    <b>Login Time:</b> {login.loginTime}
+                                  </div>
+                                );
+                              })
+                            : "No branch data"}
                         </div>
-                      </td>
-
-                      <td>
-                        {item.branches?.length > 0
-                          ? item.branches.map((branch, index) => {
-                              const login = getBranchLoginInfo(branch);
-
-                              return (
-                                <div
-                                  key={index}
-                                  style={{
-                                    marginBottom: "8px",
-                                    padding: "8px",
-                                    borderRadius: "10px",
-                                    background: "#f8fafc",
-                                    border: "1px solid #e2e8f0",
-                                    fontSize: "11px",
-                                    lineHeight: "16px",
-                                  }}
-                                >
-                                  <strong>
-                                    {branch.branch_name || "Branch"}
-                                  </strong>
-                                  <br />
-                                  <b>Email:</b>{" "}
-                                  {branch.admin_email ||
-                                    branch.admin_id?.email ||
-                                    "No email"}
-                                  <br />
-                                  <b>IP:</b> {login.ipAddress}
-                                  <br />
-                                  <b>Device:</b> {login.device}
-                                  <br />
-                                  <b>Location:</b> {login.location}
-                                  <br />
-                                  <b>Login Time:</b> {login.loginTime}
-                                </div>
-                              );
-                            })
-                          : "No admin data"}
                       </td>
 
                       <td>
@@ -396,7 +373,7 @@ function Institutes() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="9">No institute records found.</td>
+                    <td colSpan="8">No institute records found.</td>
                   </tr>
                 )}
               </tbody>
@@ -473,26 +450,6 @@ function Institutes() {
                   <option value="Inactive">Inactive</option>
                 </select>
               </div>
-
-              <div>
-                <label>Institute Admin Email <span style={{ color: "#64748b" }}>(Optional)</span></label>
-                <input
-                  type="email"
-                  name="admin_email"
-                  value={formData.admin_email}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div>
-                <label>Institute Admin Password <span style={{ color: "#64748b" }}>(Optional)</span></label>
-                <input
-                  type="text"
-                  name="admin_password"
-                  value={formData.admin_password}
-                  onChange={handleChange}
-                />
-              </div>
             </div>
 
             {!editId && (
@@ -541,6 +498,38 @@ function Institutes() {
                           value={branch.branch_address}
                           onChange={(e) => handleBranchChange(index, e)}
                         />
+                      </div>
+
+                      <div>
+                        <label>Branch Email</label>
+                        <input
+                          type="email"
+                          name="branch_email"
+                          value={branch.branch_email}
+                          onChange={(e) => handleBranchChange(index, e)}
+                        />
+                      </div>
+
+                      <div>
+                        <label>Branch Phone</label>
+                        <input
+                          type="text"
+                          name="branch_phone"
+                          value={branch.branch_phone}
+                          onChange={(e) => handleBranchChange(index, e)}
+                        />
+                      </div>
+
+                      <div>
+                        <label>Branch Status</label>
+                        <select
+                          name="branch_status"
+                          value={branch.branch_status}
+                          onChange={(e) => handleBranchChange(index, e)}
+                        >
+                          <option value="Active">Active</option>
+                          <option value="Inactive">Inactive</option>
+                        </select>
                       </div>
 
                       <div>

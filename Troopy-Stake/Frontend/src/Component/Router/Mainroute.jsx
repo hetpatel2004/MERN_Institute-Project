@@ -33,7 +33,7 @@ function Mainroute() {
       />
 
       <Route
-        path="/superadmin/dashboard"
+        path={ROUTES.superAdminDashboard}
         element={
           <ProtectedRoute role="superadmin">
             <SuperAdmin page="dashboard" />
@@ -42,7 +42,7 @@ function Mainroute() {
       />
 
       <Route
-        path="/superadmin/institute"
+        path={ROUTES.superAdminInstitute}
         element={
           <ProtectedRoute role="superadmin">
             <SuperAdmin page="institute">
@@ -53,7 +53,7 @@ function Mainroute() {
       />
 
       <Route
-        path="/superadmin/course"
+        path={ROUTES.superAdminCourse}
         element={
           <ProtectedRoute role="superadmin">
             <SuperAdmin page="course">
@@ -64,7 +64,7 @@ function Mainroute() {
       />
 
       <Route
-        path="/superadmin/company"
+        path={ROUTES.superAdminCompany}
         element={
           <ProtectedRoute role="superadmin">
             <SuperAdmin page="company">
@@ -75,21 +75,12 @@ function Mainroute() {
       />
 
       <Route
-        path="/superadmin/users"
+        path={ROUTES.superAdminUsers}
         element={
           <ProtectedRoute role="superadmin">
             <SuperAdmin page="users">
               <Users />
             </SuperAdmin>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path={ROUTES.instituteAdmin}
-        element={
-          <ProtectedRoute role="instituteadmin">
-            <UserDashboard />
           </ProtectedRoute>
         }
       />
@@ -107,6 +98,15 @@ function Mainroute() {
         path={ROUTES.companyAdmin}
         element={
           <ProtectedRoute role="companyadmin">
+            <UserDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path={ROUTES.student}
+        element={
+          <ProtectedRoute role="student">
             <UserDashboard />
           </ProtectedRoute>
         }

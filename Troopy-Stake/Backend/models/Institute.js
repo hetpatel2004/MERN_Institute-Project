@@ -7,21 +7,42 @@ const branchSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+
     branch_city: {
       type: String,
       required: true,
       trim: true,
     },
+
     branch_address: {
       type: String,
       required: true,
       trim: true,
     },
+
+    branch_email: {
+      type: String,
+      lowercase: true,
+      trim: true,
+    },
+
+    branch_phone: {
+      type: String,
+      trim: true,
+    },
+
+    branch_status: {
+      type: String,
+      enum: ["Active", "Inactive"],
+      default: "Active",
+    },
+
     admin_email: {
       type: String,
       lowercase: true,
       trim: true,
     },
+
     admin_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -37,17 +58,20 @@ const instituteSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+
     code: {
       type: String,
       required: true,
       unique: true,
       trim: true,
     },
+
     city: {
       type: String,
       required: true,
       trim: true,
     },
+
     email: {
       type: String,
       required: true,
@@ -55,25 +79,18 @@ const instituteSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+
     phone: {
       type: String,
       required: true,
     },
+
     status: {
       type: String,
       enum: ["Active", "Inactive"],
       default: "Active",
     },
-    admin_email: {
-      type: String,
-      required: true,
-      lowercase: true,
-      trim: true,
-    },
-    admin_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
+
     branches: [branchSchema],
   },
   { timestamps: true }
