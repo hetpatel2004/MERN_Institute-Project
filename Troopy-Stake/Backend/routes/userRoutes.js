@@ -1,47 +1,137 @@
 const express = require("express");
+const bcrypt = require("bcryptjs");
+const User = require("../models/User");
 
 const router = express.Router();
 
-const User = require("../models/User");
-
-
-// GET USERS
 router.get("/", async (req, res) => {
-  const users = await User.find();
-
-  res.json(users);
+  try {
+    const users = await User.find().sort({ createdAt: -1 });
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to fetch users",
+      error: error.message,
+    });
+  }
 });
 
-
-// ADD USER
 router.post("/", async (req, res) => {
-  const user = new User(req.body);
+  try {
+    const { name, email, password, role, status, menuAccess } = req.body;
 
-  await user.save();
+    const existingUser = await User.findOne({
+      email: email.toLowerCase(),
+    });
 
-  res.json(user);
+    if (existingUser) {
+      return res.status(400).json({
+        message: "Email already exists",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await User.create({
+      name,
+      email: email.toLowerCase(),
+      password: hashedPassword,
+      role,
+      status: status || "Active",
+      menuAccess: menuAccess || [],
+    });
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to add user",
+      error: error.message,
+    });
+  }
 });
 
-
-// UPDATE USER
 router.put("/:id", async (req, res) => {
-  const user = await User.findByIdAndUpdate(
-    req.params.id,
-    req.body,
-    { new: true }
-  );
+  try {
+    const { name, email, password, role, status, menuAccess } = req.body;
 
-  res.json(user);
+    const updateData = {
+      name,
+      email: email.toLowerCase(),
+      role,
+      status,
+      menuAccess,
+    };
+
+    if (password) {
+      updateData.password = await bcrypt.hash(password, 10);
+    }
+
+    const user = await User.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+    });
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to update user",
+      error: error.message,
+    });
+  }
 });
 
+router.patch("/:id/block", async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { status: "Blocked" },
+      { new: true }
+    );
 
-// DELETE USER
+    res.json({
+      message: "User blocked successfully",
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to block user",
+      error: error.message,
+    });
+  }
+});
+
+router.patch("/:id/unblock", async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { status: "Active" },
+      { new: true }
+    );
+
+    res.json({
+      message: "User unblocked successfully",
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to unblock user",
+      error: error.message,
+    });
+  }
+});
+
 router.delete("/:id", async (req, res) => {
-  await User.findByIdAndDelete(req.params.id);
+  try {
+    await User.findByIdAndDelete(req.params.id);
 
-  res.json({
-    message: "User Deleted",
-  });
+    res.json({
+      message: "User Deleted",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to delete user",
+      error: error.message,
+    });
+  }
 });
 
 module.exports = router;

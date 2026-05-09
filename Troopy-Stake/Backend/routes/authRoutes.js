@@ -1,7 +1,6 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-
 const User = require("../models/User");
 
 const router = express.Router();
@@ -18,7 +17,7 @@ router.post("/register", async (req, res) => {
 
     if (role === "instituteadmin") {
       return res.status(403).json({
-        message: "Institute Admin role removed. Use Branch Admin only.",
+        message: "Institute Admin removed. Use Branch Admin only.",
       });
     }
 
@@ -41,6 +40,7 @@ router.post("/register", async (req, res) => {
       email: email.toLowerCase(),
       password: hashedPassword,
       role,
+      status: "Active",
     });
 
     res.status(201).json({
@@ -58,18 +58,40 @@ router.post("/login", async (req, res) => {
   try {
     const { email, password, device, location } = req.body;
 
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Email and password are required",
+      });
+    }
+
     const user = await User.findOne({
       email: email.toLowerCase(),
     });
 
     if (!user) {
-      return res.status(400).json({ message: "Invalid email" });
+      return res.status(400).json({
+        message: "Invalid email",
+      });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid password" });
+      return res.status(400).json({
+        message: "Invalid password",
+      });
+    }
+
+    if (user.status === "Blocked") {
+      return res.status(403).json({
+        message: "Super Admin blocked you",
+      });
+    }
+
+    if (user.status === "Inactive") {
+      return res.status(403).json({
+        message: "Your account is inactive. Contact Super Admin.",
+      });
     }
 
     const ipAddress =
@@ -95,7 +117,9 @@ router.post("/login", async (req, res) => {
         role: user.role,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "1d" }
+      {
+        expiresIn: "1d",
+      }
     );
 
     res.status(200).json({
@@ -108,6 +132,9 @@ router.post("/login", async (req, res) => {
         role: user.role,
         institute_id: user.institute_id,
         branch_id: user.branch_id,
+        company_id: user.company_id,
+        menuAccess: user.menuAccess || [],
+        status: user.status,
         loginInfo: user.loginInfo,
       },
     });
