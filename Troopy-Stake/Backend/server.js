@@ -8,6 +8,7 @@ const instituteRoutes = require("./routes/instituteRoutes");
 const companyRoutes = require("./routes/companyRoutes");
 const branchRoutes = require("./routes/branchRoutes");
 const userRoutes = require("./routes/userRoutes");
+const courseRoutes = require("./routes/courseRoutes");
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use("/api/institutes", instituteRoutes);
 app.use("/api/companies", companyRoutes);
 app.use("/api/branches", branchRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/courses", courseRoutes);
 
 // ENV fallback
 const PORT = process.env.PORT || 5000;
