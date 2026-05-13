@@ -7,9 +7,11 @@ import Registration from "../Auth/Registration";
 
 import SuperAdmin from "../Supper_admin/Supper_admin";
 import Institutes from "../Supper_admin/Institutes";
-import Courses from "../Supper_admin/AdminCourses";
 import Companies from "../Supper_admin/Companies";
 import Users from "../Supper_admin/Users";
+
+import CourseAllCourses from "../Supper_admin/Course/CourseAllCourses";
+import CourseCreate from "../Supper_admin/Course/CourseCreate";
 
 import UserDashboard from "../User_dashboard/UserDashboard";
 
@@ -22,9 +24,7 @@ function Mainroute() {
   return (
     <Routes>
       <Route path="/" element={<Index />} />
-
       <Route path="/login" element={<Login />} />
-
       <Route path="/registration" element={<Registration />} />
 
       <Route
@@ -53,11 +53,33 @@ function Mainroute() {
       />
 
       <Route
-        path={ROUTES.superAdminCourse}
+        path="/superadmin/course"
         element={
           <ProtectedRoute role="superadmin">
             <SuperAdmin page="course">
-              <Courses />
+              <CourseAllCourses />
+            </SuperAdmin>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/superadmin/course/create"
+        element={
+          <ProtectedRoute role="superadmin">
+            <SuperAdmin page="course">
+              <CourseCreate />
+            </SuperAdmin>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/superadmin/course/edit/:id"
+        element={
+          <ProtectedRoute role="superadmin">
+            <SuperAdmin page="course">
+              <CourseCreate />
             </SuperAdmin>
           </ProtectedRoute>
         }

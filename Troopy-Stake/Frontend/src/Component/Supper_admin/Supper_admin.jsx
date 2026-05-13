@@ -11,8 +11,12 @@ import {
   Plus,
   TrendingUp,
   LogOut,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 
+import CourseAllCourses from "../Supper_admin/Course/CourseAllCourses";
+import CourseCreate from "../Supper_admin/Course/CourseCreate";
 import { ROUTES } from "../../constants/routes";
 import { clearAuthData } from "../../utils/storage";
 import "./Supper_admin.css";
@@ -20,7 +24,7 @@ import "./Supper_admin.css";
 function Dashboard({ institutes, courses, companies, navigate }) {
   const totalStudents = institutes.reduce(
     (total, item) => total + Number(item.students || 0),
-    0
+    0,
   );
 
   return (
@@ -118,7 +122,7 @@ function Supper_admin({ children, page }) {
     clearAuthData();
     navigate(ROUTES.login, { replace: true });
   };
-
+  const [courseOpen, setCourseOpen] = useState(page === "course");
   const [institutes, setInstitutes] = useState([
     {
       id: 1,
@@ -196,10 +200,31 @@ function Supper_admin({ children, page }) {
             Institute
           </NavLink>
 
-          <NavLink to={ROUTES.superAdminCourse}>
-            <BookOpen size={20} />
-            Course
-          </NavLink>
+          <div>
+            <button
+              type="button"
+              className={`sa-course-dropdown-btn ${page === "course" ? "active" : ""}`}
+              onClick={() => setCourseOpen(!courseOpen)}
+            >
+              <BookOpen size={20} />
+              <span>Course</span>
+
+              <span style={{ marginLeft: "auto" }}>
+                {courseOpen ? (
+                  <ChevronUp size={16} />
+                ) : (
+                  <ChevronDown size={16} />
+                )}
+              </span>
+            </button>
+
+            {courseOpen && (
+              <div className="sa-course-submenu">
+                <NavLink to="/superadmin/course">All Courses</NavLink>
+                <NavLink to="/superadmin/course/create">Create Course</NavLink>
+              </div>
+            )}
+          </div>
 
           <NavLink to="/superadmin/users">
             <UsersIcon size={20} />
@@ -216,8 +241,6 @@ function Supper_admin({ children, page }) {
           <LogOut size={18} />
           <span>Logout</span>
         </button>
-
-        
       </aside>
 
       <main className="sa-main">
