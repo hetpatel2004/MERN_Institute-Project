@@ -8,6 +8,8 @@ function CourseCreate() {
   const navigate = useNavigate();
   const { id } = useParams();
 
+  const THEME = "#0f172a";
+
   const [form, setForm] = useState({
     title: "",
     slug: "",
@@ -17,7 +19,7 @@ function CourseCreate() {
     durationValue: "",
     durationType: "Month",
     price: "",
-    thumbnail: "",
+    thumbnailUrl: "",
     teaserVideoUrl: "",
   });
 
@@ -42,19 +44,27 @@ function CourseCreate() {
             durationValue: data.durationValue || "",
             durationType: data.durationType || "Month",
             price: data.price || "",
-            thumbnail: data.thumbnail || "",
+            thumbnailUrl: data.thumbnailUrl || data.thumbnail || "",
             teaserVideoUrl: data.teaserVideoUrl || "",
           });
 
-          setThumbnailPreview(
-            data.thumbnail ? `http://localhost:5000${data.thumbnail}` : ""
-          );
+          if (data.thumbnailUrl) {
+            setThumbnailPreview(data.thumbnailUrl);
+          } else if (data.thumbnail) {
+            setThumbnailPreview(
+              data.thumbnail.startsWith("http")
+                ? data.thumbnail
+                : `http://localhost:5000${data.thumbnail}`
+            );
+          }
 
-          setVideoPreview(
-            data.teaserVideoUrl
-              ? `http://localhost:5000${data.teaserVideoUrl}`
-              : ""
-          );
+          if (data.teaserVideoUrl) {
+            setVideoPreview(
+              data.teaserVideoUrl.startsWith("http")
+                ? data.teaserVideoUrl
+                : `http://localhost:5000${data.teaserVideoUrl}`
+            );
+          }
         })
         .catch((error) => {
           console.log(error);
@@ -62,6 +72,19 @@ function CourseCreate() {
         });
     }
   }, [id]);
+
+  const inputStyle = {
+    height: "46px",
+    borderRadius: "12px",
+    border: "1px solid #dbe3ef",
+    boxShadow: "none",
+  };
+
+  const labelStyle = {
+    fontWeight: "600",
+    color: "#334155",
+    marginBottom: "7px",
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -76,21 +99,51 @@ function CourseCreate() {
     }));
   };
 
+  const handleThumbnailUrlChange = (e) => {
+    const value = e.target.value;
+
+    setForm((prev) => ({
+      ...prev,
+      thumbnailUrl: value,
+    }));
+
+    setThumbnailFile(null);
+    setThumbnailPreview(value);
+  };
+
+  const handleVideoUrlChange = (e) => {
+    const value = e.target.value;
+
+    setForm((prev) => ({
+      ...prev,
+      teaserVideoUrl: value,
+    }));
+
+    setVideoFile(null);
+    setVideoPreview(value);
+  };
+
   const handleThumbnailChange = (e) => {
     const file = e.target.files[0];
-
     if (!file) return;
 
     setThumbnailFile(file);
+    setForm((prev) => ({
+      ...prev,
+      thumbnailUrl: "",
+    }));
     setThumbnailPreview(URL.createObjectURL(file));
   };
 
   const handleVideoChange = (e) => {
     const file = e.target.files[0];
-
     if (!file) return;
 
     setVideoFile(file);
+    setForm((prev) => ({
+      ...prev,
+      teaserVideoUrl: "",
+    }));
     setVideoPreview(URL.createObjectURL(file));
   };
 
@@ -104,7 +157,7 @@ function CourseCreate() {
       durationValue: "",
       durationType: "Month",
       price: "",
-      thumbnail: "",
+      thumbnailUrl: "",
       teaserVideoUrl: "",
     });
 
@@ -132,11 +185,11 @@ function CourseCreate() {
       formData.append("tagline", form.tagline);
       formData.append("durationValue", form.durationValue);
       formData.append("durationType", form.durationType);
-      formData.append(
-        "duration",
-        `${form.durationValue} ${form.durationType}`
-      );
+      formData.append("duration", `${form.durationValue} ${form.durationType}`);
       formData.append("price", form.price);
+
+      formData.append("thumbnailUrl", form.thumbnailUrl || "");
+      formData.append("teaserVideoUrl", form.teaserVideoUrl || "");
 
       if (thumbnailFile) {
         formData.append("thumbnail", thumbnailFile);
@@ -148,17 +201,13 @@ function CourseCreate() {
 
       if (id) {
         await axios.put(`${API_URL}/${id}`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
         });
 
         alert("Course updated successfully");
       } else {
         await axios.post(API_URL, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
         });
 
         alert("Course created successfully");
@@ -178,238 +227,346 @@ function CourseCreate() {
   return (
     <div
       className="container-fluid px-4 py-4"
-      style={{
-        background: "#f8fafc",
-        minHeight: "100vh",
-      }}
+      style={{ background: "#f5f7fb", minHeight: "100vh" }}
     >
-      <p className="text-muted mb-1" style={{ fontSize: "13px" }}>
-        Super Admin / Courses / {id ? "Edit" : "Create"}
-      </p>
-
-      <h2 className="fw-bold mb-1">{id ? "Edit Course" : "Create Course"}</h2>
-
-      <p className="text-muted mb-4">Add a new course to the system</p>
-
-      <form
-        onSubmit={(e) => handleSubmit(e, false)}
-        className="card border-0 shadow-sm"
+      <div
+        className="mb-4 p-4"
         style={{
-          borderRadius: "18px",
-          overflow: "hidden",
+          background: `linear-gradient(135deg, ${THEME}, #1e293b)`,
+          borderRadius: "22px",
+          color: "#fff",
+          boxShadow: "0 14px 35px rgba(15,23,42,0.18)",
         }}
       >
-        <div className="card-body p-4">
-          <h5 className="fw-bold mb-4">Basic Course Information</h5>
+        <p style={{ color: "#cbd5e1", marginBottom: "8px" }}>
+          Super Admin / Courses / {id ? "Edit Course" : "Create Course"}
+        </p>
 
-          <div className="row g-4">
-            <div className="col-md-6">
-              <label className="form-label fw-semibold">Title *</label>
-              <input
-                type="text"
-                name="title"
-                className="form-control"
-                placeholder="Enter course title"
-                value={form.title}
-                onChange={handleChange}
-              />
+        <h2 className="fw-bold mb-2">
+          {id ? "Edit Course" : "Create New Course"}
+        </h2>
+
+        <p className="mb-0" style={{ color: "#e2e8f0" }}>
+          Add course details, thumbnail, video, duration and price.
+        </p>
+      </div>
+
+      <form onSubmit={(e) => handleSubmit(e, false)}>
+        <div className="row g-4">
+          <div className="col-lg-8">
+            <div
+              className="card border-0"
+              style={{
+                borderRadius: "22px",
+                boxShadow: "0 12px 30px rgba(15,23,42,0.08)",
+              }}
+            >
+              <div className="card-body p-4">
+                <h5 className="fw-bold mb-4" style={{ color: THEME }}>
+                  Basic Course Information
+                </h5>
+
+                <div className="row g-4">
+                  <div className="col-md-6">
+                    <label style={labelStyle}>Course Title *</label>
+                    <input
+                      type="text"
+                      name="title"
+                      className="form-control"
+                      placeholder="Enter course title"
+                      value={form.title}
+                      onChange={handleChange}
+                      style={inputStyle}
+                    />
+                  </div>
+
+                  <div className="col-md-6">
+                    <label style={labelStyle}>Slug *</label>
+                    <input
+                      type="text"
+                      name="slug"
+                      className="form-control"
+                      placeholder="course-slug"
+                      value={form.slug}
+                      onChange={handleChange}
+                      style={inputStyle}
+                    />
+                  </div>
+
+                  <div className="col-md-6">
+                    <label style={labelStyle}>Course Type *</label>
+                    <select
+                      name="type"
+                      className="form-select"
+                      value={form.type}
+                      onChange={handleChange}
+                      style={inputStyle}
+                    >
+                      <option value="">Select type</option>
+                      <option value="Online">Online</option>
+                      <option value="Offline">Offline</option>
+                      <option value="Hybrid">Hybrid</option>
+                    </select>
+                  </div>
+
+                  <div className="col-md-6">
+                    <label style={labelStyle}>Status *</label>
+                    <select
+                      name="status"
+                      className="form-select"
+                      value={form.status}
+                      onChange={handleChange}
+                      style={inputStyle}
+                    >
+                      <option value="Draft">Draft</option>
+                      <option value="Published">Published</option>
+                    </select>
+                  </div>
+
+                  <div className="col-md-12">
+                    <label style={labelStyle}>Course Tagline</label>
+                    <textarea
+                      name="tagline"
+                      className="form-control"
+                      rows="5"
+                      placeholder="Write short course tagline..."
+                      value={form.tagline}
+                      onChange={handleChange}
+                      style={{
+                        borderRadius: "14px",
+                        border: "1px solid #dbe3ef",
+                        boxShadow: "none",
+                      }}
+                    />
+                  </div>
+
+                  <div className="col-md-4">
+                    <label style={labelStyle}>Duration Value</label>
+                    <input
+                      type="number"
+                      name="durationValue"
+                      className="form-control"
+                      placeholder="1"
+                      value={form.durationValue}
+                      onChange={handleChange}
+                      style={inputStyle}
+                    />
+                  </div>
+
+                  <div className="col-md-4">
+                    <label style={labelStyle}>Duration Type</label>
+                    <select
+                      name="durationType"
+                      className="form-select"
+                      value={form.durationType}
+                      onChange={handleChange}
+                      style={inputStyle}
+                    >
+                      <option value="Day">Day</option>
+                      <option value="Month">Month</option>
+                      <option value="Year">Year</option>
+                    </select>
+                  </div>
+
+                  <div className="col-md-4">
+                    <label style={labelStyle}>Price</label>
+                    <input
+                      type="number"
+                      name="price"
+                      className="form-control"
+                      placeholder="10000"
+                      value={form.price}
+                      onChange={handleChange}
+                      style={inputStyle}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="col-lg-4">
+            <div
+              className="card border-0 mb-4"
+              style={{
+                borderRadius: "22px",
+                boxShadow: "0 12px 30px rgba(15,23,42,0.08)",
+              }}
+            >
+              <div className="card-body p-4">
+                <h5 className="fw-bold mb-3" style={{ color: THEME }}>
+                  Thumbnail
+                </h5>
+
+                <label style={labelStyle}>Image URL</label>
+                <input
+                  type="text"
+                  className="form-control mb-3"
+                  placeholder="Paste image URL"
+                  value={form.thumbnailUrl}
+                  onChange={handleThumbnailUrlChange}
+                  style={inputStyle}
+                />
+
+                <div className="text-center text-muted mb-2">OR</div>
+
+                <label style={labelStyle}>Choose From PC</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="form-control"
+                  onChange={handleThumbnailChange}
+                  style={inputStyle}
+                />
+
+                <div
+                  className="mt-3 d-flex align-items-center justify-content-center"
+                  style={{
+                    height: "180px",
+                    borderRadius: "18px",
+                    border: "2px dashed #cbd5e1",
+                    background: "#f8fafc",
+                    overflow: "hidden",
+                  }}
+                >
+                  {thumbnailPreview ? (
+                    <img
+                      src={thumbnailPreview}
+                      alt="thumbnail"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  ) : (
+                    <div className="text-center text-muted">
+                      Paste URL or upload image
+                      <br />
+                      <small>PNG / JPG</small>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
-            <div className="col-md-6">
-              <label className="form-label fw-semibold">Slug *</label>
-              <input
-                type="text"
-                name="slug"
-                className="form-control"
-                placeholder="Enter slug"
-                value={form.slug}
-                onChange={handleChange}
-              />
-            </div>
+            <div
+              className="card border-0"
+              style={{
+                borderRadius: "22px",
+                boxShadow: "0 12px 30px rgba(15,23,42,0.08)",
+              }}
+            >
+              <div className="card-body p-4">
+                <h5 className="fw-bold mb-3" style={{ color: THEME }}>
+                  Promotional Video
+                </h5>
 
-            <div className="col-md-6">
-              <label className="form-label fw-semibold">Type *</label>
-              <select
-                name="type"
-                className="form-select"
-                value={form.type}
-                onChange={handleChange}
-              >
-                <option value="">Select type</option>
-                <option value="Online">Online</option>
-                <option value="Offline">Offline</option>
-                <option value="Hybrid">Hybrid</option>
-              </select>
-            </div>
+                <label style={labelStyle}>Video URL</label>
+                <input
+                  type="text"
+                  className="form-control mb-3"
+                  placeholder="Paste video URL"
+                  value={form.teaserVideoUrl}
+                  onChange={handleVideoUrlChange}
+                  style={inputStyle}
+                />
 
-            <div className="col-md-6">
-              <label className="form-label fw-semibold">Status *</label>
-              <select
-                name="status"
-                className="form-select"
-                value={form.status}
-                onChange={handleChange}
-              >
-                <option value="Draft">Draft</option>
-                <option value="Published">Published</option>
-              </select>
-            </div>
+                <div className="text-center text-muted mb-2">OR</div>
 
-            <div className="col-md-7">
-              <label className="form-label fw-semibold">Course Tagline</label>
-              <textarea
-                name="tagline"
-                className="form-control"
-                placeholder="Enter course tagline"
-                rows="5"
-                value={form.tagline}
-                onChange={handleChange}
-              />
-            </div>
+                <label style={labelStyle}>Choose From PC</label>
+                <input
+                  type="file"
+                  accept="video/*"
+                  className="form-control"
+                  onChange={handleVideoChange}
+                  style={inputStyle}
+                />
 
-            <div className="col-md-5">
-              <label className="form-label fw-semibold">
-                Thumbnail Upload
-              </label>
-
-              <input
-                type="file"
-                accept="image/*"
-                className="form-control"
-                onChange={handleThumbnailChange}
-              />
-
-              <div
-                className="border rounded d-flex align-items-center justify-content-center mt-3"
-                style={{
-                  height: "130px",
-                  overflow: "hidden",
-                  background: "#f8fafc",
-                }}
-              >
-                {thumbnailPreview ? (
-                  <img
-                    src={thumbnailPreview}
-                    alt="thumbnail"
+                {videoPreview ? (
+                  <video
+                    controls
+                    className="mt-3"
                     style={{
                       width: "100%",
-                      height: "100%",
+                      maxHeight: "220px",
+                      borderRadius: "18px",
                       objectFit: "cover",
                     }}
-                  />
+                  >
+                    <source src={videoPreview} />
+                  </video>
                 ) : (
-                  <div className="text-center text-muted">
-                    Click to upload thumbnail
-                    <br />
-                    <small>PNG, JPG up to 2MB</small>
+                  <div
+                    className="mt-3 d-flex align-items-center justify-content-center text-muted"
+                    style={{
+                      height: "140px",
+                      borderRadius: "18px",
+                      border: "2px dashed #cbd5e1",
+                      background: "#f8fafc",
+                    }}
+                  >
+                    Paste URL or upload video
                   </div>
                 )}
               </div>
             </div>
-
-            <div className="col-md-12">
-              <label className="form-label fw-semibold">
-                Upload Promotional / Teaser Video
-              </label>
-
-              <input
-                type="file"
-                accept="video/*"
-                className="form-control"
-                onChange={handleVideoChange}
-              />
-
-              {videoPreview && (
-                <video
-                  controls
-                  className="mt-3 rounded"
-                  style={{
-                    width: "100%",
-                    maxHeight: "300px",
-                    objectFit: "cover",
-                  }}
-                >
-                  <source src={videoPreview} />
-                </video>
-              )}
-            </div>
-
-            <div className="col-md-3">
-              <label className="form-label fw-semibold">Duration Value</label>
-              <input
-                type="number"
-                name="durationValue"
-                className="form-control"
-                placeholder="Example: 1"
-                value={form.durationValue}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="col-md-3">
-              <label className="form-label fw-semibold">Duration Type</label>
-              <select
-                name="durationType"
-                className="form-select"
-                value={form.durationType}
-                onChange={handleChange}
-              >
-                <option value="Day">Day</option>
-                <option value="Month">Month</option>
-                <option value="Year">Year</option>
-              </select>
-            </div>
-
-            <div className="col-md-6">
-              <label className="form-label fw-semibold">Price</label>
-              <input
-                type="number"
-                name="price"
-                className="form-control"
-                placeholder="Example: 10000"
-                value={form.price}
-                onChange={handleChange}
-              />
-            </div>
           </div>
         </div>
 
-        <div className="card-footer bg-white border-0 p-4 d-flex gap-3">
+        <div
+          className="mt-4 p-3 d-flex gap-3 justify-content-end"
+          style={{
+            background: "#fff",
+            borderRadius: "18px",
+            boxShadow: "0 8px 25px rgba(15,23,42,0.06)",
+          }}
+        >
           <button
-            type="submit"
-            className="btn text-white"
+            type="button"
+            onClick={() => navigate("/superadmin/course")}
+            className="btn"
             style={{
-              background: "linear-gradient(135deg,#ff9d00,#ff6b00)",
-              fontWeight: "600",
-              borderRadius: "10px",
+              border: "1px solid #cbd5e1",
+              color: THEME,
+              borderRadius: "12px",
               padding: "10px 18px",
+              fontWeight: "600",
             }}
           >
-            {id ? "Update Course" : "Create Course"}
+            Cancel
           </button>
 
           {!id && (
             <button
               type="button"
               onClick={(e) => handleSubmit(e, true)}
-              className="btn btn-outline-secondary"
+              className="btn"
               style={{
-                borderRadius: "10px",
+                background: "#e2e8f0",
+                color: THEME,
+                borderRadius: "12px",
+                padding: "10px 18px",
+                fontWeight: "600",
               }}
             >
-              Create & create another
+              Create & Add Another
             </button>
           )}
 
           <button
-            type="button"
-            onClick={() => navigate("/superadmin/course")}
-            className="btn btn-outline-secondary"
+            type="submit"
+            className="btn"
             style={{
-              borderRadius: "10px",
+              background: THEME,
+              color: "#fff",
+              borderRadius: "12px",
+              padding: "10px 22px",
+              fontWeight: "700",
+              boxShadow: "0 8px 20px rgba(15,23,42,0.25)",
             }}
           >
-            Cancel
+            {id ? "Update Course" : "Create Course"}
           </button>
         </div>
       </form>

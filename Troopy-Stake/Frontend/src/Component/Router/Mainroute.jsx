@@ -12,7 +12,7 @@ import Users from "../Supper_admin/Users";
 
 import CourseAllCourses from "../Supper_admin/Course/CourseAllCourses";
 import CourseCreate from "../Supper_admin/Course/CourseCreate";
-
+import CourseModules from "../Supper_admin/Course/CourseModules";
 import UserDashboard from "../User_dashboard/UserDashboard";
 
 import ProtectedRoute from "../Auth/ProtectedRoute";
@@ -69,6 +69,17 @@ function Mainroute() {
           <ProtectedRoute role="superadmin">
             <SuperAdmin page="course">
               <CourseCreate />
+            </SuperAdmin>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/superadmin/course/:courseId/modules"
+        element={
+          <ProtectedRoute role="superadmin">
+            <SuperAdmin page="course">
+              <CourseModules />
             </SuperAdmin>
           </ProtectedRoute>
         }
