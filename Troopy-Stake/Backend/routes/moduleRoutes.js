@@ -79,4 +79,40 @@ router.post("/:moduleId/topics", async (req, res) => {
   }
 });
 
+router.put("/:id", async (req, res) => {
+  try {
+    const { title, duration } = req.body;
+
+    const updatedModule = await Module.findByIdAndUpdate(
+      req.params.id,
+      { title, duration },
+      { new: true }
+    );
+
+    res.json({
+      message: "Module updated successfully",
+      module: updatedModule,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to update module",
+      error: error.message,
+    });
+  }
+});
+
+router.delete("/:id", async (req, res) => {
+  try {
+    await Module.findByIdAndDelete(req.params.id);
+
+    res.json({
+      message: "Module deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to delete module",
+      error: error.message,
+    });
+  }
+});
 module.exports = router;

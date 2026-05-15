@@ -222,7 +222,7 @@ function CourseAllCourses() {
                           Add Modules
                         </Link>
 
-                        <button
+                        {/* <button
                           onClick={() => deleteCourse(course._id)}
                           className="btn btn-sm"
                           style={{
@@ -232,7 +232,7 @@ function CourseAllCourses() {
                           }}
                         >
                           Delete
-                        </button>
+                        </button> */}
                       </div>
                     </td>
                   </tr>

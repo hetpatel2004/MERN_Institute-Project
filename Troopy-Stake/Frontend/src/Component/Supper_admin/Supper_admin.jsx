@@ -222,7 +222,7 @@ function Supper_admin({ children, page }) {
               <div className="sa-course-submenu">
                 <NavLink to="/superadmin/course">All Courses</NavLink>
                 <NavLink to="/superadmin/course/create">Create Course</NavLink>
-                <NavLink to="/superadmin/course/modules">Course Modules</NavLink>
+                
               </div>
             )}
           </div>
