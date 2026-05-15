@@ -32,7 +32,7 @@ app.use("/api/courses", courseRoutes);
 app.use("/api/modules", moduleRoutes);
 app.use("/uploads", express.static("uploads"));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
+app.use("/api/modules", moduleRoutes);
 // ENV fallback
 const PORT = process.env.PORT || 5000;
 const MONGO_URL =

@@ -1404,3 +1404,404 @@
   background: rgba(20, 184, 166, 0.18);
   color: #ffffff;
 }
+
+.course-module-page {
+  min-height: 100vh;
+}
+
+.cm-header {
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  color: white;
+  padding: 34px;
+  border-radius: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.22);
+}
+
+.cm-header p {
+  color: #14b8a6;
+  font-weight: 900;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.cm-header h1 {
+  font-size: 38px;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+.cm-header span {
+  color: #cbd5e1;
+}
+
+.cm-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+  margin-bottom: 24px;
+}
+
+.cm-stat-card {
+  background: white;
+  padding: 24px;
+  border-radius: 20px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 16px 35px rgba(15, 23, 42, 0.08);
+}
+
+.cm-stat-card svg {
+  color: #0f766e;
+  margin-bottom: 12px;
+}
+
+.cm-stat-card p {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.cm-stat-card h2 {
+  font-size: 34px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.cm-grid {
+  display: grid;
+  grid-template-columns: 2fr 0.9fr;
+  gap: 24px;
+}
+
+.cm-list-card,
+.cm-form-card {
+  background: white;
+  border-radius: 22px;
+  padding: 24px;
+  box-shadow: 0 16px 35px rgba(15, 23, 42, 0.08);
+  border: 1px solid #e5e7eb;
+}
+
+.cm-list-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+}
+
+.cm-list-top h2,
+.cm-form-card h2 {
+  font-size: 24px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.cm-list-top p,
+.cm-form-card p {
+  color: #64748b;
+}
+
+.cm-search {
+  width: 280px;
+  height: 46px;
+  border: 1px solid #d1d5db;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+}
+
+.cm-search input {
+  border: none;
+  outline: none;
+  width: 100%;
+}
+
+.cm-course-box {
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  margin-bottom: 18px;
+  overflow: hidden;
+}
+
+.cm-course-head {
+  padding: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+}
+
+.cm-course-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.cm-thumb {
+  width: 62px;
+  height: 62px;
+  border-radius: 14px;
+  background: #0f172a;
+  display: grid;
+  place-items: center;
+  color: white;
+  overflow: hidden;
+}
+
+.cm-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cm-course-info h3 {
+  font-size: 18px;
+  font-weight: 900;
+  margin-bottom: 5px;
+}
+
+.cm-course-info p {
+  color: #64748b;
+  margin: 0;
+  font-weight: 600;
+}
+
+.cm-published {
+  background: #dcfce7;
+  color: #15803d;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.cm-draft {
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.cm-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cm-add-btn,
+.cm-collapse-btn {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+}
+
+.cm-add-btn {
+  background: linear-gradient(135deg, #0f766e, #14b8a6);
+  color: white;
+}
+
+.cm-collapse-btn {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.cm-module-table {
+  padding: 16px;
+}
+
+.cm-module-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.cm-module-table th {
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 13px;
+  text-transform: uppercase;
+  padding: 14px;
+}
+
+.cm-module-table td {
+  padding: 14px;
+  border-bottom: 1px solid #f1f5f9;
+  font-weight: 600;
+  color: #334155;
+}
+
+.cm-no-module,
+.cm-empty {
+  text-align: center;
+  padding: 28px;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.cm-row-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.cm-edit,
+.cm-delete {
+  border: none;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.cm-edit {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.cm-delete {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.cm-form-card {
+  height: fit-content;
+  position: sticky;
+  top: 28px;
+}
+
+.cm-form-card label {
+  display: block;
+  margin-top: 16px;
+  margin-bottom: 7px;
+  font-weight: 900;
+  color: #334155;
+}
+
+.cm-form-card input,
+.cm-form-card select,
+.cm-form-card textarea {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 13px;
+  padding: 13px;
+  outline: none;
+}
+
+.cm-form-card input:focus,
+.cm-form-card select:focus,
+.cm-form-card textarea:focus {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.14);
+}
+
+.cm-duration {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.cm-save-btn,
+.cm-cancel-btn {
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  padding: 13px;
+  margin-top: 18px;
+  font-weight: 900;
+}
+
+.cm-save-btn {
+  background: linear-gradient(135deg, #0f766e, #14b8a6);
+  color: white;
+}
+
+.cm-cancel-btn {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+@media (max-width: 1100px) {
+  .cm-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cm-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.cm-topic-btn {
+  border: none;
+  background: #dcfce7;
+  color: #15803d;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.cm-topic-btn:hover {
+  background: #bbf7d0;
+}
+.course-thumb {
+  width: 70px;
+  height: 55px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.course-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumb-placeholder {
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.course-title-box p {
+  margin: 0;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.type-badge {
+  background: #dbeafe;
+  color: #2563eb;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-published {
+  background: #dcfce7;
+  color: #15803d;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-draft {
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}

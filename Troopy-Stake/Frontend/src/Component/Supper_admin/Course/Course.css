@@ -1,0 +1,122 @@
+table th {
+  color: #64748b;
+  font-size: 13px;
+  text-transform: uppercase;
+  font-weight: 800;
+  padding-bottom: 18px !important;
+}
+
+table td {
+  vertical-align: middle;
+  padding-top: 20px !important;
+  padding-bottom: 20px !important;
+}
+
+.course-thumb {
+  width: 78px;
+  height: 60px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.course-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumb-placeholder {
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.course-title-box h6 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.course-title-box p {
+  margin: 0;
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.type-badge {
+  background: #dbeafe;
+  color: #2563eb;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.status-published {
+  background: #dcfce7;
+  color: #15803d;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.status-draft {
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.course-add-module-btn {
+  border: none;
+  outline: none;
+  background: #0f172a;
+  color: #ffffff;
+  padding: 11px 18px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
+}
+
+.course-add-module-btn:hover {
+  background: linear-gradient(135deg, #0f766e, #14b8a6);
+  transform: translateY(-2px);
+}
+
+.course-edit-btn {
+  border: none;
+  outline: none;
+  background: #ede9fe;
+  color: #4f46e5;
+  padding: 11px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.course-edit-btn:hover {
+  background: #c4b5fd;
+  transform: translateY(-2px);
+}
+
+tbody tr {
+  transition: all 0.25s ease;
+}
+
+tbody tr:hover {
+  background: #f8fafc;
+}

@@ -5,6 +5,7 @@ const topicSchema = new mongoose.Schema(
     title: {
       type: String,
       required: true,
+      trim: true,
     },
   },
   { timestamps: true }
@@ -17,14 +18,23 @@ const moduleSchema = new mongoose.Schema(
       ref: "Course",
       required: true,
     },
+
     title: {
       type: String,
       required: true,
+      trim: true,
     },
+
+    description: {
+      type: String,
+      default: "",
+    },
+
     duration: {
       type: String,
       default: "",
     },
+
     topics: [topicSchema],
   },
   { timestamps: true }

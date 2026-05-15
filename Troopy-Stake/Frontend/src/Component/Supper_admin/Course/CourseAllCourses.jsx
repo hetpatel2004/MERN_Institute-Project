@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
-import { Search, Trash2, Pencil, Upload, Layers } from "lucide-react";
-
+import { Link, useNavigate } from "react-router-dom";
+import { Search, Upload } from "lucide-react";
+import "./Course.css"
 const API_URL = "http://localhost:5000/api/courses";
 
 function CourseAllCourses() {
   const [courses, setCourses] = useState([]);
   const [search, setSearch] = useState("");
+
+  const navigate = useNavigate();
 
   const fetchCourses = async () => {
     try {
@@ -23,53 +25,49 @@ function CourseAllCourses() {
     fetchCourses();
   }, []);
 
-  const toggleStatus = async (course) => {
-    try {
-      const newStatus = course.status === "Published" ? "Draft" : "Published";
-
-      await axios.put(`${API_URL}/${course._id}`, {
-        ...course,
-        status: newStatus,
-      });
-
-      fetchCourses();
-    } catch (error) {
-      console.log(error);
-      alert("Status update failed");
-    }
-  };
-
-  const deleteCourse = async (id) => {
-    if (!window.confirm("Delete this course?")) return;
-
-    try {
-      await axios.delete(`${API_URL}/${id}`);
-      fetchCourses();
-    } catch (error) {
-      console.log(error);
-      alert("Delete failed");
-    }
-  };
-
   const filteredCourses = courses.filter((course) =>
-    course.title?.toLowerCase().includes(search.toLowerCase()),
+    course.title?.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <div
       className="container-fluid px-4 py-4"
-      style={{ background: "#f8fafc", minHeight: "100vh" }}
+      style={{
+        background: "#f8fafc",
+        minHeight: "100vh",
+      }}
     >
+      {/* HEADER */}
       <div className="d-flex justify-content-between align-items-start mb-4">
         <div>
           <p
             className="text-muted mb-1"
-            style={{ fontSize: "13px", fontWeight: "600" }}
+            style={{
+              fontSize: "13px",
+              fontWeight: "700",
+            }}
           >
             Super Admin / Courses
           </p>
-          <h2 className="fw-bold mb-1">All Courses</h2>
-          <p className="text-muted mb-0">Manage all created courses</p>
+
+          <h1
+            className="fw-bold mb-1"
+            style={{
+              fontSize: "52px",
+              color: "#0f172a",
+            }}
+          >
+            All Courses
+          </h1>
+
+          <p
+            className="text-muted mb-0"
+            style={{
+              fontSize: "18px",
+            }}
+          >
+            Manage all created courses
+          </p>
         </div>
 
         <div className="d-flex flex-column gap-3">
@@ -78,9 +76,10 @@ function CourseAllCourses() {
             className="btn text-white"
             style={{
               background: "#0f172a",
-              borderRadius: "12px",
-              padding: "10px 18px",
-              fontWeight: "700",
+              borderRadius: "14px",
+              padding: "12px 22px",
+              fontWeight: "800",
+              fontSize: "16px",
             }}
           >
             + Create Course
@@ -89,11 +88,11 @@ function CourseAllCourses() {
           <button
             className="btn"
             style={{
-              background: "#fff",
+              background: "#ffffff",
               border: "1px solid #e2e8f0",
-              borderRadius: "12px",
-              padding: "10px 18px",
-              fontWeight: "600",
+              borderRadius: "14px",
+              padding: "12px 20px",
+              fontWeight: "700",
             }}
           >
             <Upload size={16} className="me-2" />
@@ -102,15 +101,28 @@ function CourseAllCourses() {
         </div>
       </div>
 
-      <div className="card border-0 shadow-sm" style={{ borderRadius: "22px" }}>
+      {/* TABLE CARD */}
+      <div
+        className="card border-0 shadow-sm"
+        style={{
+          borderRadius: "26px",
+          overflow: "hidden",
+        }}
+      >
         <div className="card-body p-4">
-          <div className="position-relative mb-4" style={{ maxWidth: "360px" }}>
+          {/* SEARCH */}
+          <div
+            className="position-relative mb-4"
+            style={{
+              maxWidth: "400px",
+            }}
+          >
             <Search
               size={18}
               style={{
                 position: "absolute",
-                left: "15px",
-                top: "14px",
+                left: "16px",
+                top: "15px",
                 color: "#94a3b8",
               }}
             />
@@ -121,24 +133,27 @@ function CourseAllCourses() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               style={{
-                paddingLeft: "45px",
-                height: "48px",
-                borderRadius: "14px",
+                paddingLeft: "46px",
+                height: "52px",
+                borderRadius: "16px",
+                border: "1px solid #e2e8f0",
+                boxShadow: "none",
               }}
             />
           </div>
 
+          {/* TABLE */}
           <div className="table-responsive">
             <table className="table align-middle">
               <thead>
                 <tr>
                   <th>#</th>
+                  <th>Thumbnail</th>
                   <th>Course Title</th>
                   <th>Type</th>
                   <th>Status</th>
                   <th>Duration</th>
                   <th>Price</th>
-                  <th>Modules</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -146,117 +161,121 @@ function CourseAllCourses() {
               <tbody>
                 {filteredCourses.map((course, index) => (
                   <tr key={course._id}>
-                    <td>{index + 1}</td>
+                    <td className="fw-bold">{index + 1}</td>
 
+                    {/* THUMBNAIL */}
                     <td>
-                      <h6 className="fw-bold mb-1">{course.title}</h6>
-                      <small className="text-muted">{course.slug}</small>
+                      <div className="course-thumb">
+                        {course.thumbnail ? (
+                          <img
+                            src={`http://localhost:5000${course.thumbnail}`}
+                            alt={course.title}
+                          />
+                        ) : (
+                          <div className="thumb-placeholder">
+                            No Image
+                          </div>
+                        )}
+                      </div>
                     </td>
 
+                    {/* TITLE */}
                     <td>
-                      <span className="badge bg-primary-subtle text-primary">
+                      <div className="course-title-box">
+                        <h6>{course.title}</h6>
+                        <p>{course.slug}</p>
+                      </div>
+                    </td>
+
+                    {/* TYPE */}
+                    <td>
+                      <span className="type-badge">
                         {course.type || "Online"}
                       </span>
                     </td>
 
+                    {/* STATUS */}
                     <td>
-                      <button
-                        onClick={() => toggleStatus(course)}
-                        className="btn btn-sm"
-                        style={{
-                          background:
-                            course.status === "Published"
-                              ? "#dcfce7"
-                              : "#fee2e2",
-                          color:
-                            course.status === "Published"
-                              ? "#15803d"
-                              : "#dc2626",
-                          border: "none",
-                          borderRadius: "20px",
-                          fontWeight: "700",
-                          padding: "6px 14px",
-                        }}
+                      <span
+                        className={
+                          course.status === "Published"
+                            ? "status-published"
+                            : "status-draft"
+                        }
                       >
-                        {course.status === "Published"
-                          ? "Published"
-                          : "Unpublished"}
-                      </button>
+                        {course.status}
+                      </span>
                     </td>
 
-                    <td>
-                      {course.duration ||
-                        `${course.durationValue || ""} ${course.durationType || ""}`}
+                    {/* DURATION */}
+                    <td className="fw-semibold">
+                      {course.duration}
                     </td>
 
-                    <td>₹{course.price || 0}</td>
-
-                    <td>
-                      <Link
-                        to={`/superadmin/course/${course._id}/modules`}
-                        className="btn btn-sm"
-                        style={{
-                          background: "#eef2ff",
-                          color: "#3730a3",
-                          border: "1px solid #c7d2fe",
-                          borderRadius: "10px",
-                          fontWeight: "700",
-                        }}
-                      >
-                        Add Modules
-                      </Link>
+                    {/* PRICE */}
+                    <td className="fw-semibold">
+                      ₹{course.price}
                     </td>
 
+                    {/* ACTION */}
                     <td>
                       <div className="d-flex gap-2">
-                        <Link
-                          to={`/superadmin/course/${course._id}/modules`}
-                          className="btn btn-sm"
-                          style={{
-                            background: "#0f172a",
-                            color: "#fff",
-                            borderRadius: "10px",
-                            fontWeight: "700",
-                          }}
+                        
+                        {/* EDIT BUTTON */}
+                        <button
+                          type="button"
+                          className="course-edit-btn"
+                          onClick={() =>
+                            navigate(
+                              "/superadmin/course/create",
+                              {
+                                state: {
+                                  editCourse: course,
+                                },
+                              }
+                            )
+                          }
+                        >
+                          Edit
+                        </button>
+
+                        {/* MODULE BUTTON */}
+                        <button
+                          type="button"
+                          className="course-add-module-btn"
+                          onClick={() =>
+                            navigate(
+                              `/superadmin/course/${course._id}/modules`,
+                              {
+                                state: { course },
+                              }
+                            )
+                          }
                         >
                           Add Modules
-                        </Link>
+                        </button>
 
-                        {/* <button
-                          onClick={() => deleteCourse(course._id)}
-                          className="btn btn-sm"
-                          style={{
-                            border: "1px solid #fecaca",
-                            color: "#ef4444",
-                            borderRadius: "9px",
-                          }}
-                        >
-                          Delete
-                        </button> */}
                       </div>
                     </td>
                   </tr>
                 ))}
-
-                {filteredCourses.length === 0 && (
-                  <tr>
-                    <td colSpan="9" className="text-center py-5 text-muted">
-                      No courses found
-                    </td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>
 
+          {/* FOOTER */}
           <div className="d-flex justify-content-between align-items-center mt-4">
-            <p className="text-muted mb-0">
+            <p className="text-muted mb-0 fw-semibold">
               Showing {filteredCourses.length} of {courses.length} results
             </p>
 
             <select
               className="form-select"
-              style={{ width: "90px", borderRadius: "10px" }}
+              style={{
+                width: "95px",
+                borderRadius: "12px",
+                height: "46px",
+              }}
             >
               <option>10</option>
               <option>20</option>

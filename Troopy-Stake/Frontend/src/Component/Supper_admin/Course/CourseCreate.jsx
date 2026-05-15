@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 const API_URL = "http://localhost:5000/api/courses";
 
 function CourseCreate() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const location = useLocation();
+
+  const editCourse = location.state?.editCourse;
+  const editId = id || editCourse?._id;
 
   const THEME = "#0f172a";
 
@@ -28,50 +32,67 @@ function CourseCreate() {
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [videoFile, setVideoFile] = useState(null);
 
+  const fillForm = (data) => {
+    setForm({
+      title: data.title || "",
+      slug: data.slug || "",
+      type: data.type || "",
+      status: data.status || "Draft",
+      tagline: data.tagline || "",
+      durationValue:
+        data.durationValue ||
+        data.duration?.split(" ")?.[0] ||
+        "",
+      durationType:
+        data.durationType ||
+        data.duration?.split(" ")?.[1] ||
+        "Month",
+      price: data.price || "",
+      thumbnailUrl: data.thumbnailUrl || data.thumbnail || "",
+      teaserVideoUrl: data.teaserVideoUrl || data.teaserVideo || "",
+    });
+
+    if (data.thumbnailUrl) {
+      setThumbnailPreview(data.thumbnailUrl);
+    } else if (data.thumbnail) {
+      setThumbnailPreview(
+        data.thumbnail.startsWith("http")
+          ? data.thumbnail
+          : `http://localhost:5000${data.thumbnail}`
+      );
+    }
+
+    if (data.teaserVideoUrl) {
+      setVideoPreview(
+        data.teaserVideoUrl.startsWith("http")
+          ? data.teaserVideoUrl
+          : `http://localhost:5000${data.teaserVideoUrl}`
+      );
+    } else if (data.teaserVideo) {
+      setVideoPreview(
+        data.teaserVideo.startsWith("http")
+          ? data.teaserVideo
+          : `http://localhost:5000${data.teaserVideo}`
+      );
+    }
+  };
+
   useEffect(() => {
+    if (editCourse) {
+      fillForm(editCourse);
+      return;
+    }
+
     if (id) {
       axios
         .get(`${API_URL}/${id}`)
-        .then((res) => {
-          const data = res.data;
-
-          setForm({
-            title: data.title || "",
-            slug: data.slug || "",
-            type: data.type || "",
-            status: data.status || "Draft",
-            tagline: data.tagline || "",
-            durationValue: data.durationValue || "",
-            durationType: data.durationType || "Month",
-            price: data.price || "",
-            thumbnailUrl: data.thumbnailUrl || data.thumbnail || "",
-            teaserVideoUrl: data.teaserVideoUrl || "",
-          });
-
-          if (data.thumbnailUrl) {
-            setThumbnailPreview(data.thumbnailUrl);
-          } else if (data.thumbnail) {
-            setThumbnailPreview(
-              data.thumbnail.startsWith("http")
-                ? data.thumbnail
-                : `http://localhost:5000${data.thumbnail}`
-            );
-          }
-
-          if (data.teaserVideoUrl) {
-            setVideoPreview(
-              data.teaserVideoUrl.startsWith("http")
-                ? data.teaserVideoUrl
-                : `http://localhost:5000${data.teaserVideoUrl}`
-            );
-          }
-        })
+        .then((res) => fillForm(res.data))
         .catch((error) => {
           console.log(error);
           alert("Failed to load course");
         });
     }
-  }, [id]);
+  }, [id, editCourse]);
 
   const inputStyle = {
     height: "46px",
@@ -95,6 +116,8 @@ function CourseCreate() {
       slug:
         name === "title"
           ? value.toLowerCase().trim().replaceAll(" ", "-")
+          : name === "slug"
+          ? value
           : prev.slug,
     }));
   };
@@ -187,7 +210,6 @@ function CourseCreate() {
       formData.append("durationType", form.durationType);
       formData.append("duration", `${form.durationValue} ${form.durationType}`);
       formData.append("price", form.price);
-
       formData.append("thumbnailUrl", form.thumbnailUrl || "");
       formData.append("teaserVideoUrl", form.teaserVideoUrl || "");
 
@@ -199,8 +221,8 @@ function CourseCreate() {
         formData.append("teaserVideo", videoFile);
       }
 
-      if (id) {
-        await axios.put(`${API_URL}/${id}`, formData, {
+      if (editId) {
+        await axios.put(`${API_URL}/${editId}`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
 
@@ -213,7 +235,7 @@ function CourseCreate() {
         alert("Course created successfully");
       }
 
-      if (createAnother) {
+      if (createAnother && !editId) {
         resetForm();
       } else {
         navigate("/superadmin/course");
@@ -239,11 +261,11 @@ function CourseCreate() {
         }}
       >
         <p style={{ color: "#cbd5e1", marginBottom: "8px" }}>
-          Super Admin / Courses / {id ? "Edit Course" : "Create Course"}
+          Super Admin / Courses / {editId ? "Edit Course" : "Create Course"}
         </p>
 
         <h2 className="fw-bold mb-2">
-          {id ? "Edit Course" : "Create New Course"}
+          {editId ? "Edit Course" : "Create New Course"}
         </h2>
 
         <p className="mb-0" style={{ color: "#e2e8f0" }}>
@@ -363,6 +385,7 @@ function CourseCreate() {
                       style={inputStyle}
                     >
                       <option value="Day">Day</option>
+                      <option value="Week">Week</option>
                       <option value="Month">Month</option>
                       <option value="Year">Year</option>
                     </select>
@@ -537,7 +560,7 @@ function CourseCreate() {
             Cancel
           </button>
 
-          {!id && (
+          {!editId && (
             <button
               type="button"
               onClick={(e) => handleSubmit(e, true)}
@@ -566,7 +589,7 @@ function CourseCreate() {
               boxShadow: "0 8px 20px rgba(15,23,42,0.25)",
             }}
           >
-            {id ? "Update Course" : "Create Course"}
+            {editId ? "Update Course" : "Create Course"}
           </button>
         </div>
       </form>
