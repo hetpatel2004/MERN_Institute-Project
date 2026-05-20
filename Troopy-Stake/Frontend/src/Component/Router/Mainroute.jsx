@@ -10,13 +10,14 @@ import Institutes from "../Supper_admin/Institutes";
 import Companies from "../Supper_admin/Companies";
 import Users from "../Supper_admin/Users";
 
+import CourseAllModules from "../Supper_admin/Course/CourseAllModules";
 import CourseAllCourses from "../Supper_admin/Course/CourseAllCourses";
 import CourseCreate from "../Supper_admin/Course/CourseCreate";
 import CourseModules from "../Supper_admin/Course/CourseModules";
 import UserDashboard from "../User_dashboard/UserDashboard";
 import ProtectedRoute from "../Auth/ProtectedRoute";
-import CourseAllModules from "../Supper_admin/Course/CourseAllModules";
 import { ROUTES } from "../../constants/routes";
+import ModuleTopics from "../Supper_admin/Course/ModuleTopics";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -102,6 +103,17 @@ function Mainroute() {
           <ProtectedRoute role="superadmin">
             <SuperAdmin page="course">
               <CourseAllModules />
+            </SuperAdmin>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/superadmin/course/module-topics"
+        element={
+          <ProtectedRoute role="superadmin">
+            <SuperAdmin page="course">
+              <ModuleTopics />
             </SuperAdmin>
           </ProtectedRoute>
         }

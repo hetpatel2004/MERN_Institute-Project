@@ -7,7 +7,6 @@ const topicSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-
     description: {
       type: String,
       required: true,
@@ -17,28 +16,29 @@ const topicSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const moduleSchema = new mongoose.Schema(
+const courseModuleSchema = new mongoose.Schema(
   {
-    courseId: {
+    course_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Course",
       required: true,
     },
 
-    title: {
+    module_title: {
       type: String,
       required: true,
       trim: true,
     },
 
-    description: {
-      type: String,
-      default: "",
+    duration_value: {
+      type: Number,
+      default: 0,
     },
 
-    duration: {
+    duration_unit: {
       type: String,
-      default: "",
+      enum: ["days", "weeks", "months", "years"],
+      default: "days",
     },
 
     topics: [topicSchema],
@@ -46,4 +46,4 @@ const moduleSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Module", moduleSchema);
+module.exports = mongoose.model("CourseModule", courseModuleSchema);

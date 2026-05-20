@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const path = require("path");
 require("dotenv").config();
 
 const authRoutes = require("./routes/authRoutes");
@@ -10,19 +11,16 @@ const branchRoutes = require("./routes/branchRoutes");
 const userRoutes = require("./routes/userRoutes");
 const courseRoutes = require("./routes/courseRoutes");
 const moduleRoutes = require("./routes/moduleRoutes");
-const path = require("path");
+
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Test route
 app.get("/", (req, res) => {
   res.send("Backend is running successfully");
 });
 
-// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/institutes", instituteRoutes);
 app.use("/api/companies", companyRoutes);
@@ -30,15 +28,14 @@ app.use("/api/branches", branchRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/modules", moduleRoutes);
-app.use("/uploads", express.static("uploads"));
+
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-app.use("/api/modules", moduleRoutes);
-// ENV fallback
+
 const PORT = process.env.PORT || 5000;
+
 const MONGO_URL =
   process.env.MONGO_URL || "mongodb://127.0.0.1:27017/institute_project";
 
-// MongoDB connection
 mongoose
   .connect(MONGO_URL)
   .then(() => {
@@ -51,4 +48,3 @@ mongoose
   .catch((error) => {
     console.log("MongoDB connection error:", error.message);
   });
-  

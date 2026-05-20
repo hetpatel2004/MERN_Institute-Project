@@ -7,7 +7,7 @@ export const ROUTES = {
   superAdminCourse: "/superadmin/course",
   superAdminCompany: "/superadmin/company",
   superAdminUsers: "/superadmin/users",
-
+  superAdminModuleTopics: "/superadmin/course/module-topics",
   branchAdmin: "/branch-admin",
   companyAdmin: "/company-admin",
   student: "/student",

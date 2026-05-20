@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-import { Pencil, Trash2, Plus, ArrowLeft } from "lucide-react";
+import {
+  Pencil,
+  Trash2,
+  Plus,
+  ArrowLeft,
+  BookOpen,
+  X,
+} from "lucide-react";
+import "./Course.css";
 
 const COURSE_API = "http://localhost:5000/api/courses";
 const MODULE_API = "http://localhost:5000/api/modules";
@@ -9,8 +17,6 @@ const MODULE_API = "http://localhost:5000/api/modules";
 function CourseModules() {
   const { courseId } = useParams();
   const navigate = useNavigate();
-
-  const THEME = "#0f172a";
 
   const [course, setCourse] = useState(null);
   const [modules, setModules] = useState([]);
@@ -20,21 +26,17 @@ function CourseModules() {
   const [moduleDurationType, setModuleDurationType] = useState("Days");
   const [editingModuleId, setEditingModuleId] = useState(null);
 
-  const [topicTitle, setTopicTitle] = useState("");
   const [activeModule, setActiveModule] = useState(null);
+  const [topicTitle, setTopicTitle] = useState("");
+  const [topicDescription, setTopicDescription] = useState("");
 
   const fetchData = async () => {
     try {
       const courseRes = await axios.get(`${COURSE_API}/${courseId}`);
-      const moduleRes = await axios.get(MODULE_API);
+      const moduleRes = await axios.get(`${MODULE_API}/course/${courseId}`);
 
       setCourse(courseRes.data);
-
-      const filtered = moduleRes.data.filter(
-        (m) => m.courseId?._id === courseId || m.courseId === courseId
-      );
-
-      setModules(filtered);
+      setModules(moduleRes.data || []);
     } catch (error) {
       console.log(error);
       alert("Failed to load modules");
@@ -52,8 +54,17 @@ function CourseModules() {
     setEditingModuleId(null);
   };
 
+  const resetTopicForm = () => {
+    setTopicTitle("");
+    setTopicDescription("");
+    setActiveModule(null);
+  };
+
   const saveModule = async () => {
-    if (!moduleTitle) return alert("Enter module title");
+    if (!moduleTitle.trim()) {
+      alert("Enter module title");
+      return;
+    }
 
     const duration = moduleDurationValue
       ? `${moduleDurationValue} ${moduleDurationType}`
@@ -102,263 +113,257 @@ function CourseModules() {
     }
   };
 
+  const openTopicBox = (moduleId) => {
+    if (activeModule === moduleId) {
+      resetTopicForm();
+    } else {
+      setActiveModule(moduleId);
+      setTopicTitle("");
+      setTopicDescription("");
+    }
+  };
+
   const addTopic = async (moduleId) => {
-    if (!topicTitle) return alert("Enter topic title");
+    if (!topicTitle.trim() || !topicDescription.trim()) {
+      alert("Topic title and description are required");
+      return;
+    }
 
     try {
       await axios.post(`${MODULE_API}/${moduleId}/topics`, {
         title: topicTitle,
+        description: topicDescription,
       });
 
-      setTopicTitle("");
-      setActiveModule(null);
+      resetTopicForm();
       fetchData();
     } catch (error) {
       console.log(error);
-      alert("Topic add failed");
+      alert(error.response?.data?.message || "Topic add failed");
+    }
+  };
+
+  const deleteTopic = async (moduleId, topicId) => {
+    if (!window.confirm("Delete this topic?")) return;
+
+    try {
+      await axios.delete(`${MODULE_API}/${moduleId}/topics/${topicId}`);
+      fetchData();
+    } catch (error) {
+      console.log(error);
+      alert("Topic delete failed");
     }
   };
 
   return (
-    <div
-      className="container-fluid px-4 py-4"
-      style={{ background: "#f5f7fb", minHeight: "100vh" }}
-    >
+    <div className="module-topic-page">
       <button
-        className="btn mb-3"
+        className="back-course-btn"
         onClick={() => navigate("/superadmin/course")}
-        style={{
-          background: "#fff",
-          border: "1px solid #dbe3ef",
-          borderRadius: "10px",
-          fontWeight: "600",
-        }}
       >
-        <ArrowLeft size={16} className="me-2" />
+        <ArrowLeft size={16} />
         Back to Courses
       </button>
 
-      <div
-        className="p-4 mb-4"
-        style={{
-          background: `linear-gradient(135deg, ${THEME}, #1e293b)`,
-          borderRadius: "22px",
-          color: "#fff",
-        }}
-      >
-        <p style={{ color: "#cbd5e1", marginBottom: "8px" }}>
-          Super Admin / Courses / Modules
-        </p>
+      <div className="module-topic-header">
+        <div className="header-left">
+          <div className="header-icon">
+            <BookOpen size={30} />
+          </div>
 
-        <h2 className="fw-bold mb-2">{course?.title || "Course"} Modules</h2>
-
-        <p className="mb-0" style={{ color: "#e2e8f0" }}>
-          Manage modules and add multiple topics inside each module.
-        </p>
+          <div>
+            <h2>{course?.title || "Course"} Modules</h2>
+            <p>
+              Add modules and manage topics inside each module. Topic title and
+              description are compulsory.
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div className="row g-4">
-        <div className="col-lg-4">
-          <div
-            className="card border-0"
-            style={{
-              borderRadius: "20px",
-              boxShadow: "0 12px 30px rgba(15,23,42,0.08)",
-            }}
-          >
-            <div className="card-body p-4">
-              <h5 className="fw-bold mb-4">
-                {editingModuleId ? "Edit Module" : "Add New Module"}
-              </h5>
+      <div className="add-module-card">
+        <h4>{editingModuleId ? "Edit Module" : "Add New Module"}</h4>
 
-              <label className="form-label fw-semibold">Module Title</label>
+        <div className="add-module-grid">
+          <div>
+            <label>
+              Module Title <span>*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Enter module title"
+              value={moduleTitle}
+              onChange={(e) => setModuleTitle(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label>Duration</label>
+            <div className="duration-row">
               <input
-                className="form-control mb-3"
-                placeholder="Enter module title"
-                value={moduleTitle}
-                onChange={(e) => setModuleTitle(e.target.value)}
+                type="number"
+                placeholder="Example: 5"
+                value={moduleDurationValue}
+                onChange={(e) => setModuleDurationValue(e.target.value)}
               />
 
-              <label className="form-label fw-semibold">Duration</label>
-
-              <div className="d-flex gap-2 mb-4">
-                <input
-                  type="number"
-                  className="form-control"
-                  placeholder="Example: 5"
-                  value={moduleDurationValue}
-                  onChange={(e) => setModuleDurationValue(e.target.value)}
-                />
-
-                <select
-                  className="form-select"
-                  value={moduleDurationType}
-                  onChange={(e) => setModuleDurationType(e.target.value)}
-                >
-                  <option value="Days">Days</option>
-                  <option value="Weeks">Weeks</option>
-                  <option value="Months">Months</option>
-                  <option value="Years">Years</option>
-                </select>
-              </div>
-
-              <button
-                className="btn w-100 text-white"
-                onClick={saveModule}
-                style={{
-                  background: THEME,
-                  borderRadius: "12px",
-                  padding: "11px",
-                  fontWeight: "700",
-                }}
+              <select
+                value={moduleDurationType}
+                onChange={(e) => setModuleDurationType(e.target.value)}
               >
-                <Plus size={16} className="me-2" />
-                {editingModuleId ? "Update Module" : "Add Module"}
-              </button>
-
-              {editingModuleId && (
-                <button
-                  className="btn w-100 mt-2"
-                  onClick={resetModuleForm}
-                  style={{
-                    border: "1px solid #cbd5e1",
-                    borderRadius: "12px",
-                    fontWeight: "600",
-                  }}
-                >
-                  Cancel Edit
-                </button>
-              )}
+                <option value="Days">Days</option>
+                <option value="Weeks">Weeks</option>
+                <option value="Months">Months</option>
+                <option value="Years">Years</option>
+              </select>
             </div>
           </div>
-        </div>
 
-        <div className="col-lg-8">
-          <div
-            className="card border-0"
-            style={{
-              borderRadius: "20px",
-              boxShadow: "0 12px 30px rgba(15,23,42,0.08)",
-            }}
-          >
-            <div className="card-body p-4">
-              <div className="d-flex justify-content-between align-items-center mb-4">
-                <h5 className="fw-bold mb-0">All Modules</h5>
-                <span className="badge bg-dark">{modules.length} Modules</span>
+          <div className="module-btn-box">
+            <button className="save-module-btn" onClick={saveModule}>
+              <Plus size={16} />
+              {editingModuleId ? "Update Module" : "Add Module"}
+            </button>
+
+            {editingModuleId && (
+              <button className="cancel-module-btn" onClick={resetModuleForm}>
+                Cancel
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="module-grid">
+        {modules.length === 0 ? (
+          <div className="empty-module-box">
+            <h3>No modules found</h3>
+            <p>Please create module first.</p>
+          </div>
+        ) : (
+          modules.map((module, index) => (
+            <div className="module-card" key={module._id}>
+              <div className="module-card-header">
+                <div className="module-left">
+                  <div className="module-number">
+                    {String(index + 1).padStart(2, "0")}
+                  </div>
+
+                  <div>
+                    <h4>{module.title}</h4>
+                    <span>
+                      {module.topics?.length || 0} Topics
+                      {module.duration ? ` • ${module.duration}` : ""}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="module-actions">
+                  <button onClick={() => editModule(module)}>
+                    <Pencil size={16} />
+                  </button>
+
+                  <button
+                    className="delete"
+                    onClick={() => deleteModule(module._id)}
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </div>
 
-              {modules.length === 0 ? (
-                <div className="text-center py-5 text-muted">
-                  No modules added yet
-                </div>
-              ) : (
-                modules.map((module, index) => (
-                  <div
-                    key={module._id}
-                    className="mb-3 p-3"
-                    style={{
-                      border: "1px solid #e2e8f0",
-                      borderRadius: "16px",
-                      background: "#fff",
-                    }}
+              <div className="topic-box">
+                <div className="topic-title-row">
+                  <h5>Topics ({module.topics?.length || 0})</h5>
+
+                  <button
+                    className="add-topic-btn"
+                    onClick={() => openTopicBox(module._id)}
                   >
-                    <div className="d-flex justify-content-between align-items-start">
-                      <div>
-                        <h6 className="fw-bold mb-1">
-                          {index + 1}. {module.title}
-                        </h6>
+                    <Plus size={15} />
+                    Add Topic
+                  </button>
+                </div>
 
-                        <small className="text-muted">
-                          Duration: {module.duration || "Not added"} | Topics:{" "}
-                          {module.topics?.length || 0}
-                        </small>
+                {module.topics && module.topics.length > 0 ? (
+                  module.topics.map((topic) => (
+                    <div className="topic-item" key={topic._id}>
+                      <div className="topic-content">
+                        <div>
+                          <span className="topic-dot"></span>
+                          <strong>{topic.title}</strong>
+                        </div>
+                        <p>{topic.description}</p>
                       </div>
 
-                      <div className="d-flex gap-2">
-                        <button
-                          className="btn btn-sm"
-                          onClick={() => setActiveModule(module._id)}
-                          style={{
-                            background: "#eef2ff",
-                            color: "#3730a3",
-                            borderRadius: "9px",
-                            fontWeight: "600",
-                          }}
-                        >
-                          + Add Topic
-                        </button>
+                      <button
+                        className="topic-delete"
+                        onClick={() => deleteTopic(module._id, topic._id)}
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <p className="empty-topic">No topics added yet.</p>
+                )}
+              </div>
 
-                        <button
-                          className="btn btn-sm"
-                          onClick={() => editModule(module)}
-                          style={{
-                            border: "1px solid #cbd5e1",
-                            borderRadius: "9px",
-                          }}
-                        >
-                          <Pencil size={15} />
-                        </button>
+              {activeModule === module._id && (
+                <div className="add-topic-form">
+                  <div className="form-header">
+                    <h5>Add New Topic</h5>
 
-                        <button
-                          className="btn btn-sm"
-                          onClick={() => deleteModule(module._id)}
-                          style={{
-                            border: "1px solid #fecaca",
-                            color: "#ef4444",
-                            borderRadius: "9px",
-                          }}
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      </div>
+                    <button onClick={resetTopicForm}>
+                      <X size={18} />
+                    </button>
+                  </div>
+
+                  <div className="topic-form-grid">
+                    <div>
+                      <label>
+                        Topic Title <span>*</span>
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Enter topic title"
+                        value={topicTitle}
+                        onChange={(e) => setTopicTitle(e.target.value)}
+                      />
                     </div>
 
-                    {module.topics?.length > 0 && (
-                      <div
-                        className="mt-3 p-3"
-                        style={{
-                          background: "#f8fafc",
-                          borderRadius: "12px",
-                        }}
-                      >
-                        <b>Topics</b>
-
-                        <ul className="mb-0 mt-2">
-                          {module.topics.map((topic, i) => (
-                            <li key={i}>{topic.title}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {activeModule === module._id && (
-                      <div className="d-flex gap-2 mt-3">
-                        <input
-                          className="form-control"
-                          placeholder="Enter topic title"
-                          value={topicTitle}
-                          onChange={(e) => setTopicTitle(e.target.value)}
-                        />
-
-                        <button
-                          className="btn text-white"
-                          onClick={() => addTopic(module._id)}
-                          style={{
-                            background: THEME,
-                            borderRadius: "10px",
-                            fontWeight: "600",
-                          }}
-                        >
-                          Save
-                        </button>
-                      </div>
-                    )}
+                    <div>
+                      <label>
+                        Description <span>*</span>
+                      </label>
+                      <textarea
+                        placeholder="Enter topic description"
+                        value={topicDescription}
+                        onChange={(e) => setTopicDescription(e.target.value)}
+                        rows="4"
+                      />
+                    </div>
                   </div>
-                ))
+
+                  <div className="required-text">* Required fields</div>
+
+                  <div className="form-actions">
+                    <button className="cancel-topic-btn" onClick={resetTopicForm}>
+                      Cancel
+                    </button>
+
+                    <button
+                      className="submit-topic-btn"
+                      onClick={() => addTopic(module._id)}
+                    >
+                      Add Topic
+                    </button>
+                  </div>
+                </div>
               )}
             </div>
-          </div>
-        </div>
+          ))
+        )}
       </div>
     </div>
   );

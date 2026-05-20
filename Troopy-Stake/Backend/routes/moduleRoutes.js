@@ -18,6 +18,21 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/course/:courseId", async (req, res) => {
+  try {
+    const modules = await Module.find({
+      courseId: req.params.courseId,
+    }).sort({ createdAt: 1 });
+
+    res.json(modules);
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to fetch course modules",
+      error: error.message,
+    });
+  }
+});
+
 router.post("/", async (req, res) => {
   try {
     const { courseId, title, description, duration } = req.body;
@@ -102,11 +117,11 @@ router.delete("/:id", async (req, res) => {
 
 router.post("/:moduleId/topics", async (req, res) => {
   try {
-    const { title } = req.body;
+    const { title, description } = req.body;
 
-    if (!title) {
+    if (!title || !description) {
       return res.status(400).json({
-        message: "Topic title is required",
+        message: "Topic title and description are required",
       });
     }
 
@@ -118,7 +133,11 @@ router.post("/:moduleId/topics", async (req, res) => {
       });
     }
 
-    module.topics.push({ title });
+    module.topics.push({
+      title,
+      description,
+    });
+
     await module.save();
 
     res.status(201).json({
@@ -128,6 +147,34 @@ router.post("/:moduleId/topics", async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Failed to add topic",
+      error: error.message,
+    });
+  }
+});
+
+router.delete("/:moduleId/topics/:topicId", async (req, res) => {
+  try {
+    const module = await Module.findById(req.params.moduleId);
+
+    if (!module) {
+      return res.status(404).json({
+        message: "Module not found",
+      });
+    }
+
+    module.topics = module.topics.filter(
+      (topic) => topic._id.toString() !== req.params.topicId
+    );
+
+    await module.save();
+
+    res.json({
+      message: "Topic deleted successfully",
+      module,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to delete topic",
       error: error.message,
     });
   }
