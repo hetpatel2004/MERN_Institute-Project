@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Routes, Navigate } from "react-router-dom";
+import { Route, Routes, Navigate, useParams } from "react-router-dom";
 
 import Index from "../Index";
 import Login from "../Auth/Login";
@@ -9,16 +9,35 @@ import SuperAdmin from "../Supper_admin/Supper_admin";
 import Institutes from "../Supper_admin/Institutes";
 import Companies from "../Supper_admin/Companies";
 import Users from "../Supper_admin/Users";
+import MenuManager from "../Supper_admin/MenuManager";
 
 import CourseAllModules from "../Supper_admin/Course/CourseAllModules";
 import CourseAllCourses from "../Supper_admin/Course/CourseAllCourses";
 import CourseCreate from "../Supper_admin/Course/CourseCreate";
 import CourseModules from "../Supper_admin/Course/CourseModules";
+import ModuleTopics from "../Supper_admin/Course/ModuleTopics";
+
 import UserDashboard from "../User_dashboard/UserDashboard";
 import ProtectedRoute from "../Auth/ProtectedRoute";
 import { ROUTES } from "../../constants/routes";
-import ModuleTopics from "../Supper_admin/Course/ModuleTopics";
+
 import "bootstrap/dist/css/bootstrap.min.css";
+
+function DynamicSuperAdminPage() {
+  const { menuSlug } = useParams();
+
+  const title = menuSlug
+    ?.split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+
+  return (
+    <div className="sa-page-card">
+      <h1>{title}</h1>
+      <p>This page is protected and ready. You can add dynamic content here later.</p>
+    </div>
+  );
+}
 
 function Mainroute() {
   return (
@@ -141,6 +160,28 @@ function Mainroute() {
       />
 
       <Route
+        path="/superadmin/menus"
+        element={
+          <ProtectedRoute role="superadmin">
+            <SuperAdmin page="menus">
+              <MenuManager />
+            </SuperAdmin>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/superadmin/:menuSlug"
+        element={
+          <ProtectedRoute role="superadmin">
+            <SuperAdmin page="dynamic">
+              <DynamicSuperAdminPage />
+            </SuperAdmin>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
         path={ROUTES.branchAdmin}
         element={
           <ProtectedRoute role="branchadmin">
@@ -166,7 +207,6 @@ function Mainroute() {
           </ProtectedRoute>
         }
       />
-
 
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>

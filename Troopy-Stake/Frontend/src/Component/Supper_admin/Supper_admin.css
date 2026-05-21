@@ -2095,3 +2095,176 @@
   font-size: 12px;
   font-weight: 700;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.sa-sidebar {
+  overflow-y: auto;
+}
+
+.sa-sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.sa-sidebar::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 20px;
+}
+
+.sa-menu {
+  padding-bottom: 110px;
+}
+
+.sa-menu-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sa-menu-title-btn {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  padding: 13px 16px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.sa-menu-title-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: white;
+}
+
+.sa-menu-title-btn b {
+  margin-left: auto;
+  display: flex;
+}
+
+.sa-dropdown-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-left: 12px;
+  padding-left: 12px;
+  border-left: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.sa-page-card {
+  background: white;
+  border-radius: 24px;
+  padding: 35px;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+}
+
+.sa-page-card h1 {
+  font-size: 34px;
+  font-weight: 900;
+  color: #0f172a;
+  margin-bottom: 10px;
+}
+
+.sa-page-card p {
+  color: #64748b;
+  font-size: 17px;
+}
+
+.menu-manager-form {
+  margin-top: 30px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  align-items: end;
+}
+
+.menu-manager-form label {
+  display: block;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: #0f172a;
+}
+
+.menu-manager-form input,
+.menu-manager-form select {
+  width: 100%;
+  padding: 13px 15px;
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  outline: none;
+  font-weight: 600;
+}
+
+.menu-manager-form button {
+  border: none;
+  background: #2563eb;
+  color: white;
+  padding: 14px;
+  border-radius: 14px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.menu-manager-table {
+  margin-top: 35px;
+}
+
+.menu-manager-table h2 {
+  font-size: 24px;
+  font-weight: 900;
+  margin-bottom: 18px;
+}
+
+.menu-manager-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.menu-manager-table th,
+.menu-manager-table td {
+  padding: 14px;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+}
+
+.menu-manager-table th {
+  background: #f8fafc;
+  font-weight: 900;
+}
+
+.delete-menu-btn {
+  border: none;
+  background: #ef4444;
+  color: white;
+  padding: 9px 14px;
+  border-radius: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+@media (max-width: 992px) {
+  .menu-manager-form {
+    grid-template-columns: 1fr;
+  }
+}
