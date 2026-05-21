@@ -11,7 +11,7 @@ const branchRoutes = require("./routes/branchRoutes");
 const userRoutes = require("./routes/userRoutes");
 const courseRoutes = require("./routes/courseRoutes");
 const moduleRoutes = require("./routes/moduleRoutes");
-
+const branchAdminRoutes = require("./routes/branchAdminRoutes");
 const app = express();
 
 app.use(cors());
@@ -28,7 +28,7 @@ app.use("/api/branches", branchRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/modules", moduleRoutes);
-
+app.use("/api/branch-admin", branchAdminRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 const PORT = process.env.PORT || 5000;

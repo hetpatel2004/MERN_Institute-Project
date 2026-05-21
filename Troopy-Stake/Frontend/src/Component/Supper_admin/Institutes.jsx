@@ -80,7 +80,8 @@ function Institutes() {
 
     setFormData({
       ...formData,
-      branches: updatedBranches.length > 0 ? updatedBranches : [{ ...emptyBranch }],
+      branches:
+        updatedBranches.length > 0 ? updatedBranches : [{ ...emptyBranch }],
     });
   };
 
@@ -128,7 +129,7 @@ function Institutes() {
       if (editId) {
         await axios.put(
           `http://localhost:5000/api/institutes/${editId}`,
-          formData
+          formData,
         );
         alert("Institute updated successfully");
       } else {
@@ -145,7 +146,7 @@ function Institutes() {
 
   const handleDeleteInstitute = async (id) => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this institute?"
+      "Are you sure you want to delete this institute?",
     );
 
     if (!confirmDelete) return;
@@ -220,20 +221,7 @@ function Institutes() {
         </button>
       </div>
 
-      {message && (
-        <div
-          style={{
-            marginBottom: "20px",
-            padding: "14px",
-            borderRadius: "12px",
-            background: "#fee2e2",
-            color: "#b91c1c",
-            fontWeight: "700",
-          }}
-        >
-          {message}
-        </div>
-      )}
+      {message && <div className="institute-error-msg">{message}</div>}
 
       <div className="institute-page-grid">
         <div className="institute-list-card">
@@ -256,15 +244,24 @@ function Institutes() {
 
           <div className="institute-table-wrap">
             <table className="institute-table">
+              <colgroup>
+                <col className="col-institute" />
+                <col className="col-city" />
+                <col className="col-email" />
+                <col className="col-phone" />
+                <col className="col-status" />
+                <col className="col-branch" />
+                <col className="col-actions" />
+              </colgroup>
+
               <thead>
                 <tr>
                   <th>Institute</th>
-                  <th>Code</th>
                   <th>City</th>
                   <th>Email</th>
                   <th>Phone</th>
                   <th>Status</th>
-                  <th style={{ minWidth: "360px" }}>Branch Activity</th>
+                  <th>Branch Activity</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -274,13 +271,13 @@ function Institutes() {
                   filteredInstitutes.map((item) => (
                     <tr key={item._id}>
                       <td>
-                        <Building2 size={17} color="#0f766e" />{" "}
-                        <strong>{item.name}</strong>
+                        <div className="institute-name-cell">
+                          <Building2 size={17} />
+                          <strong>{item.name}</strong>
+                        </div>
                       </td>
-
-                      <td>{item.code}</td>
                       <td>{item.city}</td>
-                      <td>{item.email}</td>
+                      <td className="break-text">{item.email}</td>
                       <td>{item.phone}</td>
 
                       <td>
@@ -288,92 +285,92 @@ function Institutes() {
                       </td>
 
                       <td>
-                        <div
-                          style={{
-                            maxHeight: "170px",
-                            overflowY: "auto",
-                            paddingRight: "6px",
-                          }}
-                        >
-                          {item.branches?.length > 0
-                            ? item.branches.map((branch, index) => {
-                                const login = getBranchLoginInfo(branch);
+                        <div className="branch-activity-scroll">
+                          {item.branches?.length > 0 ? (
+                            item.branches.map((branch, index) => {
+                              const login = getBranchLoginInfo(branch);
 
-                                return (
-                                  <div
-                                    key={index}
-                                    style={{
-                                      marginBottom: "8px",
-                                      padding: "8px",
-                                      borderRadius: "10px",
-                                      background: "#f8fafc",
-                                      border: "1px solid #e2e8f0",
-                                      fontSize: "11px",
-                                      lineHeight: "16px",
-                                    }}
-                                  >
-                                    <strong>
-                                      {branch.branch_name || "Branch"}
-                                    </strong>
-                                    <br />
+                              return (
+                                <div
+                                  className="branch-activity-box"
+                                  key={index}
+                                >
+                                  <strong className="branch-title">
+                                    {branch.branch_name || "Branch"}
+                                  </strong>
 
+                                  <p>
                                     <b>Branch Email:</b>{" "}
                                     {branch.branch_email || "No email"}
-                                    <br />
+                                  </p>
 
+                                  <p>
                                     <b>Branch Phone:</b>{" "}
                                     {branch.branch_phone || "No phone"}
-                                    <br />
+                                  </p>
 
+                                  <p>
                                     <b>Status:</b>{" "}
                                     {branch.branch_status || "Active"}
-                                    <br />
+                                  </p>
 
+                                  <p>
                                     <b>Admin Email:</b>{" "}
                                     {branch.admin_email ||
                                       branch.admin_id?.email ||
                                       "No admin email"}
-                                    <br />
+                                  </p>
 
+                                  <p>
                                     <b>IP:</b> {login.ipAddress}
-                                    <br />
+                                  </p>
 
+                                  <p>
                                     <b>Device:</b> {login.device}
-                                    <br />
+                                  </p>
 
+                                  <p>
                                     <b>Location:</b> {login.location}
-                                    <br />
+                                  </p>
 
+                                  <p>
                                     <b>Login Time:</b> {login.loginTime}
-                                  </div>
-                                );
-                              })
-                            : "No branch data"}
+                                  </p>
+                                </div>
+                              );
+                            })
+                          ) : (
+                            <span className="no-branch-text">
+                              No branch data
+                            </span>
+                          )}
                         </div>
                       </td>
 
                       <td>
-                        <button
-                          type="button"
-                          className="sa-icon-btn edit"
-                          onClick={() => handleEditInstitute(item)}
-                        >
-                          <Edit size={15} />
-                        </button>
+                        <div className="action-btn-wrap">
+                          <button
+                            type="button"
+                            className="sa-icon-btn edit"
+                            onClick={() => handleEditInstitute(item)}
+                          >
+                            <Edit size={15} />
+                          </button>
 
-                        <button
-                          type="button"
-                          className="sa-icon-btn delete"
-                          onClick={() => handleDeleteInstitute(item._id)}
-                        >
-                          <Trash2 size={15} />
-                        </button>
+                          <button
+                            type="button"
+                            className="sa-icon-btn delete"
+                            onClick={() => handleDeleteInstitute(item._id)}
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="8">No institute records found.</td>
+                    <td colSpan="7">No institute records found.</td>
                   </tr>
                 )}
               </tbody>
@@ -454,21 +451,12 @@ function Institutes() {
 
             {!editId && (
               <>
-                <h3 style={{ marginTop: "25px", marginBottom: "15px" }}>
+                <h3 className="branch-form-title">
                   Branches + Branch Admin Login
                 </h3>
 
                 {formData.branches.map((branch, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      border: "1px solid #dbe3ec",
-                      borderRadius: "14px",
-                      padding: "15px",
-                      marginBottom: "15px",
-                      background: "#f8fafc",
-                    }}
-                  >
+                  <div className="branch-form-card" key={index}>
                     <div className="institute-form-grid">
                       <div>
                         <label>Branch Name</label>
@@ -556,8 +544,7 @@ function Institutes() {
                     {formData.branches.length > 1 && (
                       <button
                         type="button"
-                        className="sa-icon-btn delete"
-                        style={{ marginTop: "12px" }}
+                        className="sa-icon-btn delete remove-branch-btn"
                         onClick={() => removeBranch(index)}
                       >
                         <Trash2 size={15} /> Remove Branch
@@ -566,12 +553,7 @@ function Institutes() {
                   </div>
                 ))}
 
-                <button
-                  type="button"
-                  className="clear-btn"
-                  onClick={addBranch}
-                  style={{ marginBottom: "15px" }}
-                >
+                <button type="button" className="clear-btn" onClick={addBranch}>
                   <Plus size={16} /> Add Another Branch
                 </button>
               </>

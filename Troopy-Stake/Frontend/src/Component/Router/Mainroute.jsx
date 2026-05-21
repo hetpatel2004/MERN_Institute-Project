@@ -18,7 +18,6 @@ import UserDashboard from "../User_dashboard/UserDashboard";
 import ProtectedRoute from "../Auth/ProtectedRoute";
 import { ROUTES } from "../../constants/routes";
 import ModuleTopics from "../Supper_admin/Course/ModuleTopics";
-
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function Mainroute() {
@@ -167,6 +166,7 @@ function Mainroute() {
           </ProtectedRoute>
         }
       />
+
 
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
