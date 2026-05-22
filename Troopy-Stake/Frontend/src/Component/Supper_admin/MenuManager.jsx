@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 const DEFAULT_SECTIONS = [
+  "Main",
   "CRM & Leads",
   "Communication",
   "Students",
@@ -11,8 +12,59 @@ const DEFAULT_SECTIONS = [
   "Settings",
 ];
 
+const DEFAULT_MENUS = [
+  { id: "default-1", section: "Main", name: "Dashboard", path: "/superadmin/dashboard", type: "Default" },
+  { id: "default-2", section: "Main", name: "Institute", path: "/superadmin/institute", type: "Default" },
+  { id: "default-3", section: "Main", name: "Course", path: "/superadmin/course", type: "Default" },
+  { id: "default-4", section: "Main", name: "Company", path: "/superadmin/company", type: "Default" },
+
+  { id: "default-5", section: "CRM & Leads", name: "Leads", path: "/superadmin/leads", type: "Default" },
+  { id: "default-6", section: "CRM & Leads", name: "Follow-ups", path: "/superadmin/follow-ups", type: "Default" },
+  { id: "default-7", section: "CRM & Leads", name: "Admissions", path: "/superadmin/admissions", type: "Default" },
+  { id: "default-8", section: "CRM & Leads", name: "Counsellors", path: "/superadmin/counsellors", type: "Default" },
+  { id: "default-9", section: "CRM & Leads", name: "Campaigns", path: "/superadmin/campaigns", type: "Default" },
+  { id: "default-10", section: "CRM & Leads", name: "Tasks", path: "/superadmin/tasks", type: "Default" },
+  { id: "default-11", section: "CRM & Leads", name: "Daily Reports", path: "/superadmin/daily-reports", type: "Default" },
+
+  { id: "default-12", section: "Communication", name: "WhatsApp Inbox", path: "/superadmin/whatsapp-inbox", type: "Default" },
+  { id: "default-13", section: "Communication", name: "QR Codes", path: "/superadmin/qr-codes", type: "Default" },
+  { id: "default-14", section: "Communication", name: "Templates", path: "/superadmin/templates", type: "Default" },
+  { id: "default-15", section: "Communication", name: "Broadcasts", path: "/superadmin/broadcasts", type: "Default" },
+
+  { id: "default-16", section: "Students", name: "Students", path: "/superadmin/students", type: "Default" },
+  { id: "default-17", section: "Students", name: "Batches", path: "/superadmin/batches", type: "Default" },
+  { id: "default-18", section: "Students", name: "Courses", path: "/superadmin/course", type: "Default" },
+  { id: "default-19", section: "Students", name: "Placements", path: "/superadmin/placements", type: "Default" },
+
+  { id: "default-20", section: "Academics", name: "Programs", path: "/superadmin/programs", type: "Default" },
+  { id: "default-21", section: "Academics", name: "Course Categories", path: "/superadmin/course-categories", type: "Default" },
+  { id: "default-22", section: "Academics", name: "Faculties", path: "/superadmin/faculties", type: "Default" },
+  { id: "default-23", section: "Academics", name: "Exams", path: "/superadmin/exams", type: "Default" },
+
+  { id: "default-24", section: "Finance", name: "Fees", path: "/superadmin/fees", type: "Default" },
+  { id: "default-25", section: "Finance", name: "Expenses", path: "/superadmin/expenses", type: "Default" },
+  { id: "default-26", section: "Finance", name: "Invoices", path: "/superadmin/invoices", type: "Default" },
+
+  { id: "default-27", section: "Analytics", name: "Lead Analytics", path: "/superadmin/lead-analytics", type: "Default" },
+  { id: "default-28", section: "Analytics", name: "Revenue", path: "/superadmin/revenue", type: "Default" },
+  { id: "default-29", section: "Analytics", name: "Performance", path: "/superadmin/performance", type: "Default" },
+  { id: "default-30", section: "Analytics", name: "Reports", path: "/superadmin/reports", type: "Default" },
+
+  { id: "default-31", section: "Operations", name: "Staff", path: "/superadmin/staff", type: "Default" },
+  { id: "default-32", section: "Operations", name: "Attendance", path: "/superadmin/attendance", type: "Default" },
+  { id: "default-33", section: "Operations", name: "Holidays", path: "/superadmin/holidays", type: "Default" },
+  { id: "default-34", section: "Operations", name: "Login Approvals", path: "/superadmin/login-approvals", type: "Default" },
+
+  { id: "default-35", section: "Settings", name: "Branches", path: "/superadmin/branches", type: "Default" },
+  { id: "default-36", section: "Settings", name: "Users", path: "/superadmin/users", type: "Default" },
+  { id: "default-37", section: "Settings", name: "Roles", path: "/superadmin/roles", type: "Default" },
+  { id: "default-38", section: "Settings", name: "Menus", path: "/superadmin/menus", type: "Default" },
+  { id: "default-39", section: "Settings", name: "Integrations", path: "/superadmin/integrations", type: "Default" },
+];
+
 function MenuManager() {
-  const [menus, setMenus] = useState([]);
+  const [defaultMenus, setDefaultMenus] = useState([]);
+  const [customMenus, setCustomMenus] = useState([]);
 
   const [form, setForm] = useState({
     section: "CRM & Leads",
@@ -20,20 +72,58 @@ function MenuManager() {
     path: "",
   });
 
+  const [editData, setEditData] = useState(null);
+
   useEffect(() => {
-    const savedMenus =
+    const savedDefaultMenus = JSON.parse(
+      localStorage.getItem("superAdminDefaultMenus")
+    );
+
+    const savedCustomMenus =
       JSON.parse(localStorage.getItem("superAdminExtraMenus")) || [];
-    setMenus(savedMenus);
+
+    setDefaultMenus(savedDefaultMenus || DEFAULT_MENUS);
+    setCustomMenus(savedCustomMenus);
   }, []);
 
-  const saveMenus = (updatedMenus) => {
-    setMenus(updatedMenus);
-    localStorage.setItem("superAdminExtraMenus", JSON.stringify(updatedMenus));
+  const allMenus = useMemo(() => {
+    return [...defaultMenus, ...customMenus];
+  }, [defaultMenus, customMenus]);
 
+  const updateSidebar = () => {
     window.dispatchEvent(new Event("superAdminMenuUpdated"));
   };
 
-  const handleAddMenu = (e) => {
+  const saveDefaultMenus = (updatedMenus) => {
+    setDefaultMenus(updatedMenus);
+    localStorage.setItem("superAdminDefaultMenus", JSON.stringify(updatedMenus));
+    updateSidebar();
+  };
+
+  const saveCustomMenus = (updatedMenus) => {
+    setCustomMenus(updatedMenus);
+    localStorage.setItem("superAdminExtraMenus", JSON.stringify(updatedMenus));
+    updateSidebar();
+  };
+
+  const createPath = (path) => {
+    const cleanPath = path.trim().toLowerCase().replaceAll(" ", "-").replaceAll("_", "-");
+
+    return cleanPath.startsWith("/superadmin")
+      ? cleanPath
+      : `/superadmin/${cleanPath}`;
+  };
+
+  const resetForm = () => {
+    setForm({
+      section: "CRM & Leads",
+      name: "",
+      path: "",
+    });
+    setEditData(null);
+  };
+
+  const handleAddOrUpdateMenu = (e) => {
     e.preventDefault();
 
     if (!form.name.trim() || !form.path.trim()) {
@@ -41,47 +131,116 @@ function MenuManager() {
       return;
     }
 
-    const cleanPath = form.path
-      .trim()
-      .toLowerCase()
-      .replaceAll(" ", "-")
-      .replaceAll("_", "-");
+    const finalPath = createPath(form.path);
+
+    const duplicate = allMenus.some(
+      (menu) =>
+        menu.id !== editData?.id &&
+        (menu.path === finalPath ||
+          menu.name.toLowerCase() === form.name.trim().toLowerCase())
+    );
+
+    if (duplicate) {
+      alert("This menu name or path already exists");
+      return;
+    }
+
+    if (editData) {
+      if (editData.type === "Default") {
+        const updatedDefault = defaultMenus.map((menu) =>
+          menu.id === editData.id
+            ? {
+                ...menu,
+                section: form.section,
+                name: form.name.trim(),
+                path: finalPath,
+              }
+            : menu
+        );
+
+        saveDefaultMenus(updatedDefault);
+      } else {
+        const updatedCustom = customMenus.map((menu) =>
+          menu.id === editData.id
+            ? {
+                ...menu,
+                section: form.section,
+                name: form.name.trim(),
+                path: finalPath,
+              }
+            : menu
+        );
+
+        saveCustomMenus(updatedCustom);
+      }
+
+      resetForm();
+      return;
+    }
 
     const newMenu = {
-      id: Date.now(),
+      id: `custom-${Date.now()}`,
       section: form.section,
       name: form.name.trim(),
-      path: cleanPath.startsWith("/superadmin")
-        ? cleanPath
-        : `/superadmin/${cleanPath}`,
+      path: finalPath,
+      type: "Custom",
     };
 
-    saveMenus([...menus, newMenu]);
-
-    setForm({
-      section: "CRM & Leads",
-      name: "",
-      path: "",
-    });
+    saveCustomMenus([...customMenus, newMenu]);
+    resetForm();
   };
 
-  const handleDelete = (id) => {
+  const handleEdit = (menu) => {
+    setEditData(menu);
+
+    setForm({
+      section: menu.section,
+      name: menu.name,
+      path: menu.path,
+    });
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleDelete = (menu) => {
+    if (menu.path === "/superadmin/menus") {
+      alert("Menus page cannot be deleted because it controls menu management.");
+      return;
+    }
+
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this menu?"
+      `Are you sure you want to delete ${menu.name}?`
     );
 
     if (!confirmDelete) return;
 
-    const updatedMenus = menus.filter((menu) => menu.id !== id);
-    saveMenus(updatedMenus);
+    if (menu.type === "Default") {
+      const updatedDefault = defaultMenus.filter((item) => item.id !== menu.id);
+      saveDefaultMenus(updatedDefault);
+    } else {
+      const updatedCustom = customMenus.filter((item) => item.id !== menu.id);
+      saveCustomMenus(updatedCustom);
+    }
+  };
+
+  const handleResetDefaultMenus = () => {
+    const confirmReset = window.confirm(
+      "This will restore all deleted or edited default menus. Continue?"
+    );
+
+    if (!confirmReset) return;
+
+    saveDefaultMenus(DEFAULT_MENUS);
   };
 
   return (
     <div className="sa-page-card">
       <h1>Menu Management</h1>
-      <p>Add or delete Super Admin sidebar menus dynamically.</p>
+      <p>
+        View, add, edit and delete Super Admin sidebar menus dynamically.
+      </p>
 
-      <form className="menu-manager-form" onSubmit={handleAddMenu}>
+      <form className="menu-manager-form" onSubmit={handleAddOrUpdateMenu}>
         <div>
           <label>Menu Section</label>
           <select
@@ -131,14 +290,36 @@ function MenuManager() {
           />
         </div>
 
-        <button type="submit">Add Menu</button>
+        <button type="submit">
+          {editData ? "Update Menu" : "Add Menu"}
+        </button>
+
+        {editData && (
+          <button
+            type="button"
+            className="cancel-menu-btn"
+            onClick={resetForm}
+          >
+            Cancel
+          </button>
+        )}
       </form>
 
       <div className="menu-manager-table">
-        <h2>Added Menus</h2>
+        <div className="menu-manager-head">
+          <h2>All Super Admin Menus</h2>
 
-        {menus.length === 0 ? (
-          <p>No custom menu added yet.</p>
+          <button
+            type="button"
+            className="reset-menu-btn"
+            onClick={handleResetDefaultMenus}
+          >
+            Reset Default Menus
+          </button>
+        </div>
+
+        {allMenus.length === 0 ? (
+          <p>No menu found.</p>
         ) : (
           <table>
             <thead>
@@ -146,24 +327,52 @@ function MenuManager() {
                 <th>Section</th>
                 <th>Menu Name</th>
                 <th>Path</th>
+                <th>Type</th>
                 <th>Action</th>
               </tr>
             </thead>
 
             <tbody>
-              {menus.map((menu) => (
+              {allMenus.map((menu) => (
                 <tr key={menu.id}>
                   <td>{menu.section}</td>
                   <td>{menu.name}</td>
                   <td>{menu.path}</td>
+
                   <td>
-                    <button
-                      type="button"
-                      className="delete-menu-btn"
-                      onClick={() => handleDelete(menu.id)}
+                    <span
+                      style={{
+                        padding: "6px 12px",
+                        borderRadius: "20px",
+                        fontWeight: "800",
+                        background:
+                          menu.type === "Custom" ? "#dcfce7" : "#e0f2fe",
+                        color:
+                          menu.type === "Custom" ? "#166534" : "#075985",
+                      }}
                     >
-                      Delete
-                    </button>
+                      {menu.type}
+                    </span>
+                  </td>
+
+                  <td>
+                    <div className="menu-action-group">
+                      <button
+                        type="button"
+                        className="edit-menu-btn"
+                        onClick={() => handleEdit(menu)}
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        type="button"
+                        className="delete-menu-btn"
+                        onClick={() => handleDelete(menu)}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

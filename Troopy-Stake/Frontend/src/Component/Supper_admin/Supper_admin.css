@@ -2268,3 +2268,45 @@
     grid-template-columns: 1fr;
   }
 }
+.menu-manager-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.menu-action-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.edit-menu-btn {
+  border: none;
+  background: #2563eb;
+  color: white;
+  padding: 9px 14px;
+  border-radius: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.cancel-menu-btn {
+  border: none;
+  background: #64748b !important;
+  color: white;
+  padding: 14px;
+  border-radius: 14px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.reset-menu-btn {
+  border: none;
+  background: #0f172a;
+  color: white;
+  padding: 11px 16px;
+  border-radius: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
