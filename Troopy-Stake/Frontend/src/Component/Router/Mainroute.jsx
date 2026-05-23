@@ -16,6 +16,8 @@ import CourseAllCourses from "../Supper_admin/Course/CourseAllCourses";
 import CourseCreate from "../Supper_admin/Course/CourseCreate";
 import CourseModules from "../Supper_admin/Course/CourseModules";
 import ModuleTopics from "../Supper_admin/Course/ModuleTopics";
+import Leads from "../Supper_admin/Leads/Leads";
+import UserRoleAccess from "../Supper_admin/Users/UserRoleAccess";
 
 import UserDashboard from "../User_dashboard/UserDashboard";
 import ProtectedRoute from "../Auth/ProtectedRoute";
@@ -34,7 +36,10 @@ function DynamicSuperAdminPage() {
   return (
     <div className="sa-page-card">
       <h1>{title}</h1>
-      <p>This page is protected and ready. You can add dynamic content here later.</p>
+      <p>
+        This page is protected and ready. You can add dynamic content here
+        later.
+      </p>
     </div>
   );
 }
@@ -204,6 +209,28 @@ function Mainroute() {
         element={
           <ProtectedRoute role="student">
             <UserDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/superadmin/leads"
+        element={
+          <ProtectedRoute role="superadmin">
+            <SuperAdmin page="leads">
+              <Leads />
+            </SuperAdmin>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/superadmin/user-role-access"
+        element={
+          <ProtectedRoute role="superadmin">
+            <SuperAdmin page="users">
+              <UserRoleAccess />
+            </SuperAdmin>
           </ProtectedRoute>
         }
       />

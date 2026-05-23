@@ -12,6 +12,9 @@ const userRoutes = require("./routes/userRoutes");
 const courseRoutes = require("./routes/courseRoutes");
 const moduleRoutes = require("./routes/moduleRoutes");
 const branchAdminRoutes = require("./routes/branchAdminRoutes");
+const leadRoutes = require("./routes/leadRoutes");
+const roleUserRoutes = require("./routes/roleUserRoutes");
+
 
 const app = express();
 
@@ -47,6 +50,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/modules", moduleRoutes);
 app.use("/api/branch-admin", branchAdminRoutes);
+app.use("/api/leads", leadRoutes);
+app.use("/api/role-access", roleUserRoutes);
 
 const PORT = process.env.PORT || 5000;
 

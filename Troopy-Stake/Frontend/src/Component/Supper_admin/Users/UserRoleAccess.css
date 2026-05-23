@@ -1,0 +1,182 @@
+.ura-page {
+  padding: 24px;
+  background: #f8fbff;
+  min-height: 100vh;
+}
+
+.ura-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.ura-top h2 {
+  margin: 0;
+  color: #101828;
+}
+
+.ura-top p {
+  color: #667085;
+  margin-top: 6px;
+}
+
+.ura-back,
+.ura-primary {
+  background: #0d6efd;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+}
+
+.ura-grid {
+  display: grid;
+  grid-template-columns: 45% 55%;
+  gap: 16px;
+}
+
+.ura-card {
+  background: white;
+  border: 1px solid #e4eaf2;
+  border-radius: 10px;
+  padding: 18px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+
+.ura-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.ura-form-grid input,
+.ura-form-grid select,
+.ura-card-head input {
+  height: 42px;
+  border: 1px solid #d5deea;
+  border-radius: 6px;
+  padding: 0 12px;
+  outline: none;
+}
+
+.ura-switch-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ura-actions {
+  border-top: 1px solid #e4eaf2;
+  margin: 20px -18px -18px;
+  padding: 14px 18px;
+}
+
+.ura-cancel {
+  background: white;
+  border: 1px solid #d5deea;
+  padding: 9px 20px;
+  border-radius: 6px;
+  margin-right: 10px;
+}
+
+.ura-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ura-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.ura-table th,
+.ura-table td {
+  padding: 13px;
+  border-bottom: 1px solid #e4eaf2;
+  text-align: left;
+  font-size: 14px;
+}
+
+.ura-table th {
+  background: #f7f9fc;
+  color: #101828;
+}
+
+.ura-table button {
+  margin-right: 6px;
+  border: 1px solid #d5deea;
+  background: white;
+  border-radius: 6px;
+  padding: 6px 9px;
+  cursor: pointer;
+}
+
+.ura-role-section {
+  margin-top: 18px;
+}
+
+.active-badge {
+  background: #dcfce7;
+  color: #15803d;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.inactive-badge {
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.ura-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  backdrop-filter: blur(2px);
+}
+
+.ura-modal {
+  width: 760px;
+  background: white;
+  border-radius: 12px;
+  padding: 22px;
+  position: relative;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+}
+
+.ura-close {
+  position: absolute;
+  right: 18px;
+  top: 15px;
+  border: none;
+  background: transparent;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.ura-tabs {
+  display: flex;
+  gap: 30px;
+  border-bottom: 1px solid #e4eaf2;
+  margin: 18px 0 10px;
+}
+
+.ura-tabs span {
+  padding-bottom: 10px;
+  color: #475467;
+}
+
+.active-tab {
+  color: #0d6efd !important;
+  border-bottom: 2px solid #0d6efd;
+}
