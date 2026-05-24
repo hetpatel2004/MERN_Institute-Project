@@ -5,34 +5,16 @@ import "./RoleAccessPage.css";
 const API = "http://localhost:5000/api/role-access";
 
 const menuGroups = [
-  {
-    name: "Dashboard",
-    children: ["Dashboard"],
-  },
+  { name: "Dashboard", children: ["Dashboard"] },
   {
     name: "CRM & Leads",
     children: ["Leads", "Follow-ups", "Admissions", "Counsellors", "Campaigns"],
   },
-  {
-    name: "Students",
-    children: ["Students", "Batches", "Courses", "Placements"],
-  },
-  {
-    name: "Academics",
-    children: ["Programs", "Course Categories", "Faculties", "Exams"],
-  },
-  {
-    name: "Finance",
-    children: ["Fees", "Expenses", "Invoices"],
-  },
-  {
-    name: "Analytics",
-    children: ["Lead Analytics", "Revenue", "Performance", "Reports"],
-  },
-  {
-    name: "Operations",
-    children: ["Staff", "Attendance", "Holidays", "Login Approvals"],
-  },
+  { name: "Students", children: ["Students", "Batches", "Courses", "Placements"] },
+  { name: "Academics", children: ["Programs", "Course Categories", "Faculties", "Exams"] },
+  { name: "Finance", children: ["Fees", "Expenses", "Invoices"] },
+  { name: "Analytics", children: ["Lead Analytics", "Revenue", "Performance", "Reports"] },
+  { name: "Operations", children: ["Staff", "Attendance", "Holidays", "Login Approvals"] },
   {
     name: "Settings",
     children: ["Branches", "Users", "Roles", "Menus", "Permissions", "System Settings"],
@@ -43,6 +25,7 @@ const actions = ["view", "add", "edit", "delete", "export"];
 
 function RoleAccessPage() {
   const [roles, setRoles] = useState([]);
+  const [branchAdminCount, setBranchAdminCount] = useState(0);
   const [selectedRole, setSelectedRole] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -55,18 +38,61 @@ function RoleAccessPage() {
     permissions: {},
   });
 
+  const defaultRoles = [
+    { roleName: "Super Admin", roleCode: "SUPER_ADMIN", description: "Full system access", totalUsers: 1, status: true },
+    { roleName: "Institute Admin", roleCode: "INSTITUTE_ADMIN", description: "Institute management access", totalUsers: 0, status: true },
+    { roleName: "Branch Admin", roleCode: "BRANCH_ADMIN", description: "Branch management access", totalUsers: 0, status: true },
+    { roleName: "Company Admin", roleCode: "COMPANY_ADMIN", description: "Company management access", totalUsers: 0, status: true },
+    { roleName: "Faculty", roleCode: "FACULTY", description: "Faculty access", totalUsers: 0, status: true },
+    { roleName: "Counsellor", roleCode: "COUNSELLOR", description: "Lead & student counselling access", totalUsers: 0, status: true },
+    { roleName: "Sales Person", roleCode: "SALES_PERSON", description: "Sales management access", totalUsers: 0, status: true },
+    { roleName: "Call Person", roleCode: "CALL_PERSON", description: "Call handling access", totalUsers: 0, status: true },
+    { roleName: "Student", roleCode: "STUDENT", description: "Student dashboard access", totalUsers: 0, status: true },
+  ];
+
   useEffect(() => {
     fetchRoles();
+    fetchBranchAdminCount();
   }, []);
 
   const fetchRoles = async () => {
     try {
       const res = await axios.get(`${API}/roles`);
-      setRoles(res.data);
+      let backendRoles = res.data || [];
+
+      for (const role of defaultRoles) {
+        const alreadyExists = backendRoles.some((r) => r.roleCode === role.roleCode);
+        if (!alreadyExists) {
+          await axios.post(`${API}/roles`, role);
+        }
+      }
+
+      const finalRes = await axios.get(`${API}/roles`);
+      setRoles(finalRes.data || []);
     } catch (err) {
       console.error(err);
-      alert("Failed to fetch roles");
+      alert(err.response?.data?.message || "Failed to fetch roles");
     }
+  };
+
+  const fetchBranchAdminCount = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/institutes");
+
+      const count = (res.data || []).reduce((total, institute) => {
+        return total + (institute.branches?.length || 0);
+      }, 0);
+
+      setBranchAdminCount(count);
+    } catch (err) {
+      console.error("Failed to count branch admins", err);
+      setBranchAdminCount(0);
+    }
+  };
+
+  const getRoleUserCount = (role) => {
+    if (role.roleCode === "BRANCH_ADMIN") return branchAdminCount;
+    return role.totalUsers || 0;
   };
 
   const handlePermission = (menu, action) => {
@@ -86,10 +112,7 @@ function RoleAccessPage() {
     const groupMenus = [group.name, ...group.children];
 
     setForm((prev) => {
-      const isAllChecked = groupMenus.every(
-        (menu) => prev.permissions?.[menu]?.[action]
-      );
-
+      const isAllChecked = groupMenus.every((menu) => prev.permissions?.[menu]?.[action]);
       const updatedPermissions = { ...prev.permissions };
 
       groupMenus.forEach((menu) => {
@@ -99,10 +122,7 @@ function RoleAccessPage() {
         };
       });
 
-      return {
-        ...prev,
-        permissions: updatedPermissions,
-      };
+      return { ...prev, permissions: updatedPermissions };
     });
   };
 
@@ -205,9 +225,7 @@ function RoleAccessPage() {
               type="text"
               placeholder="Enter role name"
               value={form.roleName}
-              onChange={(e) =>
-                setForm({ ...form, roleName: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, roleName: e.target.value })}
             />
 
             <label>
@@ -229,9 +247,7 @@ function RoleAccessPage() {
             <textarea
               placeholder="Enter role description"
               value={form.description}
-              onChange={(e) =>
-                setForm({ ...form, description: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
             />
 
             <label>Status</label>
@@ -240,9 +256,7 @@ function RoleAccessPage() {
                 <input
                   type="checkbox"
                   checked={form.status}
-                  onChange={() =>
-                    setForm({ ...form, status: !form.status })
-                  }
+                  onChange={() => setForm({ ...form, status: !form.status })}
                 />
                 <span></span>
               </label>
@@ -264,7 +278,9 @@ function RoleAccessPage() {
         <div className="rap-card">
           <div className="rap-card-head">
             <h3>Menu Access & Permissions</h3>
-            <button className="rap-refresh">Refresh</button>
+            <button className="rap-refresh" onClick={resetForm}>
+              Refresh
+            </button>
           </div>
 
           <table className="rap-table">
@@ -361,7 +377,7 @@ function RoleAccessPage() {
                 <td>{role.roleName}</td>
                 <td>{role.roleCode}</td>
                 <td>{role.description}</td>
-                <td>{role.totalUsers || 0}</td>
+                <td>{getRoleUserCount(role)}</td>
                 <td>
                   <span className={role.status ? "rap-active" : "rap-inactive"}>
                     {role.status ? "Active" : "Inactive"}
@@ -412,8 +428,10 @@ function RoleAccessPage() {
                 <b>Role Code:</b> {selectedRole.roleCode}
               </p>
               <p>
-                <b>Status:</b>{" "}
-                {selectedRole.status ? "Active" : "Inactive"}
+                <b>Total Users:</b> {getRoleUserCount(selectedRole)}
+              </p>
+              <p>
+                <b>Status:</b> {selectedRole.status ? "Active" : "Inactive"}
               </p>
               <p>
                 <b>Description:</b> {selectedRole.description}

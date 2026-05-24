@@ -3,15 +3,13 @@ const express = require("express");
 const router = express.Router();
 
 const Role = require("../models/Role");
-const AdminUser = require("../models/AdminUser");
 
 
 
-/* =========================
-   ROLE ROUTES
-========================= */
+/* =========================================
+   GET ALL ROLES
+========================================= */
 
-// GET ALL ROLES
 router.get("/roles", async (req, res) => {
   try {
     const roles = await Role.find().sort({
@@ -27,9 +25,33 @@ router.get("/roles", async (req, res) => {
 });
 
 
-// CREATE ROLE
+
+/* =========================================
+   CREATE ROLE
+========================================= */
+
 router.post("/roles", async (req, res) => {
   try {
+    const existingRoleName = await Role.findOne({
+      roleName: req.body.roleName,
+    });
+
+    if (existingRoleName) {
+      return res.status(400).json({
+        message: "Role name already exists",
+      });
+    }
+
+    const existingRoleCode = await Role.findOne({
+      roleCode: req.body.roleCode,
+    });
+
+    if (existingRoleCode) {
+      return res.status(400).json({
+        message: "Role code already exists",
+      });
+    }
+
     const role = await Role.create(req.body);
 
     res.json(role);
@@ -41,15 +63,20 @@ router.post("/roles", async (req, res) => {
 });
 
 
-// UPDATE ROLE
+
+/* =========================================
+   UPDATE ROLE
+========================================= */
+
 router.put("/roles/:id", async (req, res) => {
   try {
-    const role =
-      await Role.findByIdAndUpdate(
-        req.params.id,
-        req.body,
-        { new: true }
-      );
+    const role = await Role.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true,
+      }
+    );
 
     res.json(role);
   } catch (err) {
@@ -60,100 +87,30 @@ router.put("/roles/:id", async (req, res) => {
 });
 
 
-// DELETE ROLE
-router.delete("/roles/:id", async (req, res) => {
-  try {
-    await Role.findByIdAndDelete(
-      req.params.id
-    );
 
-    res.json({
-      message: "Role Deleted",
-    });
-  } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
-  }
-});
+/* =========================================
+   ENABLE / DISABLE ROLE
+========================================= */
 
-
-
-/* =========================
-   USER ROUTES
-========================= */
-
-
-// GET ALL USERS
-router.get("/users", async (req, res) => {
-  try {
-    const users =
-      await AdminUser.find().sort({
-        createdAt: -1,
-      });
-
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
-  }
-});
-
-
-
-// CREATE USER
-router.post("/users", async (req, res) => {
-  try {
-    const user =
-      await AdminUser.create(req.body);
-
-    res.json(user);
-  } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
-  }
-});
-
-
-
-// UPDATE USER
-router.put("/users/:id", async (req, res) => {
-  try {
-    const user =
-      await AdminUser.findByIdAndUpdate(
-        req.params.id,
-        req.body,
-        { new: true }
-      );
-
-    res.json(user);
-  } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
-  }
-});
-
-
-
-
-// ENABLE / DISABLE USER
 router.patch(
-  "/users/:id/status",
+  "/roles/:id/status",
   async (req, res) => {
     try {
-      const user =
-        await AdminUser.findById(
-          req.params.id
-        );
+      const role = await Role.findById(
+        req.params.id
+      );
 
-      user.status = !user.status;
+      if (!role) {
+        return res.status(404).json({
+          message: "Role not found",
+        });
+      }
 
-      await user.save();
+      role.status = !role.status;
 
-      res.json(user);
+      await role.save();
+
+      res.json(role);
     } catch (err) {
       res.status(500).json({
         message: err.message,
@@ -164,16 +121,18 @@ router.patch(
 
 
 
+/* =========================================
+   DELETE ROLE
+========================================= */
 
-// DELETE USER
-router.delete("/users/:id", async (req, res) => {
+router.delete("/roles/:id", async (req, res) => {
   try {
-    await AdminUser.findByIdAndDelete(
+    await Role.findByIdAndDelete(
       req.params.id
     );
 
     res.json({
-      message: "User Deleted",
+      message: "Role deleted successfully",
     });
   } catch (err) {
     res.status(500).json({

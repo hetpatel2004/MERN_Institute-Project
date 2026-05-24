@@ -212,55 +212,14 @@ const superAdminMenuSections = [
     key: "settings",
     icon: Settings,
     items: [
-      {
-        name: "Branches",
-        path: "/superadmin/branches",
-        icon: Building2,
-      },
-
-      {
-        name: "Users",
-        path: ROUTES.superAdminUsers,
-        icon: UsersIcon,
-      },
-
-      {
-        name: "Roles",
-        path: "/superadmin/roles",
-        icon: Shield,
-      },
-
-      {
-        name: "Menus",
-        path: "/superadmin/menus",
-        icon: Menu,
-      },
-
-      {
-        name: "Permissions",
-        path: "/superadmin/permissions",
-        icon: ShieldCheck,
-      },
-
-      {
-        name: "Role Access",
-        path: "/superadmin/roles",
-        icon: UserCog,
-      },
-
-      {
-        name: "System Settings",
-        path: "/superadmin/system-settings",
-        icon: Settings,
-      },
-
-      {
-        name: "Integrations",
-        path: "/superadmin/integrations",
-        icon: Plug,
-      },
+      { name: "Branches", path: "/superadmin/branches", icon: Building2 },
+      { name: "Users", path: ROUTES.superAdminUsers, icon: UsersIcon },
+      { name: "Roles", path: "/superadmin/roles", icon: Shield },
+      { name: "Menus", path: "/superadmin/menus", icon: Menu },
+      { name: "Integrations", path: "/superadmin/integrations", icon: Plug },
     ],
   },
+  ,
   ,
 ];
 
