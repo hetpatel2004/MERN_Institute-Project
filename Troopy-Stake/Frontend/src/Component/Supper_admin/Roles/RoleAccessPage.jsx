@@ -282,6 +282,25 @@ function RoleAccessPage() {
     }
   };
 
+  const viewUser = (user) => {
+    alert(
+      `Name: ${user.fullName}\nUsername: ${user.username}\nEmail: ${user.email}`,
+    );
+  };
+
+  const editUser = (user) => {
+    alert("Edit user page/form will open for: " + user.fullName);
+  };
+
+  const toggleUserStatus = async (user) => {
+    alert("Enable/Disable API needed for user type: " + user.source);
+  };
+
+  const deleteUser = async (user) => {
+    if (window.confirm("Are you sure you want to delete this user?")) {
+      alert("Delete API needed for user type: " + user.source);
+    }
+  };
   return (
     <div className="rap-page">
       <div className="rap-page-header">
@@ -558,10 +577,13 @@ function RoleAccessPage() {
                     </td>
 
                     <td className="rap-action-btns">
-                      <button>👁</button>
-                      <button>✏️</button>
-                      <button>🔵</button>
-                      <button>🗑</button>
+                      <button className="rap-view-btn">👁</button>
+                      <button className="rap-edit-btn">✏️</button>
+                      <label className="rap-switch small-switch">
+                        <input type="checkbox" checked={user.status} readOnly />
+                        <span></span>
+                      </label>
+                      <button className="rap-delete-btn">🗑</button>
                     </td>
                   </tr>
                 ))}

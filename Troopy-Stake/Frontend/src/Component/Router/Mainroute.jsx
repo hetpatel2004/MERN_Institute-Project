@@ -36,10 +36,7 @@ function DynamicSuperAdminPage() {
   return (
     <div className="sa-page-card">
       <h1>{title}</h1>
-      <p>
-        This page is protected and ready. You can add dynamic content here
-        later.
-      </p>
+      <p>This page is protected and ready. You can add dynamic content here later.</p>
     </div>
   );
 }
@@ -51,10 +48,7 @@ function Mainroute() {
       <Route path="/login" element={<Login />} />
       <Route path="/registration" element={<Registration />} />
 
-      <Route
-        path="/superadmin"
-        element={<Navigate to="/superadmin/dashboard" replace />}
-      />
+      <Route path="/superadmin" element={<Navigate to="/superadmin/dashboard" replace />} />
 
       <Route
         path={ROUTES.superAdminDashboard}
@@ -99,22 +93,22 @@ function Mainroute() {
       />
 
       <Route
-        path="/superadmin/course/:courseId/modules"
+        path="/superadmin/course/edit/:id"
         element={
           <ProtectedRoute role="superadmin">
             <SuperAdmin page="course">
-              <CourseModules />
+              <CourseCreate />
             </SuperAdmin>
           </ProtectedRoute>
         }
       />
 
       <Route
-        path="/superadmin/course/edit/:id"
+        path="/superadmin/course/:courseId/modules"
         element={
           <ProtectedRoute role="superadmin">
             <SuperAdmin page="course">
-              <CourseCreate />
+              <CourseModules />
             </SuperAdmin>
           </ProtectedRoute>
         }
@@ -164,16 +158,38 @@ function Mainroute() {
         }
       />
 
-      {/* <Route
+      <Route
+        path="/superadmin/leads"
+        element={
+          <ProtectedRoute role="superadmin">
+            <SuperAdmin page="leads">
+              <Leads />
+            </SuperAdmin>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/superadmin/roles"
+        element={
+          <ProtectedRoute role="superadmin">
+            <SuperAdmin page="roles">
+              <RoleAccessPage />
+            </SuperAdmin>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
         path="/superadmin/menus"
         element={
           <ProtectedRoute role="superadmin">
             <SuperAdmin page="menus">
-              <UserRoleAccess />
+              <MenuManager />
             </SuperAdmin>
           </ProtectedRoute>
         }
-      /> */}
+      />
 
       <Route
         path="/superadmin/:menuSlug"
@@ -209,28 +225,6 @@ function Mainroute() {
         element={
           <ProtectedRoute role="student">
             <UserDashboard />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/superadmin/leads"
-        element={
-          <ProtectedRoute role="superadmin">
-            <SuperAdmin page="leads">
-              <Leads />
-            </SuperAdmin>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/superadmin/roles"
-        element={
-          <ProtectedRoute role="superadmin">
-            <SuperAdmin page="roles">
-              <RoleAccessPage />
-            </SuperAdmin>
           </ProtectedRoute>
         }
       />

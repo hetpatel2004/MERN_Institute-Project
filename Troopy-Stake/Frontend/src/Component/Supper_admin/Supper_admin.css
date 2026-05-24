@@ -2310,3 +2310,45 @@
   font-weight: 900;
   cursor: pointer;
 }
+
+.menu-toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
+}
+
+.menu-toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.menu-toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: #6b7280;
+  transition: 0.3s;
+  border-radius: 999px;
+}
+
+.menu-toggle-slider::before {
+  content: "";
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  top: 3px;
+  background: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+.menu-toggle-switch input:checked + .menu-toggle-slider {
+  background: #ffc107;
+}
+
+.menu-toggle-switch input:checked + .menu-toggle-slider::before {
+  transform: translateX(24px);
+}

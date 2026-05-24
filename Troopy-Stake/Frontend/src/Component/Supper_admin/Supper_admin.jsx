@@ -220,7 +220,6 @@ const superAdminMenuSections = [
     ],
   },
   ,
-  ,
 ];
 
 function Supper_admin({ children, page }) {
