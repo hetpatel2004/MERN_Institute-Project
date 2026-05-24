@@ -10,14 +10,33 @@ const menuGroups = [
     name: "CRM & Leads",
     children: ["Leads", "Follow-ups", "Admissions", "Counsellors", "Campaigns"],
   },
-  { name: "Students", children: ["Students", "Batches", "Courses", "Placements"] },
-  { name: "Academics", children: ["Programs", "Course Categories", "Faculties", "Exams"] },
+  {
+    name: "Students",
+    children: ["Students", "Batches", "Courses", "Placements"],
+  },
+  {
+    name: "Academics",
+    children: ["Programs", "Course Categories", "Faculties", "Exams"],
+  },
   { name: "Finance", children: ["Fees", "Expenses", "Invoices"] },
-  { name: "Analytics", children: ["Lead Analytics", "Revenue", "Performance", "Reports"] },
-  { name: "Operations", children: ["Staff", "Attendance", "Holidays", "Login Approvals"] },
+  {
+    name: "Analytics",
+    children: ["Lead Analytics", "Revenue", "Performance", "Reports"],
+  },
+  {
+    name: "Operations",
+    children: ["Staff", "Attendance", "Holidays", "Login Approvals"],
+  },
   {
     name: "Settings",
-    children: ["Branches", "Users", "Roles", "Menus", "Permissions", "System Settings"],
+    children: [
+      "Branches",
+      "Users",
+      "Roles",
+      "Menus",
+      "Permissions",
+      "System Settings",
+    ],
   },
 ];
 
@@ -25,7 +44,7 @@ const actions = ["view", "add", "edit", "delete", "export"];
 
 function RoleAccessPage() {
   const [roles, setRoles] = useState([]);
-  const [branchAdminCount, setBranchAdminCount] = useState(0);
+  const [roleCounts, setRoleCounts] = useState({});
   const [selectedRole, setSelectedRole] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -39,20 +58,74 @@ function RoleAccessPage() {
   });
 
   const defaultRoles = [
-    { roleName: "Super Admin", roleCode: "SUPER_ADMIN", description: "Full system access", totalUsers: 1, status: true },
-    { roleName: "Institute Admin", roleCode: "INSTITUTE_ADMIN", description: "Institute management access", totalUsers: 0, status: true },
-    { roleName: "Branch Admin", roleCode: "BRANCH_ADMIN", description: "Branch management access", totalUsers: 0, status: true },
-    { roleName: "Company Admin", roleCode: "COMPANY_ADMIN", description: "Company management access", totalUsers: 0, status: true },
-    { roleName: "Faculty", roleCode: "FACULTY", description: "Faculty access", totalUsers: 0, status: true },
-    { roleName: "Counsellor", roleCode: "COUNSELLOR", description: "Lead & student counselling access", totalUsers: 0, status: true },
-    { roleName: "Sales Person", roleCode: "SALES_PERSON", description: "Sales management access", totalUsers: 0, status: true },
-    { roleName: "Call Person", roleCode: "CALL_PERSON", description: "Call handling access", totalUsers: 0, status: true },
-    { roleName: "Student", roleCode: "STUDENT", description: "Student dashboard access", totalUsers: 0, status: true },
+    {
+      roleName: "Super Admin",
+      roleCode: "SUPER_ADMIN",
+      description: "Full system access",
+      totalUsers: 1,
+      status: true,
+    },
+    {
+      roleName: "Institute Admin",
+      roleCode: "INSTITUTE_ADMIN",
+      description: "Institute management access",
+      totalUsers: 0,
+      status: true,
+    },
+    {
+      roleName: "Branch Admin",
+      roleCode: "BRANCH_ADMIN",
+      description: "Branch management access",
+      totalUsers: 0,
+      status: true,
+    },
+    {
+      roleName: "Company Admin",
+      roleCode: "COMPANY_ADMIN",
+      description: "Company management access",
+      totalUsers: 0,
+      status: true,
+    },
+    {
+      roleName: "Faculty",
+      roleCode: "FACULTY",
+      description: "Faculty access",
+      totalUsers: 0,
+      status: true,
+    },
+    {
+      roleName: "Counsellor",
+      roleCode: "COUNSELLOR",
+      description: "Lead & student counselling access",
+      totalUsers: 0,
+      status: true,
+    },
+    {
+      roleName: "Sales Person",
+      roleCode: "SALES_PERSON",
+      description: "Sales management access",
+      totalUsers: 0,
+      status: true,
+    },
+    {
+      roleName: "Call Person",
+      roleCode: "CALL_PERSON",
+      description: "Call handling access",
+      totalUsers: 0,
+      status: true,
+    },
+    {
+      roleName: "Student",
+      roleCode: "STUDENT",
+      description: "Student dashboard access",
+      totalUsers: 0,
+      status: true,
+    },
   ];
 
   useEffect(() => {
     fetchRoles();
-    fetchBranchAdminCount();
+    fetchRoleCounts();
   }, []);
 
   const fetchRoles = async () => {
@@ -61,7 +134,9 @@ function RoleAccessPage() {
       let backendRoles = res.data || [];
 
       for (const role of defaultRoles) {
-        const alreadyExists = backendRoles.some((r) => r.roleCode === role.roleCode);
+        const alreadyExists = backendRoles.some(
+          (r) => r.roleCode === role.roleCode,
+        );
         if (!alreadyExists) {
           await axios.post(`${API}/roles`, role);
         }
@@ -75,25 +150,21 @@ function RoleAccessPage() {
     }
   };
 
-  const fetchBranchAdminCount = async () => {
+  const fetchRoleCounts = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/institutes");
-
-      const count = (res.data || []).reduce((total, institute) => {
-        return total + (institute.branches?.length || 0);
-      }, 0);
-
-      setBranchAdminCount(count);
+      const res = await axios.get(
+        "http://localhost:5000/api/role-access/role-counts",
+      );
+      setRoleCounts(res.data || {});
     } catch (err) {
-      console.error("Failed to count branch admins", err);
-      setBranchAdminCount(0);
+      console.error("Failed to fetch role counts", err);
+      setRoleCounts({});
     }
   };
 
-  const getRoleUserCount = (role) => {
-    if (role.roleCode === "BRANCH_ADMIN") return branchAdminCount;
-    return role.totalUsers || 0;
-  };
+ const getRoleUserCount = (role) => {
+  return roleCounts[role.roleCode] || 0;
+};
 
   const handlePermission = (menu, action) => {
     setForm((prev) => ({
@@ -112,7 +183,9 @@ function RoleAccessPage() {
     const groupMenus = [group.name, ...group.children];
 
     setForm((prev) => {
-      const isAllChecked = groupMenus.every((menu) => prev.permissions?.[menu]?.[action]);
+      const isAllChecked = groupMenus.every(
+        (menu) => prev.permissions?.[menu]?.[action],
+      );
       const updatedPermissions = { ...prev.permissions };
 
       groupMenus.forEach((menu) => {
@@ -247,7 +320,9 @@ function RoleAccessPage() {
             <textarea
               placeholder="Enter role description"
               value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, description: e.target.value })
+              }
             />
 
             <label>Status</label>
@@ -305,7 +380,9 @@ function RoleAccessPage() {
                       <td key={action}>
                         <input
                           type="checkbox"
-                          checked={form.permissions?.[group.name]?.[action] || false}
+                          checked={
+                            form.permissions?.[group.name]?.[action] || false
+                          }
                           onChange={() => handleGroupPermission(group, action)}
                         />
                       </td>
@@ -320,7 +397,9 @@ function RoleAccessPage() {
                         <td key={action}>
                           <input
                             type="checkbox"
-                            checked={form.permissions?.[child]?.[action] || false}
+                            checked={
+                              form.permissions?.[child]?.[action] || false
+                            }
                             onChange={() => handlePermission(child, action)}
                           />
                         </td>
@@ -456,7 +535,9 @@ function RoleAccessPage() {
                     <td>{menu}</td>
                     {actions.map((action) => (
                       <td key={action}>
-                        {selectedRole.permissions?.[menu]?.[action] ? "✅" : "—"}
+                        {selectedRole.permissions?.[menu]?.[action]
+                          ? "✅"
+                          : "—"}
                       </td>
                     ))}
                   </tr>
