@@ -17,7 +17,7 @@ import CourseCreate from "../Supper_admin/Course/CourseCreate";
 import CourseModules from "../Supper_admin/Course/CourseModules";
 import ModuleTopics from "../Supper_admin/Course/ModuleTopics";
 import Leads from "../Supper_admin/Leads/Leads";
-import UserRoleAccess from "../Supper_admin/Users/UserRoleAccess";
+import RoleAccessPage from "../Supper_admin/Roles/RoleAccessPage";
 
 import UserDashboard from "../User_dashboard/UserDashboard";
 import ProtectedRoute from "../Auth/ProtectedRoute";
@@ -164,16 +164,16 @@ function Mainroute() {
         }
       />
 
-      <Route
+      {/* <Route
         path="/superadmin/menus"
         element={
           <ProtectedRoute role="superadmin">
             <SuperAdmin page="menus">
-              <MenuManager />
+              <UserRoleAccess />
             </SuperAdmin>
           </ProtectedRoute>
         }
-      />
+      /> */}
 
       <Route
         path="/superadmin/:menuSlug"
@@ -225,11 +225,11 @@ function Mainroute() {
       />
 
       <Route
-        path="/superadmin/user-role-access"
+        path="/superadmin/roles"
         element={
           <ProtectedRoute role="superadmin">
-            <SuperAdmin page="users">
-              <UserRoleAccess />
+            <SuperAdmin page="roles">
+              <RoleAccessPage />
             </SuperAdmin>
           </ProtectedRoute>
         }

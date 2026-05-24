@@ -49,7 +49,7 @@ import "./Supper_admin.css";
 function Dashboard({ institutes, courses, companies, navigate }) {
   const totalStudents = institutes.reduce(
     (total, item) => total + Number(item.students || 0),
-    0
+    0,
   );
 
   return (
@@ -110,12 +110,20 @@ const superAdminMenuSections = [
     icon: Target,
     items: [
       { name: "Leads", path: "/superadmin/leads", icon: Target },
-      { name: "Follow-ups", path: "/superadmin/follow-ups", icon: CalendarCheck },
+      {
+        name: "Follow-ups",
+        path: "/superadmin/follow-ups",
+        icon: CalendarCheck,
+      },
       { name: "Admissions", path: "/superadmin/admissions", icon: UserCheck },
       { name: "Counsellors", path: "/superadmin/counsellors", icon: UsersIcon },
       { name: "Campaigns", path: "/superadmin/campaigns", icon: Megaphone },
       { name: "Tasks", path: "/superadmin/tasks", icon: ClipboardList },
-      { name: "Daily Reports", path: "/superadmin/daily-reports", icon: FileText },
+      {
+        name: "Daily Reports",
+        path: "/superadmin/daily-reports",
+        icon: FileText,
+      },
     ],
   },
   {
@@ -123,7 +131,11 @@ const superAdminMenuSections = [
     key: "communication",
     icon: MessageCircle,
     items: [
-      { name: "WhatsApp Inbox", path: "/superadmin/whatsapp-inbox", icon: MessageCircle },
+      {
+        name: "WhatsApp Inbox",
+        path: "/superadmin/whatsapp-inbox",
+        icon: MessageCircle,
+      },
       { name: "QR Codes", path: "/superadmin/qr-codes", icon: QrCode },
       { name: "Templates", path: "/superadmin/templates", icon: FilePenLine },
       { name: "Broadcasts", path: "/superadmin/broadcasts", icon: Send },
@@ -146,7 +158,11 @@ const superAdminMenuSections = [
     icon: School,
     items: [
       { name: "Programs", path: "/superadmin/programs", icon: Layers },
-      { name: "Course Categories", path: "/superadmin/course-categories", icon: FolderTree },
+      {
+        name: "Course Categories",
+        path: "/superadmin/course-categories",
+        icon: FolderTree,
+      },
       { name: "Faculties", path: "/superadmin/faculties", icon: UserCog },
       { name: "Exams", path: "/superadmin/exams", icon: FilePenLine },
     ],
@@ -166,7 +182,11 @@ const superAdminMenuSections = [
     key: "analytics",
     icon: BarChart3,
     items: [
-      { name: "Lead Analytics", path: "/superadmin/lead-analytics", icon: BarChart3 },
+      {
+        name: "Lead Analytics",
+        path: "/superadmin/lead-analytics",
+        icon: BarChart3,
+      },
       { name: "Revenue", path: "/superadmin/revenue", icon: TrendingUp },
       { name: "Performance", path: "/superadmin/performance", icon: Activity },
       { name: "Reports", path: "/superadmin/reports", icon: FileText },
@@ -180,7 +200,11 @@ const superAdminMenuSections = [
       { name: "Staff", path: "/superadmin/staff", icon: UserRoundCog },
       { name: "Attendance", path: "/superadmin/attendance", icon: Clock },
       { name: "Holidays", path: "/superadmin/holidays", icon: CalendarDays },
-      { name: "Login Approvals", path: "/superadmin/login-approvals", icon: ShieldCheck },
+      {
+        name: "Login Approvals",
+        path: "/superadmin/login-approvals",
+        icon: ShieldCheck,
+      },
     ],
   },
   {
@@ -188,13 +212,56 @@ const superAdminMenuSections = [
     key: "settings",
     icon: Settings,
     items: [
-      { name: "Branches", path: "/superadmin/branches", icon: Building2 },
-      { name: "Users", path: ROUTES.superAdminUsers, icon: UsersIcon },
-      { name: "Roles", path: "/superadmin/roles", icon: Shield },
-      { name: "Menus", path: "/superadmin/menus", icon: Menu },
-      { name: "Integrations", path: "/superadmin/integrations", icon: Plug },
+      {
+        name: "Branches",
+        path: "/superadmin/branches",
+        icon: Building2,
+      },
+
+      {
+        name: "Users",
+        path: ROUTES.superAdminUsers,
+        icon: UsersIcon,
+      },
+
+      {
+        name: "Roles",
+        path: "/superadmin/roles",
+        icon: Shield,
+      },
+
+      {
+        name: "Menus",
+        path: "/superadmin/menus",
+        icon: Menu,
+      },
+
+      {
+        name: "Permissions",
+        path: "/superadmin/permissions",
+        icon: ShieldCheck,
+      },
+
+      {
+        name: "Role Access",
+        path: "/superadmin/roles",
+        icon: UserCog,
+      },
+
+      {
+        name: "System Settings",
+        path: "/superadmin/system-settings",
+        icon: Settings,
+      },
+
+      {
+        name: "Integrations",
+        path: "/superadmin/integrations",
+        icon: Plug,
+      },
     ],
   },
+  ,
 ];
 
 function Supper_admin({ children, page }) {
@@ -294,7 +361,11 @@ function Supper_admin({ children, page }) {
               <span>Course</span>
 
               <span style={{ marginLeft: "auto" }}>
-                {courseOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                {courseOpen ? (
+                  <ChevronUp size={16} />
+                ) : (
+                  <ChevronDown size={16} />
+                )}
               </span>
             </button>
 
