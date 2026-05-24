@@ -48,7 +48,7 @@ function RoleAccessPage() {
   const [selectedRole, setSelectedRole] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState(null);
-
+  const [roleUsers, setRoleUsers] = useState([]);
   const [form, setForm] = useState({
     roleName: "",
     roleCode: "",
@@ -162,9 +162,9 @@ function RoleAccessPage() {
     }
   };
 
- const getRoleUserCount = (role) => {
-  return roleCounts[role.roleCode] || 0;
-};
+  const getRoleUserCount = (role) => {
+    return roleCounts[role.roleCode] || 0;
+  };
 
   const handlePermission = (menu, action) => {
     setForm((prev) => ({
@@ -268,9 +268,18 @@ function RoleAccessPage() {
     }
   };
 
-  const openRoleDetails = (role) => {
-    setSelectedRole(role);
-    setShowModal(true);
+  const openRoleDetails = async (role) => {
+    try {
+      setSelectedRole(role);
+      setShowModal(true);
+
+      const res = await axios.get(`${API}/role-users/${role.roleCode}`);
+
+      setRoleUsers(res.data || []);
+    } catch (err) {
+      console.error(err);
+      setRoleUsers([]);
+    }
   };
 
   return (
@@ -495,7 +504,7 @@ function RoleAccessPage() {
             <h2>Role Details - {selectedRole.roleName}</h2>
 
             <div className="rap-tabs">
-              <span className="active-tab">Role Information</span>
+              <span className="active-tab">Users ({roleUsers.length})</span>
               <span>Permissions</span>
             </div>
 
@@ -520,26 +529,40 @@ function RoleAccessPage() {
             <table className="rap-table">
               <thead>
                 <tr>
-                  <th>Menu</th>
-                  <th>View</th>
-                  <th>Add</th>
-                  <th>Edit</th>
-                  <th>Delete</th>
-                  <th>Export</th>
+                  <th>#</th>
+                  <th>Full Name</th>
+                  <th>Username</th>
+                  <th>Email</th>
+                  <th>Status</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
 
               <tbody>
-                {Object.keys(selectedRole.permissions || {}).map((menu) => (
-                  <tr key={menu}>
-                    <td>{menu}</td>
-                    {actions.map((action) => (
-                      <td key={action}>
-                        {selectedRole.permissions?.[menu]?.[action]
-                          ? "✅"
-                          : "—"}
-                      </td>
-                    ))}
+                {roleUsers.map((user, index) => (
+                  <tr key={user._id}>
+                    <td>{index + 1}</td>
+
+                    <td>{user.fullName || "-"}</td>
+
+                    <td>{user.username || "-"}</td>
+
+                    <td>{user.email || "-"}</td>
+
+                    <td>
+                      <span
+                        className={user.status ? "rap-active" : "rap-inactive"}
+                      >
+                        {user.status ? "Active" : "Inactive"}
+                      </span>
+                    </td>
+
+                    <td className="rap-action-btns">
+                      <button>👁</button>
+                      <button>✏️</button>
+                      <button>🔵</button>
+                      <button>🗑</button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

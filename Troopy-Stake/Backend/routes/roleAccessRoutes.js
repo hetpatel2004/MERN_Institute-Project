@@ -192,4 +192,64 @@ router.get("/role-counts", async (req, res) => {
     }
 });
 
+/* =========================================
+   GET USERS BY ROLE
+========================================= */
+
+router.get("/role-users/:roleCode", async (req, res) => {
+    try {
+        const User = require("../models/User");
+        const Institute = require("../models/Institute");
+
+        const { roleCode } = req.params;
+
+        let users = [];
+
+        if (roleCode === "BRANCH_ADMIN") {
+            const institutes = await Institute.find();
+
+            institutes.forEach((institute) => {
+                institute.branches?.forEach((branch) => {
+                    users.push({
+                        _id: branch._id,
+                        fullName: branch.branch_name || "Branch Admin",
+                        username: branch.admin_email || "-",
+                        email: branch.admin_email || "-",
+                        status: branch.status !== "Inactive",
+                    });
+                });
+            });
+        } else {
+            const roleMap = {
+                SUPER_ADMIN: "superadmin",
+                INSTITUTE_ADMIN: "instituteadmin",
+                COMPANY_ADMIN: "companyadmin",
+                STUDENT: "student",
+                FACULTY: "faculty",
+                COUNSELLOR: "counsellor",
+                SALES_PERSON: "sales_person",
+                CALL_PERSON: "call_person",
+            };
+
+            const role = roleMap[roleCode];
+
+            users = await User.find({ role });
+
+            users = users.map((user) => ({
+                _id: user._id,
+                fullName: user.name || "-",
+                username: user.username || user.email || "-",
+                email: user.email || "-",
+                status: user.isApproved !== false,
+            }));
+        }
+
+        res.json(users);
+    } catch (err) {
+        res.status(500).json({
+            message: err.message,
+        });
+    }
+});
+
 module.exports = router;
