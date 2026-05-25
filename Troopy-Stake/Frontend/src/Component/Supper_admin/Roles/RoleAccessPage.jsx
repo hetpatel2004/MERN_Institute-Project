@@ -29,14 +29,7 @@ const menuGroups = [
   },
   {
     name: "Settings",
-    children: [
-      "Branches",
-      "Users",
-      "Roles",
-      "Menus",
-      "Permissions",
-      "System Settings",
-    ],
+    children: ["Branches", "Users", "Roles", "Menus", "Permissions", "System Settings"],
   },
 ];
 
@@ -49,6 +42,7 @@ function RoleAccessPage() {
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState(null);
   const [roleUsers, setRoleUsers] = useState([]);
+
   const [form, setForm] = useState({
     roleName: "",
     roleCode: "",
@@ -58,69 +52,15 @@ function RoleAccessPage() {
   });
 
   const defaultRoles = [
-    {
-      roleName: "Super Admin",
-      roleCode: "SUPER_ADMIN",
-      description: "Full system access",
-      totalUsers: 1,
-      status: true,
-    },
-    {
-      roleName: "Institute Admin",
-      roleCode: "INSTITUTE_ADMIN",
-      description: "Institute management access",
-      totalUsers: 0,
-      status: true,
-    },
-    {
-      roleName: "Branch Admin",
-      roleCode: "BRANCH_ADMIN",
-      description: "Branch management access",
-      totalUsers: 0,
-      status: true,
-    },
-    {
-      roleName: "Company Admin",
-      roleCode: "COMPANY_ADMIN",
-      description: "Company management access",
-      totalUsers: 0,
-      status: true,
-    },
-    {
-      roleName: "Faculty",
-      roleCode: "FACULTY",
-      description: "Faculty access",
-      totalUsers: 0,
-      status: true,
-    },
-    {
-      roleName: "Counsellor",
-      roleCode: "COUNSELLOR",
-      description: "Lead & student counselling access",
-      totalUsers: 0,
-      status: true,
-    },
-    {
-      roleName: "Sales Person",
-      roleCode: "SALES_PERSON",
-      description: "Sales management access",
-      totalUsers: 0,
-      status: true,
-    },
-    {
-      roleName: "Call Person",
-      roleCode: "CALL_PERSON",
-      description: "Call handling access",
-      totalUsers: 0,
-      status: true,
-    },
-    {
-      roleName: "Student",
-      roleCode: "STUDENT",
-      description: "Student dashboard access",
-      totalUsers: 0,
-      status: true,
-    },
+    { roleName: "Super Admin", roleCode: "SUPER_ADMIN", description: "Full system access", totalUsers: 1, status: true },
+    { roleName: "Institute Admin", roleCode: "INSTITUTE_ADMIN", description: "Institute management access", totalUsers: 0, status: true },
+    { roleName: "Branch Admin", roleCode: "BRANCH_ADMIN", description: "Branch management access", totalUsers: 0, status: true },
+    { roleName: "Company Admin", roleCode: "COMPANY_ADMIN", description: "Company management access", totalUsers: 0, status: true },
+    { roleName: "Faculty", roleCode: "FACULTY", description: "Faculty access", totalUsers: 0, status: true },
+    { roleName: "Counsellor", roleCode: "COUNSELLOR", description: "Lead & student counselling access", totalUsers: 0, status: true },
+    { roleName: "Sales Person", roleCode: "SALES_PERSON", description: "Sales management access", totalUsers: 0, status: true },
+    { roleName: "Call Person", roleCode: "CALL_PERSON", description: "Call handling access", totalUsers: 0, status: true },
+    { roleName: "Student", roleCode: "STUDENT", description: "Student dashboard access", totalUsers: 0, status: true },
   ];
 
   useEffect(() => {
@@ -131,15 +71,11 @@ function RoleAccessPage() {
   const fetchRoles = async () => {
     try {
       const res = await axios.get(`${API}/roles`);
-      let backendRoles = res.data || [];
+      const backendRoles = res.data || [];
 
       for (const role of defaultRoles) {
-        const alreadyExists = backendRoles.some(
-          (r) => r.roleCode === role.roleCode,
-        );
-        if (!alreadyExists) {
-          await axios.post(`${API}/roles`, role);
-        }
+        const exists = backendRoles.some((r) => r.roleCode === role.roleCode);
+        if (!exists) await axios.post(`${API}/roles`, role);
       }
 
       const finalRes = await axios.get(`${API}/roles`);
@@ -152,9 +88,7 @@ function RoleAccessPage() {
 
   const fetchRoleCounts = async () => {
     try {
-      const res = await axios.get(
-        "http://localhost:5000/api/role-access/role-counts",
-      );
+      const res = await axios.get(`${API}/role-counts`);
       setRoleCounts(res.data || {});
     } catch (err) {
       console.error("Failed to fetch role counts", err);
@@ -162,9 +96,7 @@ function RoleAccessPage() {
     }
   };
 
-  const getRoleUserCount = (role) => {
-    return roleCounts[role.roleCode] || 0;
-  };
+  const getRoleUserCount = (role) => roleCounts[role.roleCode] || 0;
 
   const handlePermission = (menu, action) => {
     setForm((prev) => ({
@@ -183,20 +115,36 @@ function RoleAccessPage() {
     const groupMenus = [group.name, ...group.children];
 
     setForm((prev) => {
-      const isAllChecked = groupMenus.every(
-        (menu) => prev.permissions?.[menu]?.[action],
-      );
+      const allChecked = groupMenus.every((menu) => prev.permissions?.[menu]?.[action]);
       const updatedPermissions = { ...prev.permissions };
 
       groupMenus.forEach((menu) => {
         updatedPermissions[menu] = {
           ...updatedPermissions[menu],
-          [action]: !isAllChecked,
+          [action]: !allChecked,
         };
       });
 
       return { ...prev, permissions: updatedPermissions };
     });
+  };
+
+  const handleSelectAll = () => {
+    const updatedPermissions = {};
+
+    menuGroups.forEach((group) => {
+      [group.name, ...group.children].forEach((menu) => {
+        updatedPermissions[menu] = {};
+        actions.forEach((action) => {
+          updatedPermissions[menu][action] = true;
+        });
+      });
+    });
+
+    setForm((prev) => ({
+      ...prev,
+      permissions: updatedPermissions,
+    }));
   };
 
   const resetForm = () => {
@@ -272,9 +220,7 @@ function RoleAccessPage() {
     try {
       setSelectedRole(role);
       setShowModal(true);
-
       const res = await axios.get(`${API}/role-users/${role.roleCode}`);
-
       setRoleUsers(res.data || []);
     } catch (err) {
       console.error(err);
@@ -282,25 +228,26 @@ function RoleAccessPage() {
     }
   };
 
-  const viewUser = (user) => {
-    alert(
-      `Name: ${user.fullName}\nUsername: ${user.username}\nEmail: ${user.email}`,
-    );
-  };
+  const handleToggleBlock = async (user) => {
+    try {
+      const url =
+        user.status === "Blocked"
+          ? `http://localhost:5000/api/users/${user._id}/unblock`
+          : `http://localhost:5000/api/users/${user._id}/block`;
 
-  const editUser = (user) => {
-    alert("Edit user page/form will open for: " + user.fullName);
-  };
+      const res = await axios.patch(url);
 
-  const toggleUserStatus = async (user) => {
-    alert("Enable/Disable API needed for user type: " + user.source);
-  };
+      setRoleUsers((prev) =>
+        prev.map((u) => (u._id === user._id ? res.data.user : u))
+      );
 
-  const deleteUser = async (user) => {
-    if (window.confirm("Are you sure you want to delete this user?")) {
-      alert("Delete API needed for user type: " + user.source);
+      fetchRoleCounts();
+    } catch (error) {
+      console.log(error);
+      alert(error.response?.data?.message || "Failed to update user status");
     }
   };
+
   return (
     <div className="rap-page">
       <div className="rap-page-header">
@@ -348,9 +295,7 @@ function RoleAccessPage() {
             <textarea
               placeholder="Enter role description"
               value={form.description}
-              onChange={(e) =>
-                setForm({ ...form, description: e.target.value })
-              }
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
             />
 
             <label>Status</label>
@@ -381,9 +326,16 @@ function RoleAccessPage() {
         <div className="rap-card">
           <div className="rap-card-head">
             <h3>Menu Access & Permissions</h3>
-            <button className="rap-refresh" onClick={resetForm}>
-              Refresh
-            </button>
+
+            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+              <button className="rap-primary" type="button" onClick={handleSelectAll}>
+                Select All
+              </button>
+
+              <button className="rap-refresh" onClick={resetForm}>
+                Refresh
+              </button>
+            </div>
           </div>
 
           <table className="rap-table">
@@ -408,9 +360,9 @@ function RoleAccessPage() {
                       <td key={action}>
                         <input
                           type="checkbox"
-                          checked={
-                            form.permissions?.[group.name]?.[action] || false
-                          }
+                          checked={[group.name, ...group.children].every(
+                            (menu) => form.permissions?.[menu]?.[action]
+                          )}
                           onChange={() => handleGroupPermission(group, action)}
                         />
                       </td>
@@ -425,9 +377,7 @@ function RoleAccessPage() {
                         <td key={action}>
                           <input
                             type="checkbox"
-                            checked={
-                              form.permissions?.[child]?.[action] || false
-                            }
+                            checked={form.permissions?.[child]?.[action] || false}
                             onChange={() => handlePermission(child, action)}
                           />
                         </td>
@@ -490,27 +440,27 @@ function RoleAccessPage() {
                     {role.status ? "Active" : "Inactive"}
                   </span>
                 </td>
-                <td>
-                  {role.createdAt
-                    ? new Date(role.createdAt).toLocaleDateString()
-                    : "-"}
-                </td>
+                <td>{role.createdAt ? new Date(role.createdAt).toLocaleDateString() : "-"}</td>
                 <td className="rap-action-btns">
-                  <button onClick={() => openRoleDetails(role)}>👁</button>
-                  <button onClick={() => editRole(role)}>✏️</button>
-                  <button onClick={() => toggleRoleStatus(role._id)}>
-                    {role.status ? "🔵" : "⚪"}
+                  <button className="rap-view-btn" onClick={() => openRoleDetails(role)}>
+                    👁
                   </button>
-                  <button onClick={() => deleteRole(role._id)}>🗑</button>
+                  <button className="rap-edit-btn" onClick={() => editRole(role)}>
+                    ✏️
+                  </button>
+                  <button className="rap-status-btn" onClick={() => toggleRoleStatus(role._id)}>
+                    {role.status ? "Disable" : "Enable"}
+                  </button>
+                  <button className="rap-delete-btn" onClick={() => deleteRole(role._id)}>
+                    🗑
+                  </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        {roles.length === 0 && (
-          <p className="rap-empty">No roles found. Create your first role.</p>
-        )}
+        {roles.length === 0 && <p className="rap-empty">No roles found. Create your first role.</p>}
       </div>
 
       {showModal && selectedRole && (
@@ -528,21 +478,11 @@ function RoleAccessPage() {
             </div>
 
             <div className="rap-detail-grid">
-              <p>
-                <b>Role Name:</b> {selectedRole.roleName}
-              </p>
-              <p>
-                <b>Role Code:</b> {selectedRole.roleCode}
-              </p>
-              <p>
-                <b>Total Users:</b> {getRoleUserCount(selectedRole)}
-              </p>
-              <p>
-                <b>Status:</b> {selectedRole.status ? "Active" : "Inactive"}
-              </p>
-              <p>
-                <b>Description:</b> {selectedRole.description}
-              </p>
+              <p><b>Role Name:</b> {selectedRole.roleName}</p>
+              <p><b>Role Code:</b> {selectedRole.roleCode}</p>
+              <p><b>Total Users:</b> {getRoleUserCount(selectedRole)}</p>
+              <p><b>Status:</b> {selectedRole.status ? "Active" : "Inactive"}</p>
+              <p><b>Description:</b> {selectedRole.description}</p>
             </div>
 
             <table className="rap-table">
@@ -553,7 +493,7 @@ function RoleAccessPage() {
                   <th>Username</th>
                   <th>Email</th>
                   <th>Status</th>
-                  <th>Actions</th>
+                  <th>Block / Unblock</th>
                 </tr>
               </thead>
 
@@ -561,34 +501,42 @@ function RoleAccessPage() {
                 {roleUsers.map((user, index) => (
                   <tr key={user._id}>
                     <td>{index + 1}</td>
-
-                    <td>{user.fullName || "-"}</td>
-
-                    <td>{user.username || "-"}</td>
-
+                    <td>{user.fullName || user.name || "-"}</td>
+                    <td>{user.username || user.name || "-"}</td>
                     <td>{user.email || "-"}</td>
 
                     <td>
-                      <span
-                        className={user.status ? "rap-active" : "rap-inactive"}
-                      >
-                        {user.status ? "Active" : "Inactive"}
+                      <span className={user.status === "Blocked" ? "rap-inactive" : "rap-active"}>
+                        {user.status === "Blocked" ? "Blocked" : "Active"}
                       </span>
                     </td>
 
                     <td className="rap-action-btns">
-                      <button className="rap-view-btn">👁</button>
-                      <button className="rap-edit-btn">✏️</button>
-                      <label className="rap-switch small-switch">
-                        <input type="checkbox" checked={user.status} readOnly />
-                        <span></span>
+                      <label className="block-toggle">
+                        <input
+                          type="checkbox"
+                          checked={user.status !== "Blocked"}
+                          onChange={() => handleToggleBlock(user)}
+                        />
+                        <span className="block-slider"></span>
                       </label>
-                      <button className="rap-delete-btn">🗑</button>
+
+                      <span
+                        style={{
+                          marginLeft: "10px",
+                          fontWeight: "600",
+                          color: user.status === "Blocked" ? "#ef4444" : "#22c55e",
+                        }}
+                      >
+                        {user.status === "Blocked" ? "Blocked" : "Active"}
+                      </span>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+
+            {roleUsers.length === 0 && <p className="rap-empty">No users found in this role.</p>}
           </div>
         </div>
       )}

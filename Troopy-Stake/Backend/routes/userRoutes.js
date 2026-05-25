@@ -134,4 +134,33 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+router.patch("/:id/toggle-block", async (req, res) => {
+  try {
+    const userData = await User.findById(req.params.id);
+
+    if (!userData) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    userData.status =
+      userData.status === "Blocked" ? "Active" : "Blocked";
+
+    await userData.save();
+
+    res.json({
+      message:
+        userData.status === "Blocked"
+          ? "User blocked successfully"
+          : "User unblocked successfully",
+      user: userData,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to toggle user block status",
+      error: error.message,
+    });
+  }
+});
 module.exports = router;
