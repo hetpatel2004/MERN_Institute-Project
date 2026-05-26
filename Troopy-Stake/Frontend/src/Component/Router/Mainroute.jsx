@@ -17,6 +17,7 @@ import CourseCreate from "../Supper_admin/Course/CourseCreate";
 // import CourseModules from "../Supper_admin/Course/CourseModules";
 import ModuleTopics from "../Supper_admin/Course/ModuleTopics";
 import TopicMaterials from "../Supper_admin/Course/TopicMaterials";
+import ModuleDetail from "../Supper_admin/Course/ModuleDetail";
 import Leads from "../Supper_admin/Leads/Leads";
 import RoleAccessPage from "../Supper_admin/Roles/RoleAccessPage";
 
@@ -142,6 +143,17 @@ function Mainroute() {
           <ProtectedRoute role="superadmin">
             <SuperAdmin page="course">
               <TopicMaterials />
+            </SuperAdmin>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/superadmin/course/module/:moduleId"
+        element={
+          <ProtectedRoute role="superadmin">
+            <SuperAdmin page="course">
+              <ModuleDetail />
             </SuperAdmin>
           </ProtectedRoute>
         }

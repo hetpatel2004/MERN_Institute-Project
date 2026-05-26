@@ -296,4 +296,15 @@ router.put("/topic/:topicId/:type/:itemId", async (req, res) => {
   }
 });
 
+// GET /:id — fetch single module with populated course
+router.get("/:id", async (req, res) => {
+  try {
+    const mod = await Module.findById(req.params.id).populate("courseId");
+    if (!mod) return res.status(404).json({ message: "Module not found" });
+    res.json(mod);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch module", error: error.message });
+  }
+});
+
 module.exports = router;

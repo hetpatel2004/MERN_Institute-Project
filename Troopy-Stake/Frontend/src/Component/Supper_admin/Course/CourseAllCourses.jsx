@@ -402,7 +402,7 @@ function CourseAllCourses() {
                   {courseModules.map((mod, i) => (
                     <div className="c-module-card" key={mod._id}>
                       <div className="c-module-head">
-                        <div className="c-module-info">
+                        <div className="c-module-info c-module-clickable" onClick={() => { closeModal(); navigate(`/superadmin/course/module/${mod._id}`); }}>
                           <span className="c-module-num">{String(i + 1).padStart(2, "0")}</span>
                           <div>
                             <strong>{mod.title}</strong>
@@ -435,7 +435,7 @@ function CourseAllCourses() {
                             <div
                               className="c-topic-item c-topic-clickable"
                               key={topic._id}
-                              onClick={() => navigate(`/superadmin/course/topic/${topic._id}/materials`)}
+                              onClick={(e) => { e.stopPropagation(); closeModal(); navigate(`/superadmin/course/topic/${topic._id}/materials`); }}
                               title="Manage topic materials"
                             >
                               <span className="c-topic-dot" />
