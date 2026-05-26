@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   BookOpen,
@@ -17,6 +18,7 @@ const COURSE_API = "http://localhost:5000/api/courses";
 const MODULE_API = "http://localhost:5000/api/modules";
 
 function CourseAllModules() {
+  const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [modules, setModules] = useState([]);
   const [openCourse, setOpenCourse] = useState(null);
@@ -26,8 +28,6 @@ function CourseAllModules() {
   const [editingModuleId, setEditingModuleId] = useState(null);
   const [moduleTitle, setModuleTitle] = useState("");
   const [moduleDescription, setModuleDescription] = useState("");
-  const [durationValue, setDurationValue] = useState("");
-  const [durationType, setDurationType] = useState("Days");
 
   const fetchData = async () => {
     try {
@@ -48,7 +48,7 @@ function CourseAllModules() {
 
   const getCourseModules = (courseId) => {
     return modules.filter(
-      (m) => m.courseId?._id === courseId || m.courseId === courseId,
+      (m) => m.courseId?._id === courseId || m.courseId === courseId
     );
   };
 
@@ -62,7 +62,7 @@ function CourseAllModules() {
   }, [courses, modules]);
 
   const filteredCourses = courses.filter((course) =>
-    course.title?.toLowerCase().includes(search.toLowerCase()),
+    course.title?.toLowerCase().includes(search.toLowerCase())
   );
 
   const resetForm = () => {
@@ -70,8 +70,6 @@ function CourseAllModules() {
     setEditingModuleId(null);
     setModuleTitle("");
     setModuleDescription("");
-    setDurationValue("");
-    setDurationType("Days");
   };
 
   const handleAddClick = (courseId) => {
@@ -79,42 +77,36 @@ function CourseAllModules() {
     setEditingModuleId(null);
     setModuleTitle("");
     setModuleDescription("");
-    setDurationValue("");
-    setDurationType("Days");
     setOpenCourse(courseId);
   };
 
   const handleEditClick = (module) => {
-    const durationParts = module.duration?.split(" ") || ["", "Days"];
-
     setActiveCourseId(module.courseId?._id || module.courseId);
     setEditingModuleId(module._id);
     setModuleTitle(module.title || "");
     setModuleDescription(module.description || "");
-    setDurationValue(durationParts[0] || "");
-    setDurationType(durationParts[1] || "Days");
     setOpenCourse(module.courseId?._id || module.courseId);
+  };
+
+  const handleAddTopicClick = (module) => {
+    navigate(`/superadmin/course/module-topics?moduleId=${module._id}`);
   };
 
   const saveModule = async () => {
     if (!activeCourseId) return alert("Please select course");
     if (!moduleTitle.trim()) return alert("Please enter module title");
 
-    const duration = durationValue ? `${durationValue} ${durationType}` : "";
-
     try {
       if (editingModuleId) {
         await axios.put(`${MODULE_API}/${editingModuleId}`, {
           title: moduleTitle,
           description: moduleDescription,
-          duration,
         });
       } else {
         await axios.post(MODULE_API, {
           courseId: activeCourseId,
           title: moduleTitle,
           description: moduleDescription,
-          duration,
         });
       }
 
@@ -210,6 +202,7 @@ function CourseAllModules() {
                         {course.thumbnail ? (
                           <img
                             src={`http://localhost:5000${course.thumbnail}`}
+                            alt={course.title}
                           />
                         ) : (
                           <BookOpen size={26} />
@@ -219,7 +212,6 @@ function CourseAllModules() {
                       <div>
                         <h3>{course.title}</h3>
                         <p>
-                          {course.duration || "No duration"} ·{" "}
                           <span
                             className={
                               course.status === "Published"
@@ -265,7 +257,6 @@ function CourseAllModules() {
                           <tr>
                             <th>#</th>
                             <th>Module Title</th>
-                            <th>Duration</th>
                             <th>Topics</th>
                             <th>Add Topic</th>
                             <th>Action</th>
@@ -275,7 +266,7 @@ function CourseAllModules() {
                         <tbody>
                           {courseModules.length === 0 ? (
                             <tr>
-                              <td colSpan="6" className="cm-no-module">
+                              <td colSpan="5" className="cm-no-module">
                                 No modules added yet
                               </td>
                             </tr>
@@ -284,7 +275,6 @@ function CourseAllModules() {
                               <tr key={module._id}>
                                 <td>{index + 1}</td>
                                 <td>{module.title}</td>
-                                <td>{module.duration || "No duration"}</td>
                                 <td>{module.topics?.length || 0}</td>
 
                                 <td>
@@ -358,26 +348,6 @@ function CourseAllModules() {
             value={moduleDescription}
             onChange={(e) => setModuleDescription(e.target.value)}
           />
-
-          <label>Duration</label>
-          <div className="cm-duration">
-            <input
-              type="number"
-              placeholder="5"
-              value={durationValue}
-              onChange={(e) => setDurationValue(e.target.value)}
-            />
-
-            <select
-              value={durationType}
-              onChange={(e) => setDurationType(e.target.value)}
-            >
-              <option value="Days">Days</option>
-              <option value="Weeks">Weeks</option>
-              <option value="Months">Months</option>
-              <option value="Years">Years</option>
-            </select>
-          </div>
 
           <button className="cm-save-btn" onClick={saveModule}>
             {editingModuleId ? "Update Module" : "Save Module"}

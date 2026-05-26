@@ -1,19 +1,31 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, Upload } from "lucide-react";
-import "./Course.css"
-const API_URL = "http://localhost:5000/api/courses";
+import { Search, Upload, X, Pencil, Plus, Trash2, BookOpen, Layers, Clock, ListOrdered } from "lucide-react";
+import "./Course.css";
+
+const COURSE_API = "http://localhost:5000/api/courses";
+const MODULE_API = "http://localhost:5000/api/modules";
 
 function CourseAllCourses() {
   const [courses, setCourses] = useState([]);
   const [search, setSearch] = useState("");
-
   const navigate = useNavigate();
+
+  const [showModal, setShowModal] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [courseModules, setCourseModules] = useState([]);
+  const [loadingModules, setLoadingModules] = useState(false);
+
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [moduleTitle, setModuleTitle] = useState("");
+  const [moduleDescription, setModuleDescription] = useState("");
+  const [moduleDuration, setModuleDuration] = useState("");
+  const [moduleDurationType, setModuleDurationType] = useState("Days");
 
   const fetchCourses = async () => {
     try {
-      const res = await axios.get(API_URL);
+      const res = await axios.get(COURSE_API);
       setCourses(res.data || []);
     } catch (error) {
       console.log(error);
@@ -25,8 +37,77 @@ function CourseAllCourses() {
     fetchCourses();
   }, []);
 
+  const fetchCourseModules = async (courseId) => {
+    setLoadingModules(true);
+    try {
+      const res = await axios.get(`${MODULE_API}/course/${courseId}`);
+      setCourseModules(res.data || []);
+    } catch (error) {
+      console.log(error);
+      setCourseModules([]);
+    }
+    setLoadingModules(false);
+  };
+
+  const openModal = async (course) => {
+    setSelectedCourse(course);
+    setShowModal(true);
+    setShowAddForm(false);
+    resetForm();
+    await fetchCourseModules(course._id);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedCourse(null);
+    setCourseModules([]);
+    setShowAddForm(false);
+    resetForm();
+  };
+
+  const resetForm = () => {
+    setModuleTitle("");
+    setModuleDescription("");
+    setModuleDuration("");
+    setModuleDurationType("Days");
+  };
+
+  const saveModule = async () => {
+    if (!moduleTitle.trim()) return alert("Please enter module title");
+
+    try {
+      await axios.post(MODULE_API, {
+        courseId: selectedCourse._id,
+        title: moduleTitle.trim(),
+        description: moduleDescription.trim(),
+        duration: moduleDuration ? `${moduleDuration} ${moduleDurationType}` : "",
+      });
+
+      resetForm();
+      setShowAddForm(false);
+      await fetchCourseModules(selectedCourse._id);
+      fetchCourses();
+    } catch (error) {
+      console.log(error);
+      alert(error.response?.data?.message || "Module save failed");
+    }
+  };
+
+  const deleteModule = async (id) => {
+    if (!window.confirm("Delete this module? This action cannot be undone.")) return;
+
+    try {
+      await axios.delete(`${MODULE_API}/${id}`);
+      await fetchCourseModules(selectedCourse._id);
+      fetchCourses();
+    } catch (error) {
+      console.log(error);
+      alert("Module delete failed");
+    }
+  };
+
   const filteredCourses = courses.filter((course) =>
-    course.title?.toLowerCase().includes(search.toLowerCase())
+    course.title?.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -37,35 +118,15 @@ function CourseAllCourses() {
         minHeight: "100vh",
       }}
     >
-      {/* HEADER */}
       <div className="d-flex justify-content-between align-items-start mb-4">
         <div>
-          <p
-            className="text-muted mb-1"
-            style={{
-              fontSize: "13px",
-              fontWeight: "700",
-            }}
-          >
+          <p className="text-muted mb-1" style={{ fontSize: "13px", fontWeight: "700" }}>
             Super Admin / Courses
           </p>
-
-          <h1
-            className="fw-bold mb-1"
-            style={{
-              fontSize: "52px",
-              color: "#0f172a",
-            }}
-          >
+          <h1 className="fw-bold mb-1" style={{ fontSize: "52px", color: "#0f172a" }}>
             All Courses
           </h1>
-
-          <p
-            className="text-muted mb-0"
-            style={{
-              fontSize: "18px",
-            }}
-          >
+          <p className="text-muted mb-0" style={{ fontSize: "18px" }}>
             Manage all created courses
           </p>
         </div>
@@ -101,22 +162,12 @@ function CourseAllCourses() {
         </div>
       </div>
 
-      {/* TABLE CARD */}
       <div
         className="card border-0 shadow-sm"
-        style={{
-          borderRadius: "26px",
-          overflow: "hidden",
-        }}
+        style={{ borderRadius: "26px", overflow: "hidden" }}
       >
         <div className="card-body p-4">
-          {/* SEARCH */}
-          <div
-            className="position-relative mb-4"
-            style={{
-              maxWidth: "400px",
-            }}
-          >
+          <div className="position-relative mb-4" style={{ maxWidth: "400px" }}>
             <Search
               size={18}
               style={{
@@ -126,7 +177,6 @@ function CourseAllCourses() {
                 color: "#94a3b8",
               }}
             />
-
             <input
               className="form-control"
               placeholder="Search course..."
@@ -142,7 +192,6 @@ function CourseAllCourses() {
             />
           </div>
 
-          {/* TABLE */}
           <div className="table-responsive">
             <table className="table align-middle">
               <thead>
@@ -157,13 +206,11 @@ function CourseAllCourses() {
                   <th>Actions</th>
                 </tr>
               </thead>
-
               <tbody>
                 {filteredCourses.map((course, index) => (
-                  <tr key={course._id}>
+                  <tr key={course._id} className="course-row">
                     <td className="fw-bold">{index + 1}</td>
 
-                    {/* THUMBNAIL */}
                     <td>
                       <div className="course-thumb">
                         {course.thumbnail ? (
@@ -172,29 +219,22 @@ function CourseAllCourses() {
                             alt={course.title}
                           />
                         ) : (
-                          <div className="thumb-placeholder">
-                            No Image
-                          </div>
+                          <div className="thumb-placeholder">No Image</div>
                         )}
                       </div>
                     </td>
 
-                    {/* TITLE */}
                     <td>
-                      <div className="course-title-box">
+                      <div className="course-title-box course-title-clickable" onClick={() => openModal(course)}>
                         <h6>{course.title}</h6>
                         <p>{course.slug}</p>
                       </div>
                     </td>
 
-                    {/* TYPE */}
                     <td>
-                      <span className="type-badge">
-                        {course.type || "Online"}
-                      </span>
+                      <span className="type-badge">{course.type || "Online"}</span>
                     </td>
 
-                    {/* STATUS */}
                     <td>
                       <span
                         className={
@@ -207,54 +247,31 @@ function CourseAllCourses() {
                       </span>
                     </td>
 
-                    {/* DURATION */}
-                    <td className="fw-semibold">
-                      {course.duration}
-                    </td>
+                    <td className="fw-semibold">{course.duration}</td>
 
-                    {/* PRICE */}
-                    <td className="fw-semibold">
-                      ₹{course.price}
-                    </td>
+                    <td className="fw-semibold">₹{course.price}</td>
 
-                    {/* ACTION */}
                     <td>
                       <div className="d-flex gap-2">
-                        
-                        {/* EDIT BUTTON */}
                         <button
                           type="button"
                           className="course-edit-btn"
                           onClick={() =>
-                            navigate(
-                              "/superadmin/course/create",
-                              {
-                                state: {
-                                  editCourse: course,
-                                },
-                              }
-                            )
+                            navigate("/superadmin/course/create", {
+                              state: { editCourse: course },
+                            })
                           }
                         >
                           Edit
                         </button>
 
-                        {/* MODULE BUTTON */}
                         <button
                           type="button"
                           className="course-add-module-btn"
-                          onClick={() =>
-                            navigate(
-                              `/superadmin/course/${course._id}/modules`,
-                              {
-                                state: { course },
-                              }
-                            )
-                          }
+                          onClick={() => openModal(course)}
                         >
-                          Add Modules
+                          View Details
                         </button>
-
                       </div>
                     </td>
                   </tr>
@@ -263,19 +280,13 @@ function CourseAllCourses() {
             </table>
           </div>
 
-          {/* FOOTER */}
           <div className="d-flex justify-content-between align-items-center mt-4">
             <p className="text-muted mb-0 fw-semibold">
               Showing {filteredCourses.length} of {courses.length} results
             </p>
-
             <select
               className="form-select"
-              style={{
-                width: "95px",
-                borderRadius: "12px",
-                height: "46px",
-              }}
+              style={{ width: "95px", borderRadius: "12px", height: "46px" }}
             >
               <option>10</option>
               <option>20</option>
@@ -284,6 +295,187 @@ function CourseAllCourses() {
           </div>
         </div>
       </div>
+
+      {showModal && selectedCourse && (
+        <div className="c-modal-overlay" onClick={closeModal}>
+          <div className="c-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="c-modal-header">
+              <div className="c-modal-header-left">
+                <div className="c-modal-icon">
+                  <BookOpen size={24} />
+                </div>
+                <div>
+                  <h2>{selectedCourse.title}</h2>
+                  <p className="c-modal-slug">{selectedCourse.slug}</p>
+                </div>
+              </div>
+              <button className="c-modal-close" onClick={closeModal}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="c-modal-badges">
+              <span className="type-badge">{selectedCourse.type || "Online"}</span>
+              <span
+                className={
+                  selectedCourse.status === "Published"
+                    ? "status-published"
+                    : "status-draft"
+                }
+              >
+                {selectedCourse.status}
+              </span>
+              <span className="c-badge">
+                <Clock size={14} />
+                {selectedCourse.duration || "N/A"}
+              </span>
+              <span className="c-badge">
+                <ListOrdered size={14} />
+                {courseModules.length} Module{courseModules.length !== 1 ? "s" : ""}
+              </span>
+            </div>
+
+            <div className="c-modal-actions-bar">
+              <button
+                className="c-action-btn c-action-edit"
+                onClick={() => {
+                  closeModal();
+                  navigate("/superadmin/course/create", {
+                    state: { editCourse: selectedCourse },
+                  });
+                }}
+              >
+                <Pencil size={15} />
+                Edit Course
+              </button>
+              <button
+                className="c-action-btn c-action-add"
+                onClick={() => setShowAddForm(true)}
+              >
+                <Plus size={15} />
+                Add Module
+              </button>
+            </div>
+
+            <div className="c-modal-body">
+              {loadingModules ? (
+                <div className="c-modal-loading">Loading modules...</div>
+              ) : courseModules.length === 0 && !showAddForm ? (
+                <div className="c-modal-empty">
+                  <Layers size={36} />
+                  <h4>No modules yet</h4>
+                  <p>Click "Add Module" to create the first module for this course.</p>
+                </div>
+              ) : (
+                <div className="c-module-list">
+                  {courseModules.map((mod, i) => (
+                    <div className="c-module-card" key={mod._id}>
+                      <div className="c-module-head">
+                        <div className="c-module-info">
+                          <span className="c-module-num">{String(i + 1).padStart(2, "0")}</span>
+                          <div>
+                            <strong>{mod.title}</strong>
+                            {mod.duration && <span className="c-module-dur">{mod.duration}</span>}
+                          </div>
+                        </div>
+                        <button
+                          className="c-module-del"
+                          onClick={() => deleteModule(mod._id)}
+                          title="Delete module"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                      {mod.description && (
+                        <p className="c-module-desc">{mod.description}</p>
+                      )}
+                      <div className="c-topic-list">
+                        {mod.topics?.length > 0 ? (
+                          mod.topics.map((topic, ti) => (
+                            <div className="c-topic-item" key={topic._id}>
+                              <span className="c-topic-dot" />
+                              <span>{topic.title}</span>
+                            </div>
+                          ))
+                        ) : (
+                          <span className="c-no-topics">No topics</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {showAddForm && (
+                <div className="c-add-form">
+                  <div className="c-add-form-head">
+                    <h4>
+                      <Plus size={16} />
+                      New Module
+                    </h4>
+                    <button
+                      className="c-add-form-close"
+                      onClick={() => { setShowAddForm(false); resetForm(); }}
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                  <div className="c-add-form-grid">
+                    <div>
+                      <label>Module Title <span>*</span></label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Introduction to React"
+                        value={moduleTitle}
+                        onChange={(e) => setModuleTitle(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label>Description</label>
+                      <textarea
+                        rows={3}
+                        placeholder="Brief description of the module"
+                        value={moduleDescription}
+                        onChange={(e) => setModuleDescription(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="c-add-form-dur">
+                    <label>Duration</label>
+                    <div className="c-dur-row">
+                      <input
+                        type="number"
+                        placeholder="5"
+                        value={moduleDuration}
+                        onChange={(e) => setModuleDuration(e.target.value)}
+                      />
+                      <select
+                        value={moduleDurationType}
+                        onChange={(e) => setModuleDurationType(e.target.value)}
+                      >
+                        <option value="Days">Days</option>
+                        <option value="Weeks">Weeks</option>
+                        <option value="Months">Months</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="c-add-form-btns">
+                    <button
+                      className="c-add-cancel"
+                      onClick={() => { setShowAddForm(false); resetForm(); }}
+                    >
+                      Cancel
+                    </button>
+                    <button className="c-add-save" onClick={saveModule}>
+                      Save Module
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

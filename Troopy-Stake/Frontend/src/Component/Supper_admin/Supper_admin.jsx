@@ -330,12 +330,9 @@ function Supper_admin({ children, page }) {
             {courseOpen && (
               <div className="sa-course-submenu">
                 <NavLink to="/superadmin/course">All Courses</NavLink>
-                <NavLink to="/superadmin/course/create">Create Course</NavLink>
+                {/* <NavLink to="/superadmin/course/create">Create Course</NavLink> */}
                 <NavLink to="/superadmin/course/all-modules">
                   All Courses & Modules
-                </NavLink>
-                <NavLink to="/superadmin/course/module-topics">
-                  Module Topics
                 </NavLink>
               </div>
             )}

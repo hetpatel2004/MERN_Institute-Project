@@ -16,7 +16,8 @@ const branchAdminRoutes = require("./routes/branchAdminRoutes");
 const leadRoutes = require("./routes/leadRoutes");
 const roleUserRoutes = require("./routes/roleUserRoutes");
 const roleAccessRoutes = require("./routes/roleAccessRoutes");
-
+const topicContentRoutes = require("./routes/topicContentRoutes");
+const batchRoutes = require("./routes/batchRoutes");
 const app = express();
 
 app.use(
@@ -37,9 +38,9 @@ app.get("/api/health", (req, res) => {
   res.json({
     server: "running",
     mongo:
-      mongoose.connection.readyState === 1
-        ? "connected"
-        : "not connected",
+    mongoose.connection.readyState === 1
+    ? "connected"
+    : "not connected",
   });
 });
 
@@ -49,11 +50,13 @@ app.use("/api/companies", companyRoutes);
 app.use("/api/branches", branchRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/courses", courseRoutes);
+app.use("/api/batches", batchRoutes);
 app.use("/api/modules", moduleRoutes);
 app.use("/api/branch-admin", branchAdminRoutes);
 app.use("/api/leads", leadRoutes);
 app.use("/api/role-access", roleUserRoutes);
 app.use("/api/role-access", roleAccessRoutes);
+app.use("/api/topic-content", topicContentRoutes);
 
 const PORT = process.env.PORT || 5000;
 

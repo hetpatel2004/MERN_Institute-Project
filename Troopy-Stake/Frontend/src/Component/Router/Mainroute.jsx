@@ -14,14 +14,16 @@ import MenuManager from "../Supper_admin/MenuManager";
 import CourseAllModules from "../Supper_admin/Course/CourseAllModules";
 import CourseAllCourses from "../Supper_admin/Course/CourseAllCourses";
 import CourseCreate from "../Supper_admin/Course/CourseCreate";
-import CourseModules from "../Supper_admin/Course/CourseModules";
+// import CourseModules from "../Supper_admin/Course/CourseModules";
 import ModuleTopics from "../Supper_admin/Course/ModuleTopics";
 import Leads from "../Supper_admin/Leads/Leads";
 import RoleAccessPage from "../Supper_admin/Roles/RoleAccessPage";
 
 import UserDashboard from "../User_dashboard/UserDashboard";
 import ProtectedRoute from "../Auth/ProtectedRoute";
+import TopicContent from "../Supper_admin/Course/TopicContent";
 import { ROUTES } from "../../constants/routes";
+import Batches from "../Supper_admin/Batches/Batches";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -36,7 +38,10 @@ function DynamicSuperAdminPage() {
   return (
     <div className="sa-page-card">
       <h1>{title}</h1>
-      <p>This page is protected and ready. You can add dynamic content here later.</p>
+      <p>
+        This page is protected and ready. You can add dynamic content here
+        later.
+      </p>
     </div>
   );
 }
@@ -48,7 +53,10 @@ function Mainroute() {
       <Route path="/login" element={<Login />} />
       <Route path="/registration" element={<Registration />} />
 
-      <Route path="/superadmin" element={<Navigate to="/superadmin/dashboard" replace />} />
+      <Route
+        path="/superadmin"
+        element={<Navigate to="/superadmin/dashboard" replace />}
+      />
 
       <Route
         path={ROUTES.superAdminDashboard}
@@ -103,16 +111,7 @@ function Mainroute() {
         }
       />
 
-      <Route
-        path="/superadmin/course/:courseId/modules"
-        element={
-          <ProtectedRoute role="superadmin">
-            <SuperAdmin page="course">
-              <CourseModules />
-            </SuperAdmin>
-          </ProtectedRoute>
-        }
-      />
+     
 
       <Route
         path="/superadmin/course/all-modules"
@@ -192,6 +191,17 @@ function Mainroute() {
       />
 
       <Route
+        path="/superadmin/batches"
+        element={
+          <ProtectedRoute role="superadmin">
+            <SuperAdmin page="batches">
+              <Batches />
+            </SuperAdmin>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
         path="/superadmin/:menuSlug"
         element={
           <ProtectedRoute role="superadmin">
@@ -225,6 +235,17 @@ function Mainroute() {
         element={
           <ProtectedRoute role="student">
             <UserDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/superadmin/course/topic-content/:topicId"
+        element={
+          <ProtectedRoute role="superadmin">
+            <SuperAdmin page="course">
+              <TopicContent />
+            </SuperAdmin>
           </ProtectedRoute>
         }
       />

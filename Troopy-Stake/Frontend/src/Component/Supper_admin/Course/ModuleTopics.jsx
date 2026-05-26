@@ -1,169 +1,291 @@
 import React, { useEffect, useState } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Plus, Trash2, Pencil, BookOpen, X } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  ArrowLeft,
+  BookOpen,
+  FileText,
+  Clock,
+  ListOrdered,
+  UploadCloud,
+} from "lucide-react";
 import "./Course.css";
 
 const API = "http://localhost:5000/api/modules";
 
 function ModuleTopics() {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const moduleId = searchParams.get("moduleId");
+
   const [modules, setModules] = useState([]);
-  const [activeModule, setActiveModule] = useState(null);
+  const [showForm, setShowForm] = useState(false);
   const [topicTitle, setTopicTitle] = useState("");
   const [topicDescription, setTopicDescription] = useState("");
+  const [topicDurationValue, setTopicDurationValue] = useState("");
+  const [topicDurationType, setTopicDurationType] = useState("Days");
 
   const fetchModules = async () => {
-    const res = await axios.get(API);
-    setModules(res.data || []);
+    try {
+      const res = await axios.get(API);
+      setModules(res.data || []);
+    } catch (error) {
+      console.log(error);
+      alert("Failed to load module topics");
+    }
   };
 
   useEffect(() => {
     fetchModules();
   }, []);
 
-  const addTopic = async (moduleId) => {
-    if (!topicTitle || !topicDescription) {
+  const resetTopicForm = () => {
+    setTopicTitle("");
+    setTopicDescription("");
+    setTopicDurationValue("");
+    setTopicDurationType("Days");
+  };
+
+  const getTotalModuleDuration = (topics = []) => {
+    const totalDays = topics.reduce((total, topic) => {
+      const value = Number(topic.durationValue || 0);
+
+      if (topic.durationType === "Hours") return total + value / 8;
+      if (topic.durationType === "Weeks") return total + value * 7;
+      if (topic.durationType === "Months") return total + value * 30;
+
+      return total + value;
+    }, 0);
+
+    return Math.ceil(totalDays);
+  };
+
+  const addTopic = async (mId) => {
+    if (!topicTitle.trim() || !topicDescription.trim()) {
       alert("Topic title and description are required");
       return;
     }
 
-    await axios.post(`${API}/${moduleId}/topics`, {
+    if (!topicDurationValue) {
+      alert("Topic duration is required");
+      return;
+    }
+
+    await axios.post(`${API}/${mId}/topics`, {
       title: topicTitle,
       description: topicDescription,
+      durationValue: Number(topicDurationValue),
+      durationType: topicDurationType,
     });
 
-    setTopicTitle("");
-    setTopicDescription("");
-    setActiveModule(null);
+    resetTopicForm();
+    setShowForm(false);
     fetchModules();
   };
 
-  const deleteTopic = async (moduleId, topicId) => {
+  const deleteTopic = async (mId, topicId) => {
     if (!window.confirm("Delete this topic?")) return;
 
-    await axios.delete(`${API}/${moduleId}/topics/${topicId}`);
+    await axios.delete(`${API}/${mId}/topics/${topicId}`);
     fetchModules();
   };
+
+  const module = moduleId ? modules.find((m) => m._id === moduleId) : null;
+  const moduleTotalDays = getTotalModuleDuration(module?.topics || []);
 
   return (
     <div className="mt-page">
-      <div className="mt-header">
-        <div className="mt-icon">
+      <div className="mt-top-bar">
+        <button
+          className="mt-back-btn"
+          onClick={() => navigate("/superadmin/course/all-modules")}
+        >
+          <ArrowLeft size={18} />
+          Back
+        </button>
+      </div>
+
+      <div className="mt-hero">
+        <div className="mt-hero-icon">
           <BookOpen size={28} />
         </div>
-        <div>
-          <h2>Course Modules</h2>
-          <p>Organize your course by adding modules and topics.</p>
+
+        <div className="mt-hero-info">
+          <span className="mt-hero-course">
+            {module?.courseId?.title || "Course"}
+          </span>
+          <h1>{module?.title || "Module Topics"}</h1>
+          <p>{module?.description || "Manage topics for this module"}</p>
+        </div>
+
+        <div className="mt-hero-stats">
+          <div className="mt-hero-stat">
+            <ListOrdered size={16} />
+            <span>{module?.topics?.length || 0} Topics</span>
+          </div>
+
+          <div className="mt-hero-stat">
+            <Clock size={16} />
+            <span>{moduleTotalDays || 0} Days</span>
+          </div>
         </div>
       </div>
 
-      <div className="mt-grid">
-        {modules.map((module, index) => (
-          <div className="mt-card" key={module._id}>
-            <div className="mt-card-top">
-              <div className="mt-module-info">
-                <div className="mt-number">
-                  {String(index + 1).padStart(2, "0")}
+      <div className="mt-content-card">
+        <div className="mt-content-head">
+          <h2>
+            <FileText size={20} />
+            Topics
+            <span className="mt-count">{module?.topics?.length || 0}</span>
+          </h2>
+
+          <button className="mt-add-btn" onClick={() => setShowForm(true)}>
+            <Plus size={16} />
+            Add Topic
+          </button>
+        </div>
+
+        {!module ? (
+          <div className="mt-empty-state">
+            <p>Module not found.</p>
+          </div>
+        ) : module.topics?.length === 0 && !showForm ? (
+          <div className="mt-empty-state">
+            <BookOpen size={40} />
+            <h3>No topics yet</h3>
+            <p>Click "Add Topic" to create the first topic for this module.</p>
+          </div>
+        ) : (
+          <div className="mt-topic-list">
+            {module.topics?.map((topic, i) => (
+              <div className="mt-topic-item" key={topic._id}>
+                <div className="mt-topic-num">
+                  {String(i + 1).padStart(2, "0")}
                 </div>
-                <h4>{module.title}</h4>
-              </div>
 
-              <div className="mt-actions">
-                <Pencil size={17} />
-                <Trash2 size={17} className="delete-icon" />
-              </div>
-            </div>
+                <div className="mt-topic-body">
+                  <strong>{topic.title}</strong>
+                  <p>
+                    {topic.description}
+                    {topic.durationValue ? (
+                      <span className="mt-topic-duration">
+                        {" "}
+                        • {topic.durationValue} {topic.durationType}
+                      </span>
+                    ) : null}
+                  </p>
+                </div>
 
-            <div className="mt-topic-box">
-              <div className="mt-topic-head">
-                <h5>Topics ({module.topics?.length || 0})</h5>
+                <button
+                  className="mt-add-btn"
+                  onClick={() =>
+                    navigate(`/superadmin/course/topic-content/${topic._id}`)
+                  }
+                >
+                  <UploadCloud size={15} />
+                  Manage Content
+                </button>
 
-                <button onClick={() => setActiveModule(module._id)}>
-                  <Plus size={15} /> Add Topic
+                <button
+                  className="mt-topic-del"
+                  onClick={() => deleteTopic(module._id, topic._id)}
+                >
+                  <Trash2 size={15} />
                 </button>
               </div>
+            ))}
+          </div>
+        )}
 
-              {module.topics?.length > 0 ? (
-                module.topics.map((topic) => (
-                  <div className="mt-topic-row" key={topic._id}>
-                    <div>
-                      <span></span>
-                      <b>{topic.title}</b>
-                      <p>{topic.description}</p>
-                    </div>
+        {showForm && (
+          <div className="mt-inline-form">
+            <div className="mt-inline-form-header">
+              <h4>New Topic</h4>
 
-                    <button onClick={() => deleteTopic(module._id, topic._id)}>
-                      <Trash2 size={15} />
-                    </button>
-                  </div>
-                ))
-              ) : (
-                <p className="mt-empty">No topics added yet.</p>
-              )}
+              <button
+                className="mt-inline-close"
+                onClick={() => {
+                  setShowForm(false);
+                  resetTopicForm();
+                }}
+              >
+                <ArrowLeft size={16} /> Cancel
+              </button>
             </div>
 
-            {activeModule === module._id && (
-              <div className="mt-add-topic">
-                <div className="mt-form-title">
-                  <h5>Add New Topic</h5>
-                  <button onClick={() => setActiveModule(null)}>
-                    <X size={18} />
-                  </button>
-                </div>
+            <div className="mt-inline-grid">
+              <div>
+                <label>
+                  Title <span>*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Introduction to Variables"
+                  value={topicTitle}
+                  onChange={(e) => setTopicTitle(e.target.value)}
+                />
+              </div>
 
-                <div className="mt-form-grid">
-                  <div>
-                    <label>
-                      Topic Title <span>*</span>
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Enter topic title"
-                      value={topicTitle}
-                      onChange={(e) => setTopicTitle(e.target.value)}
-                    />
-                  </div>
+              <div>
+                <label>
+                  Description <span>*</span>
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder="Brief description of this topic"
+                  value={topicDescription}
+                  onChange={(e) => setTopicDescription(e.target.value)}
+                />
+              </div>
 
-                  <div>
-                    <label>
-                      Description <span>*</span>
-                    </label>
-                    <textarea
-                      rows="4"
-                      placeholder="Enter topic description"
-                      value={topicDescription}
-                      onChange={(e) => setTopicDescription(e.target.value)}
-                    />
-                  </div>
-                </div>
+              <div>
+                <label>
+                  Duration <span>*</span>
+                </label>
 
-                <small>* Required fields</small>
+                <div className="mt-duration-row">
+                  <input
+                    type="number"
+                    placeholder="e.g. 5"
+                    value={topicDurationValue}
+                    onChange={(e) => setTopicDurationValue(e.target.value)}
+                  />
 
-                <div className="mt-form-btns">
-                  <button
-                    className="cancel-btn"
-                    onClick={() => setActiveModule(null)}
+                  <select
+                    value={topicDurationType}
+                    onChange={(e) => setTopicDurationType(e.target.value)}
                   >
-                    Cancel
-                  </button>
-                  <button
-                    className="save-btn"
-                    onClick={() => addTopic(module._id)}
-                  >
-                    Add Topic
-                  </button>
+                    <option value="Hours">Hours</option>
+                    <option value="Days">Days</option>
+                    <option value="Weeks">Weeks</option>
+                    <option value="Months">Months</option>
+                  </select>
                 </div>
               </div>
-            )}
-          </div>
-        ))}
+            </div>
 
-        <div className="mt-add-module">
-          <div>
-            <Plus size={30} />
+            <div className="mt-inline-actions">
+              <button
+                className="mt-inline-cancel"
+                onClick={() => {
+                  setShowForm(false);
+                  resetTopicForm();
+                }}
+              >
+                Cancel
+              </button>
+
+              <button
+                className="mt-inline-save"
+                onClick={() => addTopic(module._id)}
+              >
+                Save Topic
+              </button>
+            </div>
           </div>
-          <h4>Add New Module</h4>
-          <p>Create a new module to organize your course content.</p>
-        </div>
+        )}
       </div>
     </div>
   );
