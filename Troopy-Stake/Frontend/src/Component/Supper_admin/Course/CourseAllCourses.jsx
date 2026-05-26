@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, Upload, X, Pencil, Plus, Trash2, BookOpen, Layers, Clock, ListOrdered } from "lucide-react";
+import { Search, Upload, X, Pencil, Plus, Trash2, BookOpen, Layers, Clock, ListOrdered, FileText } from "lucide-react";
 import "./Course.css";
 
 const COURSE_API = "http://localhost:5000/api/courses";
@@ -22,6 +22,11 @@ function CourseAllCourses() {
   const [moduleDescription, setModuleDescription] = useState("");
   const [moduleDuration, setModuleDuration] = useState("");
   const [moduleDurationType, setModuleDurationType] = useState("Days");
+
+  const [topicFormModule, setTopicFormModule] = useState(null);
+  const [topicTitle, setTopicTitle] = useState("");
+  const [topicDescription, setTopicDescription] = useState("");
+  const [topicDuration, setTopicDuration] = useState("");
 
   const fetchCourses = async () => {
     try {
@@ -53,6 +58,7 @@ function CourseAllCourses() {
     setSelectedCourse(course);
     setShowModal(true);
     setShowAddForm(false);
+    setTopicFormModule(null);
     resetForm();
     await fetchCourseModules(course._id);
   };
@@ -62,6 +68,7 @@ function CourseAllCourses() {
     setSelectedCourse(null);
     setCourseModules([]);
     setShowAddForm(false);
+    setTopicFormModule(null);
     resetForm();
   };
 
@@ -72,6 +79,13 @@ function CourseAllCourses() {
     setModuleDurationType("Days");
   };
 
+  const resetTopicForm = () => {
+    setTopicTitle("");
+    setTopicDescription("");
+    setTopicDuration("");
+    setTopicFormModule(null);
+  };
+
   const saveModule = async () => {
     if (!moduleTitle.trim()) return alert("Please enter module title");
 
@@ -80,7 +94,6 @@ function CourseAllCourses() {
         courseId: selectedCourse._id,
         title: moduleTitle.trim(),
         description: moduleDescription.trim(),
-        duration: moduleDuration ? `${moduleDuration} ${moduleDurationType}` : "",
       });
 
       resetForm();
@@ -103,6 +116,24 @@ function CourseAllCourses() {
     } catch (error) {
       console.log(error);
       alert("Module delete failed");
+    }
+  };
+
+  const saveTopic = async (moduleId) => {
+    if (!topicTitle.trim()) return alert("Please enter topic title");
+
+    try {
+      await axios.post(`${MODULE_API}/${moduleId}/topics`, {
+        title: topicTitle.trim(),
+        description: topicDescription.trim(),
+        duration: topicDuration.trim(),
+      });
+
+      resetTopicForm();
+      await fetchCourseModules(selectedCourse._id);
+    } catch (error) {
+      console.log(error);
+      alert(error.response?.data?.message || "Topic save failed");
     }
   };
 
@@ -375,24 +406,38 @@ function CourseAllCourses() {
                           <span className="c-module-num">{String(i + 1).padStart(2, "0")}</span>
                           <div>
                             <strong>{mod.title}</strong>
-                            {mod.duration && <span className="c-module-dur">{mod.duration}</span>}
                           </div>
                         </div>
-                        <button
-                          className="c-module-del"
-                          onClick={() => deleteModule(mod._id)}
-                          title="Delete module"
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                        <div className="c-module-head-actions">
+                          <button
+                            className="c-module-add-topic"
+                            onClick={() => setTopicFormModule(topicFormModule === mod._id ? null : mod._id)}
+                            title="Add Topic"
+                          >
+                            <FileText size={14} />
+                            Add Topic
+                          </button>
+                          <button
+                            className="c-module-del"
+                            onClick={() => deleteModule(mod._id)}
+                            title="Delete module"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
                       </div>
                       {mod.description && (
                         <p className="c-module-desc">{mod.description}</p>
                       )}
                       <div className="c-topic-list">
                         {mod.topics?.length > 0 ? (
-                          mod.topics.map((topic, ti) => (
-                            <div className="c-topic-item" key={topic._id}>
+                          mod.topics.map((topic) => (
+                            <div
+                              className="c-topic-item c-topic-clickable"
+                              key={topic._id}
+                              onClick={() => navigate(`/superadmin/course/topic/${topic._id}/materials`)}
+                              title="Manage topic materials"
+                            >
                               <span className="c-topic-dot" />
                               <span>{topic.title}</span>
                             </div>
@@ -401,6 +446,46 @@ function CourseAllCourses() {
                           <span className="c-no-topics">No topics</span>
                         )}
                       </div>
+
+                      {topicFormModule === mod._id && (
+                        <div className="c-topic-form">
+                          <div className="c-topic-form-head">
+                            <h5><FileText size={14} /> New Topic</h5>
+                            <button className="c-topic-form-close" onClick={resetTopicForm}>
+                              <X size={14} />
+                            </button>
+                          </div>
+                          <div className="c-topic-form-fields">
+                            <input
+                              type="text"
+                              placeholder="Topic title"
+                              value={topicTitle}
+                              onChange={(e) => setTopicTitle(e.target.value)}
+                            />
+                            <input
+                              type="text"
+                              placeholder="Topic description"
+                              value={topicDescription}
+                              onChange={(e) => setTopicDescription(e.target.value)}
+                            />
+                            <div className="c-dur-row">
+                              <input
+                                type="number"
+                                placeholder="Duration"
+                                value={topicDuration}
+                                onChange={(e) => setTopicDuration(e.target.value)}
+                              />
+                              <select value="Days" disabled style={{ width: 100, borderRadius: 8, border: "1px solid #cbd5e1", padding: "9px 12px", fontSize: 13, background: "white" }}>
+                                <option>Days</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div className="c-topic-form-btns">
+                            <button className="c-topic-cancel" onClick={resetTopicForm}>Cancel</button>
+                            <button className="c-topic-save" onClick={() => saveTopic(mod._id)}>Save</button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -438,25 +523,6 @@ function CourseAllCourses() {
                         value={moduleDescription}
                         onChange={(e) => setModuleDescription(e.target.value)}
                       />
-                    </div>
-                  </div>
-                  <div className="c-add-form-dur">
-                    <label>Duration</label>
-                    <div className="c-dur-row">
-                      <input
-                        type="number"
-                        placeholder="5"
-                        value={moduleDuration}
-                        onChange={(e) => setModuleDuration(e.target.value)}
-                      />
-                      <select
-                        value={moduleDurationType}
-                        onChange={(e) => setModuleDurationType(e.target.value)}
-                      >
-                        <option value="Days">Days</option>
-                        <option value="Weeks">Weeks</option>
-                        <option value="Months">Months</option>
-                      </select>
                     </div>
                   </div>
                   <div className="c-add-form-btns">

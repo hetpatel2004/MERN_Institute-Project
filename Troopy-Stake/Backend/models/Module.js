@@ -78,6 +78,7 @@ const topicSchema = new mongoose.Schema(
   {
     title: { type: String, required: true, trim: true },
     description: { type: String, required: true, trim: true },
+    duration: { type: String, default: "" },
     articles: [articleSchema],
     videoAssignments: [videoAssignmentSchema],
     assignments: [assignmentSchema],
@@ -99,7 +100,6 @@ const moduleSchema = new mongoose.Schema(
     },
     title: { type: String, required: true, trim: true },
     description: { type: String, default: "" },
-    duration: { type: String, default: "" },
     topics: [topicSchema],
   },
   { timestamps: true }
