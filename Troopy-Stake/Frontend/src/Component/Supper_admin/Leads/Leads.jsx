@@ -156,7 +156,7 @@ function Leads() {
   const fetchBranches = async () => {
     try {
       const res = await axios.get(`${API_BASE}/branches`);
-      setBranches(res.data || []);
+      setBranches(res.data.branches || []);
     } catch (err) {
       console.error(err);
     }

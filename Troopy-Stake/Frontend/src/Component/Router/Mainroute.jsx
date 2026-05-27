@@ -23,6 +23,13 @@ import FollowUps from "../Supper_admin/FollowUps/FollowUps";
 import Admissions from "../Supper_admin/CRM/Admissions";
 import RoleAccessPage from "../Supper_admin/Roles/RoleAccessPage";
 
+import InstituteDetails from "../Supper_admin/InstituteDetails";
+import InstituteBranches from "../Supper_admin/InstituteBranches";
+import InstituteStudents from "../Supper_admin/InstituteStudents";
+import InstituteAdmissions from "../Supper_admin/InstituteAdmissions";
+import InstitutePayments from "../Supper_admin/InstitutePayments";
+import InstitutePurchasedCourses from "../Supper_admin/InstitutePurchasedCourses";
+
 import UserDashboard from "../User_dashboard/UserDashboard";
 import ProtectedRoute from "../Auth/ProtectedRoute";
 import TopicContent from "../Supper_admin/Course/TopicContent";
@@ -77,6 +84,72 @@ function Mainroute() {
           <ProtectedRoute role="superadmin">
             <SuperAdmin page="institute">
               <Institutes />
+            </SuperAdmin>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/superadmin/institutes/:instituteId/details"
+        element={
+          <ProtectedRoute role="superadmin">
+            <SuperAdmin page="institute">
+              <InstituteDetails />
+            </SuperAdmin>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/superadmin/institutes/:instituteId/branches"
+        element={
+          <ProtectedRoute role="superadmin">
+            <SuperAdmin page="institute">
+              <InstituteBranches />
+            </SuperAdmin>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/superadmin/institutes/:instituteId/students"
+        element={
+          <ProtectedRoute role="superadmin">
+            <SuperAdmin page="institute">
+              <InstituteStudents />
+            </SuperAdmin>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/superadmin/institutes/:instituteId/admissions"
+        element={
+          <ProtectedRoute role="superadmin">
+            <SuperAdmin page="institute">
+              <InstituteAdmissions />
+            </SuperAdmin>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/superadmin/institutes/:instituteId/payments"
+        element={
+          <ProtectedRoute role="superadmin">
+            <SuperAdmin page="institute">
+              <InstitutePayments />
+            </SuperAdmin>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/superadmin/institutes/:instituteId/purchased-courses"
+        element={
+          <ProtectedRoute role="superadmin">
+            <SuperAdmin page="institute">
+              <InstitutePurchasedCourses />
             </SuperAdmin>
           </ProtectedRoute>
         }

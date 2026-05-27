@@ -59,12 +59,14 @@ router.get("/", async (req, res) => {
       courseType,
       dateFrom,
       dateTo,
+      instituteId,
       page = 1,
       limit = 10,
     } = req.query;
 
     const filter = {};
 
+    if (instituteId) filter.instituteId = instituteId;
     if (status) filter.status = status;
     if (paymentStatus) filter.paymentStatus = paymentStatus;
     if (branch) filter.branchName = branch;

@@ -1,99 +1,42 @@
 const mongoose = require("mongoose");
 
-const branchSchema = new mongoose.Schema(
-  {
-    branch_name: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    branch_city: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    branch_address: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    branch_email: {
-      type: String,
-      lowercase: true,
-      trim: true,
-    },
-
-    branch_phone: {
-      type: String,
-      trim: true,
-    },
-
-    branch_status: {
-      type: String,
-      enum: ["Active", "Inactive"],
-      default: "Active",
-    },
-
-    admin_email: {
-      type: String,
-      lowercase: true,
-      trim: true,
-    },
-
-    admin_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
-  },
-  { _id: true }
-);
-
 const instituteSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: true,
-      trim: true,
+    instituteId: { type: String, unique: true },
+    name: { type: String, required: true, trim: true },
+    code: { type: String, required: true, unique: true, trim: true },
+    logo: { type: String, default: "" },
+    email: { type: String, required: true, lowercase: true, trim: true },
+    phone: { type: String, required: true, trim: true },
+    alternatePhone: { type: String, default: "", trim: true },
+    address: { type: String, default: "", trim: true },
+    city: { type: String, required: true, trim: true },
+    state: { type: String, default: "", trim: true },
+    country: { type: String, default: "India", trim: true },
+    pincode: { type: String, default: "", trim: true },
+    website: { type: String, default: "", trim: true },
+    registrationNumber: { type: String, default: "", trim: true },
+    instituteType: { type: String, default: "", trim: true },
+    establishedYear: { type: String, default: "", trim: true },
+    socialLinks: {
+      facebook: { type: String, default: "" },
+      twitter: { type: String, default: "" },
+      linkedin: { type: String, default: "" },
+      youtube: { type: String, default: "" },
     },
-
-    code: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true,
-    },
-
-    city: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-      trim: true,
-    },
-
-    phone: {
-      type: String,
-      required: true,
-    },
-
-    status: {
-      type: String,
-      enum: ["Active", "Inactive"],
-      default: "Active",
-    },
-
-    branches: [branchSchema],
+    facilities: [{ type: String, trim: true }],
+    status: { type: String, enum: ["Active", "Inactive"], default: "Active" },
+    isDeleted: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
+
+instituteSchema.pre("save", async function (next) {
+  if (!this.instituteId) {
+    const count = await mongoose.model("Institute").countDocuments();
+    this.instituteId = `INST${String(count + 1).padStart(4, "0")}`;
+  }
+  next();
+});
 
 module.exports = mongoose.model("Institute", instituteSchema);

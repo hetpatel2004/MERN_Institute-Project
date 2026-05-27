@@ -20,6 +20,9 @@ const topicContentRoutes = require("./routes/topicContentRoutes");
 const batchRoutes = require("./routes/batchRoutes");
 const followUpRoutes = require("./routes/followUpRoutes");
 const admissionRoutes = require("./routes/admissionRoutes");
+const studentRoutes = require("./routes/studentRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
+const instituteCoursePurchaseRoutes = require("./routes/instituteCoursePurchaseRoutes");
 const app = express();
 
 app.use(
@@ -61,6 +64,9 @@ app.use("/api/role-access", roleAccessRoutes);
 app.use("/api/topic-content", topicContentRoutes);
 app.use("/api/follow-ups", followUpRoutes);
 app.use("/api/admissions", admissionRoutes);
+app.use("/api/students", studentRoutes);
+app.use("/api/payments", paymentRoutes);
+app.use("/api/institute-course-purchases", instituteCoursePurchaseRoutes);
 
 const PORT = process.env.PORT || 5000;
 

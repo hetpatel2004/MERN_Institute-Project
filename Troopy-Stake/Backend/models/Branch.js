@@ -2,51 +2,15 @@ const mongoose = require("mongoose");
 
 const branchSchema = new mongoose.Schema(
   {
-    institute_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Institute",
-      required: true,
-    },
-
-    admin_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
-
-    branch_name: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    branch_city: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    branch_address: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    branch_email: {
-      type: String,
-      lowercase: true,
-      trim: true,
-    },
-
-    branch_phone: {
-      type: String,
-      trim: true,
-    },
-
-    branch_status: {
-      type: String,
-      enum: ["Active", "Inactive"],
-      default: "Active",
-    },
+    instituteId: { type: mongoose.Schema.Types.ObjectId, ref: "Institute", required: true },
+    branchName: { type: String, required: true, trim: true },
+    branchCode: { type: String, default: "", trim: true },
+    city: { type: String, default: "", trim: true },
+    state: { type: String, default: "", trim: true },
+    address: { type: String, default: "", trim: true },
+    phone: { type: String, default: "", trim: true },
+    email: { type: String, default: "", lowercase: true, trim: true },
+    status: { type: String, enum: ["Active", "Inactive"], default: "Active" },
   },
   { timestamps: true }
 );

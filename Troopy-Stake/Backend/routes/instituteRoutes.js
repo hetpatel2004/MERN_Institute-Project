@@ -1,171 +1,197 @@
 const express = require("express");
-const bcrypt = require("bcryptjs");
-
 const Institute = require("../models/Institute");
-const User = require("../models/User");
+const Branch = require("../models/Branch");
+const Student = require("../models/Student");
+const Admission = require("../models/Admission");
+const Payment = require("../models/Payment");
+const InstituteCoursePurchase = require("../models/InstituteCoursePurchase");
 
 const router = express.Router();
 
-router.post("/", async (req, res) => {
+const getInstituteCounts = async (instituteId) => {
+  const [
+    totalBranches,
+    totalStudents,
+    totalAdmissions,
+    totalCoursesPurchased,
+    paymentAgg,
+  ] = await Promise.all([
+    Branch.countDocuments({ instituteId, status: "Active" }),
+    Student.countDocuments({ instituteId, status: "Active" }),
+    Admission.countDocuments({ instituteId }),
+    InstituteCoursePurchase.countDocuments({ instituteId, status: "Active" }),
+    Payment.aggregate([
+      { $match: { instituteId: require("mongoose").Types.ObjectId.createFromHexString(instituteId), paymentStatus: "Paid" } },
+      { $group: { _id: null, total: { $sum: "$amount" } } },
+    ]),
+  ]);
+
+  return {
+    totalBranches,
+    totalStudents,
+    totalAdmissions,
+    totalCoursesPurchased,
+    totalRevenue: paymentAgg.length > 0 ? paymentAgg[0].total : 0,
+  };
+};
+
+router.get("/stats", async (req, res) => {
   try {
-    const { name, code, city, email, phone, status, branches } = req.body;
+    const [totalInstitutes, totalBranches, totalStudents, totalAdmissions, totalCoursesPurchased, revenueAgg] =
+      await Promise.all([
+        Institute.countDocuments({ isDeleted: { $ne: true } }),
+        Branch.countDocuments(),
+        Student.countDocuments(),
+        Admission.countDocuments(),
+        InstituteCoursePurchase.countDocuments({ status: "Active" }),
+        Payment.aggregate([
+          { $match: { paymentStatus: "Paid" } },
+          { $group: { _id: null, total: { $sum: "$amount" } } },
+        ]),
+      ]);
 
-    if (!name || !code || !city || !email || !phone) {
-      return res.status(400).json({
-        message: "Institute details are required",
-      });
-    }
-
-    const finalBranches = [];
-
-    if (branches && branches.length > 0) {
-      for (const branch of branches) {
-        if (
-          branch.branch_name &&
-          branch.branch_city &&
-          branch.branch_address &&
-          branch.admin_email &&
-          branch.admin_password
-        ) {
-          const existingBranchAdmin = await User.findOne({
-            email: branch.admin_email.toLowerCase(),
-          });
-
-          if (existingBranchAdmin) {
-            return res.status(400).json({
-              message: `Branch admin email already exists: ${branch.admin_email}`,
-            });
-          }
-
-          const hashedPassword = await bcrypt.hash(branch.admin_password, 10);
-
-          const branchAdmin = await User.create({
-            name: `${branch.branch_name} Admin`,
-            email: branch.admin_email.toLowerCase(),
-            password: hashedPassword,
-            role: "branchadmin",
-            isApproved: true,
-          });
-
-          finalBranches.push({
-            branch_name: branch.branch_name,
-            branch_city: branch.branch_city,
-            branch_address: branch.branch_address,
-            branch_email: branch.branch_email || "",
-            branch_phone: branch.branch_phone || "",
-            branch_status: branch.branch_status || "Active",
-            admin_email: branch.admin_email.toLowerCase(),
-            admin_id: branchAdmin._id,
-          });
-        }
-      }
-    }
-
-    const institute = await Institute.create({
-      name,
-      code,
-      city,
-      email,
-      phone,
-      status,
-      branches: finalBranches,
-    });
-
-    for (const branch of institute.branches) {
-      if (branch.admin_id) {
-        await User.findByIdAndUpdate(branch.admin_id, {
-          institute_id: institute._id,
-          branch_id: branch._id,
-        });
-      }
-    }
-
-    const populatedInstitute = await Institute.findById(institute._id).populate(
-      "branches.admin_id",
-      "name email role loginInfo"
-    );
-
-    res.status(201).json({
-      message: "Institute created successfully",
-      institute: populatedInstitute,
+    res.json({
+      totalInstitutes,
+      totalBranches,
+      totalStudents,
+      totalAdmissions,
+      totalCoursesPurchased,
+      totalRevenue: revenueAgg.length > 0 ? revenueAgg[0].total : 0,
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Failed to create institute",
-      error: error.message,
-    });
+    res.status(500).json({ message: error.message });
   }
 });
 
 router.get("/", async (req, res) => {
   try {
-    const institutes = await Institute.find()
-      .populate("branches.admin_id", "name email role loginInfo")
-      .sort({ createdAt: -1 });
+    const { search, status, city, state, dateFrom, dateTo, page = 1, limit = 20 } = req.query;
+    const filter = { isDeleted: { $ne: true } };
 
-    res.status(200).json(institutes);
+    if (status) filter.status = status;
+    if (city) filter.city = new RegExp(city, "i");
+    if (state) filter.state = new RegExp(state, "i");
+
+    if (dateFrom || dateTo) {
+      filter.createdAt = {};
+      if (dateFrom) filter.createdAt.$gte = new Date(dateFrom);
+      if (dateTo) filter.createdAt.$lte = new Date(dateTo);
+    }
+
+    if (search) {
+      const regex = new RegExp(search, "i");
+      filter.$or = [
+        { name: regex },
+        { code: regex },
+        { email: regex },
+        { phone: regex },
+        { instituteId: regex },
+        { city: regex },
+      ];
+    }
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const total = await Institute.countDocuments(filter);
+    const institutes = await Institute.find(filter).sort({ createdAt: -1 }).skip(skip).limit(parseInt(limit));
+
+    const enriched = await Promise.all(
+      institutes.map(async (inst) => {
+        const counts = await getInstituteCounts(inst._id.toString());
+        return { ...inst.toObject(), ...counts };
+      })
+    );
+
+    res.json({ institutes: enriched, total, page: parseInt(page), pages: Math.ceil(total / parseInt(limit)) });
   } catch (error) {
-    res.status(500).json({
-      message: "Failed to fetch institutes",
-      error: error.message,
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.get("/all", async (req, res) => {
+  try {
+    const institutes = await Institute.find({ isDeleted: { $ne: true }, status: "Active" }).sort({ name: 1 });
+    res.json(institutes);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.get("/:id", async (req, res) => {
+  try {
+    const institute = await Institute.findById(req.params.id);
+    if (!institute || institute.isDeleted) return res.status(404).json({ message: "Institute not found" });
+    const counts = await getInstituteCounts(institute._id.toString());
+    res.json({ ...institute.toObject(), ...counts });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.post("/", async (req, res) => {
+  try {
+    const {
+      name, code, email, phone, alternatePhone, address, city, state, country,
+      pincode, website, registrationNumber, instituteType, establishedYear,
+      logo, socialLinks, facilities, status,
+    } = req.body;
+
+    if (!name || !code || !email || !phone || !city) {
+      return res.status(400).json({ message: "Name, Code, Email, Phone, and City are required" });
+    }
+
+    const institute = await Institute.create({
+      name, code, email, phone, alternatePhone, address, city, state, country,
+      pincode, website, registrationNumber, instituteType, establishedYear,
+      logo, socialLinks, facilities, status,
     });
+
+    res.status(201).json(institute);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
 });
 
 router.put("/:id", async (req, res) => {
   try {
-    const { name, code, city, email, phone, status } = req.body;
-
-    const updatedInstitute = await Institute.findByIdAndUpdate(
-      req.params.id,
-      {
-        name,
-        code,
-        city,
-        email,
-        phone,
-        status,
-      },
-      { new: true }
-    ).populate("branches.admin_id", "name email role loginInfo");
-
-    res.status(200).json(updatedInstitute);
+    const institute = await Institute.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!institute) return res.status(404).json({ message: "Institute not found" });
+    res.json(institute);
   } catch (error) {
-    res.status(500).json({
-      message: "Failed to update institute",
-      error: error.message,
-    });
+    res.status(400).json({ message: error.message });
+  }
+});
+
+router.patch("/:id/deactivate", async (req, res) => {
+  try {
+    const institute = await Institute.findByIdAndUpdate(req.params.id, { status: "Inactive" }, { new: true });
+    if (!institute) return res.status(404).json({ message: "Institute not found" });
+    await Branch.updateMany({ instituteId: req.params.id }, { status: "Inactive" });
+    await Student.updateMany({ instituteId: req.params.id }, { status: "Inactive" });
+    res.json({ message: "Institute deactivated successfully", institute });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.patch("/:id/activate", async (req, res) => {
+  try {
+    const institute = await Institute.findByIdAndUpdate(req.params.id, { status: "Active" }, { new: true });
+    if (!institute) return res.status(404).json({ message: "Institute not found" });
+    res.json({ message: "Institute activated successfully", institute });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
 
 router.delete("/:id", async (req, res) => {
   try {
-    const institute = await Institute.findById(req.params.id);
-
-    if (!institute) {
-      return res.status(404).json({
-        message: "Institute not found",
-      });
-    }
-
-    if (institute.branches?.length > 0) {
-      for (const branch of institute.branches) {
-        if (branch.admin_id) {
-          await User.findByIdAndDelete(branch.admin_id);
-        }
-      }
-    }
-
-    await Institute.findByIdAndDelete(req.params.id);
-
-    res.status(200).json({
-      message: "Institute deleted successfully",
-    });
+    const institute = await Institute.findByIdAndUpdate(req.params.id, { isDeleted: true, status: "Inactive" }, { new: true });
+    if (!institute) return res.status(404).json({ message: "Institute not found" });
+    await Branch.updateMany({ instituteId: req.params.id }, { status: "Inactive" });
+    await Student.updateMany({ instituteId: req.params.id }, { status: "Inactive" });
+    res.json({ message: "Institute deleted successfully (soft delete)" });
   } catch (error) {
-    res.status(500).json({
-      message: "Failed to delete institute",
-      error: error.message,
-    });
+    res.status(500).json({ message: error.message });
   }
 });
 

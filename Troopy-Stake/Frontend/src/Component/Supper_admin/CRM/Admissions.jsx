@@ -141,7 +141,7 @@ function Admissions() {
   };
 
   const fetchBranches = async () => {
-    try { const res = await axios.get("http://localhost:5000/api/branches"); setBranches(res.data || []); }
+    try { const res = await axios.get("http://localhost:5000/api/branches"); setBranches(res.data.branches || []); }
     catch (err) { console.error(err); }
   };
 
