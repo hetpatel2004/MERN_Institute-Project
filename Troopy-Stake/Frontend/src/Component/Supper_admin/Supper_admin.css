@@ -1,15 +1,47 @@
+:root {
+  --bg-page: linear-gradient(135deg, #eef7ff, #f8fafc);
+  --bg-card: #ffffff;
+  --bg-card-hover: #f8fafc;
+  --text-primary: #111827;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+  --border-color: #e5e7eb;
+  --border-light: #f1f5f9;
+  --shadow: 0 16px 35px rgba(15, 23, 42, 0.08);
+  --input-bg: #ffffff;
+  --table-row-hover: #f8fafc;
+}
+
+[data-theme="dark"] {
+  --bg-page: linear-gradient(135deg, #0b1322, #151f33);
+  --bg-card: #1a253a;
+  --bg-card-hover: #1f2b42;
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border-color: #2a3a52;
+  --border-light: #1f2b42;
+  --shadow: 0 16px 35px rgba(0, 0, 0, 0.4);
+  --input-bg: #0f172a;
+  --table-row-hover: #1f2b42;
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+body {
+  background: #f8fafc;
+}
+
 .sa-layout {
   min-height: 100vh;
   display: flex;
-  background: linear-gradient(135deg, #eef7ff, #f8fafc);
+  background: var(--bg-page);
   font-family: "Segoe UI", sans-serif;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 /* SIDEBAR */
@@ -130,7 +162,7 @@
 .sa-header h1 {
   font-size: 45px;
   font-weight: 900;
-  color: #0f172a;
+  color: var(--text-primary);
 }
 
 .sa-primary-btn {
@@ -163,13 +195,13 @@
 }
 
 .sa-stat-card {
-  background: rgba(255, 255, 255, 0.86);
+  background: var(--bg-card);
   backdrop-filter: blur(12px);
   padding: 25px;
   border-radius: 20px;
-  box-shadow: 0 16px 35px rgba(15, 23, 42, 0.08);
+  box-shadow: var(--shadow);
   transition: 0.3s ease;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-color);
 }
 
 .sa-stat-card:hover {
@@ -182,7 +214,7 @@
 }
 
 .sa-stat-card p {
-  color: #64748b;
+  color: var(--text-secondary);
   text-transform: uppercase;
   font-weight: 900;
   font-size: 13px;
@@ -192,10 +224,11 @@
   font-size: 38px;
   font-weight: 900;
   margin: 8px 0;
+  color: var(--text-primary);
 }
 
 .sa-stat-card span {
-  color: #64748b;
+  color: var(--text-secondary);
 }
 
 /* DASHBOARD */
@@ -238,21 +271,22 @@
 }
 
 .sa-module-card {
-  background: white;
+  background: var(--bg-card);
   padding: 28px;
   border-radius: 22px;
-  box-shadow: 0 16px 35px rgba(15, 23, 42, 0.08);
+  box-shadow: var(--shadow);
 }
 
 .sa-module-card h3 {
   font-size: 25px;
   font-weight: 900;
   margin-bottom: 18px;
+  color: var(--text-primary);
 }
 
 .sa-module-row {
-  background: #f8fafc;
-  border: 1px solid #e5e7eb;
+  background: var(--bg-card-hover);
+  border: 1px solid var(--border-color);
   padding: 18px;
   border-radius: 16px;
   margin-bottom: 15px;
@@ -263,7 +297,7 @@
 
 .sa-module-row span {
   font-weight: 700;
-  color: #334155;
+  color: var(--text-primary);
 }
 
 .sa-module-row b {
@@ -276,22 +310,24 @@
 
 /* FORM */
 .sa-form {
-  background: white;
+  background: var(--bg-card);
   padding: 24px;
   border-radius: 20px;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 15px;
   margin-bottom: 26px;
-  box-shadow: 0 16px 35px rgba(15, 23, 42, 0.08);
+  box-shadow: var(--shadow);
 }
 
 .sa-form input {
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border-color);
   padding: 15px;
   border-radius: 12px;
   outline: none;
   transition: 0.3s;
+  background: var(--input-bg);
+  color: var(--text-primary);
 }
 
 .sa-form input:focus {
@@ -301,10 +337,10 @@
 
 /* TABLE */
 .sa-table-card {
-  background: white;
+  background: var(--bg-card);
   padding: 22px;
   border-radius: 22px;
-  box-shadow: 0 16px 35px rgba(15, 23, 42, 0.08);
+  box-shadow: var(--shadow);
   overflow-x: auto;
 }
 
@@ -316,16 +352,17 @@
 .sa-table-card th {
   text-align: left;
   padding: 16px;
-  color: #64748b;
+  color: var(--text-secondary);
   text-transform: uppercase;
   font-size: 13px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .sa-table-card td {
   padding: 16px;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--border-light);
   font-weight: 600;
+  color: var(--text-primary);
 }
 
 .sa-table-card tr {
@@ -333,7 +370,7 @@
 }
 
 .sa-table-card tbody tr:hover {
-  background: #f8fafc;
+  background: var(--table-row-hover);
 }
 
 .sa-status {
@@ -366,6 +403,30 @@
 .sa-icon-btn.delete {
   background: #fee2e2;
   color: #dc2626;
+}
+
+.sa-theme-toggle {
+  margin: 0 20px;
+  padding: 12px 16px;
+  width: calc(100% - 40px);
+  border: none;
+  border-radius: 12px;
+  background: rgba(148, 163, 184, 0.15);
+  color: #cbd5e1;
+  font-size: 15px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.sa-theme-toggle:hover {
+  background: rgba(148, 163, 184, 0.25);
+  color: white;
+  transform: translateY(-2px);
 }
 
 .sa-logout {
@@ -967,32 +1028,17 @@
   gap: 24px;
 }
 
-.course-list-card,
-.course-form-card {
-  background: white;
+.institute-list-card,
+.institute-form-card {
+  background: var(--bg-card);
   border-radius: 22px;
-  box-shadow: 0 16px 35px rgba(15, 23, 42, 0.08);
+  box-shadow: var(--shadow);
   overflow: hidden;
-}
-
-.course-list-header {
-  padding: 24px;
-  border-bottom: 1px solid #e5e7eb;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.course-list-header h2,
-.course-form-head h2 {
-  font-size: 24px;
-  font-weight: 900;
-  color: #0f172a;
 }
 
 .course-list-header p,
 .course-form-head p {
-  color: #64748b;
+  color: var(--text-secondary);
   margin-top: 4px;
 }
 
@@ -1125,15 +1171,15 @@
 
 .company-list-card,
 .company-form-card {
-  background: white;
+  background: var(--bg-card);
   border-radius: 22px;
-  box-shadow: 0 16px 35px rgba(15, 23, 42, 0.08);
+  box-shadow: var(--shadow);
   overflow: hidden;
 }
 
 .company-list-header {
   padding: 24px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1143,12 +1189,12 @@
 .company-form-head h2 {
   font-size: 24px;
   font-weight: 900;
-  color: #0f172a;
+  color: var(--text-primary);
 }
 
 .company-list-header p,
 .company-form-head p {
-  color: #64748b;
+  color: var(--text-secondary);
   margin-top: 4px;
 }
 
@@ -1292,11 +1338,18 @@
 }
 
 .sa-stat-card {
-  background: #1e1e2f;
+  background: var(--bg-card);
   padding: 20px;
   border-radius: 12px;
-  color: white;
   transition: 0.3s;
+}
+
+.sa-stat-card:hover {
+  transform: translateY(-5px);
+}
+
+.sa-stat-card svg {
+  color: #0f766e;
 }
 
 .sa-stat-card:hover {
@@ -1335,15 +1388,6 @@
   padding: 0;
   box-sizing: border-box;
   transition: all 0.25s ease;
-}
-
-/* LAYOUT */
-.sa-layout {
-  min-height: 100vh;
-  display: flex;
-  background: linear-gradient(135deg, #eef7ff, #f8fafc);
-  font-family: "Segoe UI", sans-serif;
-  color: #111827;
 }
 
 /* SIDEBAR */
@@ -1471,19 +1515,19 @@
 .institute-list-header,
 .institute-form-head {
   padding: 24px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border-color);
 }
 
 /* SEARCH */
 .institute-search {
   width: 270px;
   height: 46px;
-  border: 1px solid #dbe3ec;
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   display: flex;
   align-items: center;
   padding: 0 14px;
-  background: #f8fafc;
+  background: var(--bg-card-hover);
 }
 
 .institute-search:hover {
@@ -1733,11 +1777,11 @@
 }
 
 .cm-stat-card {
-  background: white;
+  background: var(--bg-card);
   padding: 24px;
   border-radius: 20px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 16px 35px rgba(15, 23, 42, 0.08);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow);
 }
 
 .cm-stat-card svg {
@@ -1746,7 +1790,7 @@
 }
 
 .cm-stat-card p {
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 13px;
   font-weight: 900;
   text-transform: uppercase;
@@ -1755,7 +1799,7 @@
 .cm-stat-card h2 {
   font-size: 34px;
   font-weight: 900;
-  color: #0f172a;
+  color: var(--text-primary);
 }
 
 .cm-grid {
@@ -1766,11 +1810,11 @@
 
 .cm-list-card,
 .cm-form-card {
-  background: white;
+  background: var(--bg-card);
   border-radius: 22px;
   padding: 24px;
-  box-shadow: 0 16px 35px rgba(15, 23, 42, 0.08);
-  border: 1px solid #e5e7eb;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
 }
 
 .cm-list-top {
@@ -2173,21 +2217,21 @@
 }
 
 .sa-page-card {
-  background: white;
+  background: var(--bg-card);
   border-radius: 24px;
   padding: 35px;
-  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+  box-shadow: var(--shadow);
 }
 
 .sa-page-card h1 {
   font-size: 34px;
   font-weight: 900;
-  color: #0f172a;
+  color: var(--text-primary);
   margin-bottom: 10px;
 }
 
 .sa-page-card p {
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 17px;
 }
 

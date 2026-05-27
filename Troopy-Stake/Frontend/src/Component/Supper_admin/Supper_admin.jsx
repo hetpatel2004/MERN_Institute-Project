@@ -40,10 +40,13 @@ import {
   Menu,
   Plug,
   Shield,
+  Sun,
+  Moon,
 } from "lucide-react";
 
 import { ROUTES } from "../../constants/routes";
 import { clearAuthData } from "../../utils/storage";
+import { useTheme } from "../../context/ThemeContext";
 import "./Supper_admin.css";
 
 function Dashboard({ institutes, courses, companies, navigate }) {
@@ -226,6 +229,7 @@ function Supper_admin({ children, page }) {
   const navigate = useNavigate();
 
 
+  const { dark, toggle: toggleTheme } = useTheme();
   const [customMenus, setCustomMenus] = useState([]);
 
   const [openMenus, setOpenMenus] = useState({
@@ -366,6 +370,11 @@ function Supper_admin({ children, page }) {
             );
           })}
         </div>
+
+        <button className="sa-theme-toggle" onClick={toggleTheme}>
+          {dark ? <Sun size={18} /> : <Moon size={18} />}
+          <span>{dark ? "Light Mode" : "Dark Mode"}</span>
+        </button>
 
         <button className="sa-logout" onClick={handleLogout}>
           <LogOut size={18} />
