@@ -387,52 +387,57 @@ function Institutes() {
           <form onSubmit={handleSubmit}>
             <div className="institute-form-grid">
               <div>
-                <label>Institute Name</label>
+                <label>Institute Name <span className="required-star">*</span></label>
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
+                  required
                 />
               </div>
 
               <div>
-                <label>Code</label>
+                <label>Code <span className="required-star">*</span></label>
                 <input
                   type="text"
                   name="code"
                   value={formData.code}
                   onChange={handleChange}
+                  required
                 />
               </div>
 
               <div>
-                <label>City</label>
+                <label>City <span className="required-star">*</span></label>
                 <input
                   type="text"
                   name="city"
                   value={formData.city}
                   onChange={handleChange}
+                  required
                 />
               </div>
 
               <div>
-                <label>Phone</label>
+                <label>Phone <span className="required-star">*</span></label>
                 <input
                   type="text"
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
+                  required
                 />
               </div>
 
               <div className="full-width">
-                <label>Email</label>
+                <label>Email <span className="required-star">*</span></label>
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
+                  required
                 />
               </div>
 

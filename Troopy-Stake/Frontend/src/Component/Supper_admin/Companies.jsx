@@ -342,39 +342,43 @@ function Companies() {
         <form onSubmit={handleAddCompany}>
           <div className="company-form-grid">
             <div>
-              <label>Company Name</label>
+              <label>Company Name <span className="required-star">*</span></label>
               <input
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
+                required
               />
             </div>
 
             <div>
-              <label>HR Name</label>
+              <label>HR Name <span className="required-star">*</span></label>
               <input
                 name="HR_name"
                 value={formData.HR_name}
                 onChange={handleChange}
+                required
               />
             </div>
 
             <div>
-              <label>Contact Email</label>
+              <label>Contact Email <span className="required-star">*</span></label>
               <input
                 type="email"
                 name="contact_email"
                 value={formData.contact_email}
                 onChange={handleChange}
+                required
               />
             </div>
 
             <div>
-              <label>Contact Phone</label>
+              <label>Contact Phone <span className="required-star">*</span></label>
               <input
                 name="contact_phone"
                 value={formData.contact_phone}
                 onChange={handleChange}
+                required
               />
             </div>
 

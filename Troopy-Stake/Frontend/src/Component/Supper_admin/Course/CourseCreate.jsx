@@ -290,7 +290,7 @@ function CourseCreate() {
 
                 <div className="row g-4">
                   <div className="col-md-6">
-                    <label style={labelStyle}>Course Title *</label>
+                    <label style={labelStyle}>Course Title <span className="required-star">*</span></label>
                     <input
                       type="text"
                       name="title"
@@ -299,11 +299,12 @@ function CourseCreate() {
                       value={form.title}
                       onChange={handleChange}
                       style={inputStyle}
+                      required
                     />
                   </div>
 
                   <div className="col-md-6">
-                    <label style={labelStyle}>Slug *</label>
+                    <label style={labelStyle}>Slug <span className="required-star">*</span></label>
                     <input
                       type="text"
                       name="slug"
@@ -312,17 +313,19 @@ function CourseCreate() {
                       value={form.slug}
                       onChange={handleChange}
                       style={inputStyle}
+                      required
                     />
                   </div>
 
                   <div className="col-md-6">
-                    <label style={labelStyle}>Course Type *</label>
+                    <label style={labelStyle}>Course Type <span className="required-star">*</span></label>
                     <select
                       name="type"
                       className="form-select"
                       value={form.type}
                       onChange={handleChange}
                       style={inputStyle}
+                      required
                     >
                       <option value="">Select type</option>
                       <option value="Online">Online</option>
@@ -332,13 +335,14 @@ function CourseCreate() {
                   </div>
 
                   <div className="col-md-6">
-                    <label style={labelStyle}>Status *</label>
+                    <label style={labelStyle}>Status <span className="required-star">*</span></label>
                     <select
                       name="status"
                       className="form-select"
                       value={form.status}
                       onChange={handleChange}
                       style={inputStyle}
+                      required
                     >
                       <option value="Draft">Draft</option>
                       <option value="Published">Published</option>

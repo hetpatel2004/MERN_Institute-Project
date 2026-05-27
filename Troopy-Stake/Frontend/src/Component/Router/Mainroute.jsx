@@ -19,6 +19,8 @@ import ModuleTopics from "../Supper_admin/Course/ModuleTopics";
 import TopicMaterials from "../Supper_admin/Course/TopicMaterials";
 import ModuleDetail from "../Supper_admin/Course/ModuleDetail";
 import Leads from "../Supper_admin/Leads/Leads";
+import FollowUps from "../Supper_admin/FollowUps/FollowUps";
+import Admissions from "../Supper_admin/CRM/Admissions";
 import RoleAccessPage from "../Supper_admin/Roles/RoleAccessPage";
 
 import UserDashboard from "../User_dashboard/UserDashboard";
@@ -187,6 +189,28 @@ function Mainroute() {
           <ProtectedRoute role="superadmin">
             <SuperAdmin page="leads">
               <Leads />
+            </SuperAdmin>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/superadmin/follow-ups"
+        element={
+          <ProtectedRoute role="superadmin">
+            <SuperAdmin page="followups">
+              <FollowUps />
+            </SuperAdmin>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/superadmin/admissions"
+        element={
+          <ProtectedRoute role="superadmin">
+            <SuperAdmin page="admissions">
+              <Admissions />
             </SuperAdmin>
           </ProtectedRoute>
         }

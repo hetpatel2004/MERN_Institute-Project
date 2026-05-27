@@ -2396,3 +2396,9 @@ body {
 .menu-toggle-switch input:checked + .menu-toggle-slider::before {
   transform: translateX(24px);
 }
+
+.required-star {
+  color: #ef4444;
+  font-weight: 900;
+  margin-left: 2px;
+}

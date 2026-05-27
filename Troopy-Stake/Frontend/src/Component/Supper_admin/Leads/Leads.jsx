@@ -11,6 +11,8 @@ import {
   Trash2,
   X,
   Eye,
+  CheckCircle,
+  UserCheck,
 } from "lucide-react";
 import "./Leads.css";
 
@@ -35,8 +37,15 @@ const statuses = [
   "Interested",
   "Follow-up",
   "Admitted",
+  "Converted",
   "Not Interested",
 ];
+
+const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+const categories = ["General", "OBC", "SC", "ST", "EWS", "Other"];
+const courseTypes = ["Online", "Offline", "Hybrid"];
+const referenceSources = ["Direct", "Referral", "Social Media", "Website", "Walk-in", "Other"];
+const paymentModes = ["Cash", "UPI", "Bank Transfer", "Card", "EMI"];
 
 const defaultForm = {
   studentName: "",
@@ -57,6 +66,8 @@ function Leads() {
   const [view, setView] = useState("board");
   const [leads, setLeads] = useState([]);
   const [courses, setCourses] = useState([]);
+  const [branches, setBranches] = useState([]);
+  const [batches, setBatches] = useState([]);
   const [search, setSearch] = useState("");
   const [activeStatus, setActiveStatus] = useState("All");
   const [sortBy, setSortBy] = useState("newest");
@@ -64,10 +75,63 @@ function Leads() {
   const [selectedLead, setSelectedLead] = useState(null);
   const [editingLead, setEditingLead] = useState(null);
   const [form, setForm] = useState(defaultForm);
+  const [showConvert, setShowConvert] = useState(false);
+  const [convertLead, setConvertLead] = useState(null);
+  const [convertLoading, setConvertLoading] = useState(false);
+  const [convertForm, setConvertForm] = useState({
+    studentName: "",
+    fatherName: "",
+    motherName: "",
+    gender: "",
+    dateOfBirth: "",
+    bloodGroup: "",
+    category: "",
+    aadhaarNumber: "",
+    nationality: "Indian",
+    phone: "",
+    alternateMobile: "",
+    email: "",
+    whatsappNumber: "",
+    parentNumbers: "",
+    addressLine: "",
+    city: "",
+    state: "",
+    country: "India",
+    pincode: "",
+    admissionDate: new Date().toISOString().slice(0, 10),
+    branchName: "",
+    courseName: "",
+    courseDuration: "",
+    batchName: "",
+    semesterYear: "",
+    admissionCounselor: "",
+    referenceSource: "",
+    totalFees: "",
+    registrationFees: "",
+    discount: "",
+    discountPercent: "",
+    scholarship: "",
+    gstTax: "",
+    paidAmount: "",
+    paymentMode: "",
+    emiAllowed: false,
+    installmentCount: "",
+    nextInstallmentDate: "",
+    courseType: "",
+    duration: "",
+    startDate: "",
+    endDate: "",
+    trainerFaculty: "",
+    status: "Confirmed",
+    notes: "",
+    createdBy: "",
+  });
 
   useEffect(() => {
     fetchLeads();
     fetchCourses();
+    fetchBranches();
+    fetchBatches();
   }, []);
 
   const fetchLeads = async () => {
@@ -84,6 +148,24 @@ function Leads() {
     try {
       const res = await axios.get(`${API_BASE}/courses`);
       setCourses(res.data || []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const fetchBranches = async () => {
+    try {
+      const res = await axios.get(`${API_BASE}/branches`);
+      setBranches(res.data || []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const fetchBatches = async () => {
+    try {
+      const res = await axios.get(`${API_BASE}/batches`);
+      setBatches(res.data || []);
     } catch (err) {
       console.error(err);
     }
@@ -208,6 +290,120 @@ function Leads() {
       .join("")
       .slice(0, 2)
       .toUpperCase();
+
+  const openConvert = (lead) => {
+    setConvertLead(lead);
+    setConvertForm({
+      studentName: lead.studentName || "",
+      fatherName: "",
+      motherName: "",
+      gender: "",
+      dateOfBirth: "",
+      bloodGroup: "",
+      category: "",
+      aadhaarNumber: "",
+      nationality: "Indian",
+      phone: lead.phone || "",
+      alternateMobile: "",
+      email: lead.email || "",
+      whatsappNumber: "",
+      parentNumbers: "",
+      addressLine: "",
+      city: lead.city || "",
+      state: "",
+      country: "India",
+      pincode: "",
+      admissionDate: new Date().toISOString().slice(0, 10),
+      branchName: "",
+      courseName: lead.course || "",
+      courseDuration: "",
+      batchName: "",
+      semesterYear: "",
+      admissionCounselor: "",
+      referenceSource: lead.source || "",
+      totalFees: "",
+      registrationFees: "",
+      discount: "",
+      discountPercent: "",
+      scholarship: "",
+      gstTax: "",
+      paidAmount: "",
+      paymentMode: "",
+      emiAllowed: false,
+      installmentCount: "",
+      nextInstallmentDate: "",
+      courseType: "",
+      duration: "",
+      startDate: "",
+      endDate: "",
+      trainerFaculty: "",
+      status: "Confirmed",
+      notes: lead.notes || "",
+      createdBy: "",
+    });
+    setShowConvert(true);
+  };
+
+  const handleConvert = async (e) => {
+    e.preventDefault();
+    if (!convertLead) return;
+    setConvertLoading(true);
+    try {
+      await axios.post(
+        `http://localhost:5000/api/admissions/convert/${convertLead._id}`,
+        {
+          ...convertForm,
+          totalFees: Number(convertForm.totalFees) || 0,
+          registrationFees: Number(convertForm.registrationFees) || 0,
+          paidAmount: Number(convertForm.paidAmount) || 0,
+          discount: Number(convertForm.discount) || 0,
+          discountPercent: Number(convertForm.discountPercent) || 0,
+          scholarship: Number(convertForm.scholarship) || 0,
+          gstTax: Number(convertForm.gstTax) || 0,
+          installmentCount: Number(convertForm.installmentCount) || 0,
+          emiAllowed: convertForm.emiAllowed === true || convertForm.emiAllowed === "true",
+          parentNumbers: convertForm.parentNumbers
+            ? convertForm.parentNumbers.split(",").map((s) => s.trim()).filter(Boolean)
+            : [],
+        }
+      );
+
+      setShowConvert(false);
+      setConvertLead(null);
+      fetchLeads();
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to convert lead");
+    } finally {
+      setConvertLoading(false);
+    }
+  };
+
+  const renderField = (label, name, type = "text", options = null, required = false) => {
+    const Tag = type === "textarea" ? "textarea" : type === "select" ? "select" : "input";
+    const inputType = type === "select" || type === "textarea" ? undefined : type;
+    const handleChange = (e) => {
+      const { value, type: elType, checked } = e.target;
+      setConvertForm({ ...convertForm, [name]: elType === "checkbox" ? checked : value });
+    };
+
+    return (
+      <div className="adm-form-group">
+        <label>{label}{required && <span className="required-star">*</span>}</label>
+        {Tag === "select" ? (
+          <select name={name} value={convertForm[name]} onChange={handleChange} required={required}>
+            <option value="">-- Select --</option>
+            {options.map((o) => (
+              <option key={o} value={o}>{o}</option>
+            ))}
+          </select>
+        ) : Tag === "textarea" ? (
+          <textarea name={name} value={convertForm[name]} onChange={handleChange} rows={3} />
+        ) : (
+          <input type={inputType} name={name} value={convertForm[name]} onChange={handleChange} required={required} />
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="lead-page">
@@ -347,34 +543,51 @@ function Leads() {
                       </p>
 
                       <div className="lead-card-actions">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleWhatsApp(lead.phone);
-                          }}
-                        >
-                          <MessageCircle size={15} />
-                          WhatsApp
-                        </button>
+                        {lead.status === "Converted" ? (
+                          <span className="converted-badge">Converted</span>
+                        ) : (
+                          <>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleWhatsApp(lead.phone);
+                              }}
+                            >
+                              <MessageCircle size={15} />
+                              WhatsApp
+                            </button>
 
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleCall(lead.phone);
-                          }}
-                        >
-                          <Phone size={15} />
-                          Call
-                        </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCall(lead.phone);
+                              }}
+                            >
+                              <Phone size={15} />
+                              Call
+                            </button>
 
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openEditModal(lead);
-                          }}
-                        >
-                          <Pencil size={15} />
-                        </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openEditModal(lead);
+                              }}
+                            >
+                              <Pencil size={15} />
+                            </button>
+
+                            <button
+                              className="convert-btn"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openConvert(lead);
+                              }}
+                              title="Convert to Admission"
+                            >
+                              <UserCheck size={15} />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -418,6 +631,7 @@ function Leads() {
                   <td>{lead.priority}</td>
                   <td>
                     <span className="status-badge">{lead.status}</span>
+                    {lead.status === "Converted" && <span className="converted-dot" title="Converted to admission" />}
                   </td>
                   <td>
                     {lead.createdAt
@@ -438,6 +652,15 @@ function Leads() {
                       <button onClick={() => openEditModal(lead)}>
                         <Pencil size={16} />
                       </button>
+                      {lead.status !== "Converted" && (
+                        <button
+                          className="table-convert-btn"
+                          onClick={() => openConvert(lead)}
+                          title="Convert to Admission"
+                        >
+                          <UserCheck size={16} />
+                        </button>
+                      )}
                       <button onClick={() => handleDelete(lead._id)}>
                         <Trash2 size={16} />
                       </button>
@@ -473,12 +696,14 @@ function Leads() {
                 onChange={(e) =>
                   setForm({ ...form, studentName: e.target.value })
                 }
+                required
               />
 
               <input
                 placeholder="Phone Number *"
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                required
               />
 
               <input
@@ -585,6 +810,211 @@ function Leads() {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {showConvert && convertLead && (
+        <div className="adm-convert-overlay" onClick={() => setShowConvert(false)}>
+          <div className="adm-modal adm-modal-wide" onClick={(e) => e.stopPropagation()}>
+            <div className="adm-modal-header">
+              <h2>Convert to Admission</h2>
+              <button className="adm-modal-close" onClick={() => setShowConvert(false)}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleConvert}>
+              <div className="adm-modal-body">
+                <div className="adm-convert-info">
+                  <p><strong>Student:</strong> {convertLead.studentName}</p>
+                  <p><strong>Phone:</strong> {convertLead.phone}</p>
+                  <p><strong>Course Interest:</strong> {convertLead.course}</p>
+                </div>
+
+                <h4 className="adm-section-title">
+                  Personal Information
+                  <span className="adm-section-sub">Fill in basic student details</span>
+                </h4>
+                <div className="adm-form-row">
+                  {renderField("Student Full Name", "studentName", "text", null, true)}
+                  {renderField("Father Name", "fatherName")}
+                </div>
+                <div className="adm-form-row">
+                  {renderField("Mother Name", "motherName")}
+                  {renderField("Gender", "gender", "select", ["Male", "Female", "Other"], true)}
+                </div>
+                <div className="adm-form-row">
+                  {renderField("Date of Birth", "dateOfBirth", "date", null, true)}
+                  {renderField("Blood Group", "bloodGroup", "select", bloodGroups)}
+                </div>
+                <div className="adm-form-row">
+                  {renderField("Category/Caste", "category", "select", categories)}
+                  {renderField("Aadhaar Number", "aadhaarNumber", "text", null, true)}
+                </div>
+                <div className="adm-form-row">
+                  {renderField("Nationality", "nationality")}
+                  <div className="adm-form-group" />
+                </div>
+
+                <h4 className="adm-section-title">
+                  Contact Information
+                  <span className="adm-section-sub">How to reach the student</span>
+                </h4>
+                <div className="adm-form-row">
+                  {renderField("Mobile Number", "phone", "text", null, true)}
+                  {renderField("Alternate Mobile", "alternateMobile")}
+                </div>
+                <div className="adm-form-row">
+                  {renderField("Email Address", "email", "email")}
+                  {renderField("WhatsApp Number", "whatsappNumber")}
+                </div>
+                <div className="adm-form-group">
+                  <label>Parent Numbers <span className="adm-hint">(comma separated)</span></label>
+                  <input name="parentNumbers" value={convertForm.parentNumbers}
+                    onChange={(e) => setConvertForm({ ...convertForm, parentNumbers: e.target.value })}
+                    placeholder="e.g. 9876543210, 9876543211" />
+                </div>
+
+                <h4 className="adm-section-title">
+                  Address
+                  <span className="adm-section-sub">Current residential address</span>
+                </h4>
+                <div className="adm-form-group">
+                  <label>Address Line</label>
+                  <input name="addressLine" value={convertForm.addressLine}
+                    onChange={(e) => setConvertForm({ ...convertForm, addressLine: e.target.value })}
+                    placeholder="Street, locality, landmark" />
+                </div>
+                <div className="adm-form-row">
+                  {renderField("City", "city")}
+                  {renderField("State", "state")}
+                </div>
+                <div className="adm-form-row">
+                  {renderField("Country", "country")}
+                  {renderField("Pincode", "pincode")}
+                </div>
+
+                <h4 className="adm-section-title">
+                  Admission &amp; Course Details
+                  <span className="adm-section-sub">Academic program information</span>
+                </h4>
+                <div className="adm-form-row">
+                  <div className="adm-form-group">
+                    <label>Admission Date</label>
+                    <input type="date" name="admissionDate" value={convertForm.admissionDate}
+                      onChange={(e) => setConvertForm({ ...convertForm, admissionDate: e.target.value })} />
+                  </div>
+                  {renderField("Branch", "branchName", "select",
+                    branches.map((b) => b.branch_name), true)}
+                </div>
+                <div className="adm-form-row">
+                  {renderField("Course", "courseName", "select",
+                    courses.map((c) => c.title || c.name), true)}
+                  {renderField("Course Duration", "courseDuration")}
+                </div>
+                <div className="adm-form-row">
+                  {renderField("Batch", "batchName", "select",
+                    batches.map((b) => b.batchName || b.batchCode))}
+                  {renderField("Semester/Year", "semesterYear")}
+                </div>
+                <div className="adm-form-row">
+                  {renderField("Admission Counselor", "admissionCounselor")}
+                  {renderField("Reference Source", "referenceSource", "select", referenceSources)}
+                </div>
+
+                <h4 className="adm-section-title">
+                  Course Type &amp; Schedule
+                  <span className="adm-section-sub">Delivery mode and timeline</span>
+                </h4>
+                <div className="adm-form-row">
+                  {renderField("Course Type", "courseType", "select", courseTypes)}
+                  {renderField("Duration", "duration")}
+                </div>
+                <div className="adm-form-row">
+                  {renderField("Start Date", "startDate", "date")}
+                  {renderField("End Date", "endDate", "date")}
+                </div>
+                <div className="adm-form-row">
+                  {renderField("Trainer/Faculty", "trainerFaculty")}
+                  <div className="adm-form-group" />
+                </div>
+
+                <h4 className="adm-section-title">
+                  Payment Details
+                  <span className="adm-section-sub">Fee structure and payment information</span>
+                </h4>
+                <div className="adm-form-row">
+                  <div className="adm-form-group">
+                    <label>Total Fees <span className="required-star">*</span></label>
+                    <input type="number" name="totalFees" value={convertForm.totalFees}
+                      onChange={(e) => setConvertForm({ ...convertForm, totalFees: e.target.value })} min="0" required />
+                  </div>
+                  {renderField("Registration Fees", "registrationFees", "number")}
+                </div>
+                <div className="adm-form-row">
+                  <div className="adm-form-group">
+                    <label>Discount (Amount)</label>
+                    <input type="number" name="discount" value={convertForm.discount}
+                      onChange={(e) => setConvertForm({ ...convertForm, discount: e.target.value })} min="0" />
+                  </div>
+                  <div className="adm-form-group">
+                    <label>Discount (%)</label>
+                    <input type="number" name="discountPercent" value={convertForm.discountPercent}
+                      onChange={(e) => setConvertForm({ ...convertForm, discountPercent: e.target.value })} min="0" max="100" />
+                  </div>
+                </div>
+                <div className="adm-form-row">
+                  {renderField("Scholarship", "scholarship", "number")}
+                  {renderField("GST/Tax", "gstTax", "number")}
+                </div>
+                <div className="adm-form-row">
+                  <div className="adm-form-group">
+                    <label>Paid Amount <span className="required-star">*</span></label>
+                    <input type="number" name="paidAmount" value={convertForm.paidAmount}
+                      onChange={(e) => setConvertForm({ ...convertForm, paidAmount: e.target.value })} min="0" required />
+                  </div>
+                  {renderField("Payment Mode", "paymentMode", "select", paymentModes, true)}
+                </div>
+                <div className="adm-form-row">
+                  <div className="adm-form-group">
+                    <label>
+                      <input type="checkbox" name="emiAllowed" checked={convertForm.emiAllowed === true || convertForm.emiAllowed === "true"}
+                        onChange={(e) => setConvertForm({ ...convertForm, emiAllowed: e.target.checked })} />
+                      {" "}EMI Allowed
+                    </label>
+                  </div>
+                  <div className="adm-form-group" />
+                </div>
+                {convertForm.emiAllowed && (
+                  <div className="adm-form-row">
+                    {renderField("Installment Count", "installmentCount", "number")}
+                    {renderField("Next Installment Date", "nextInstallmentDate", "date")}
+                  </div>
+                )}
+
+                <h4 className="adm-section-title">
+                  Additional
+                  <span className="adm-section-sub">Status, notes, and other information</span>
+                </h4>
+                <div className="adm-form-row">
+                  {renderField("Status", "status", "select", ["Confirmed", "Pending", "Cancelled"])}
+                  {renderField("Created By", "createdBy")}
+                </div>
+                <div className="adm-form-group">
+                  <label>Notes</label>
+                  <textarea name="notes" value={convertForm.notes}
+                    onChange={(e) => setConvertForm({ ...convertForm, notes: e.target.value })} rows={2} />
+                </div>
+              </div>
+
+              <div className="adm-modal-footer">
+                <button type="button" className="adm-cancel-btn" onClick={() => setShowConvert(false)}>Cancel</button>
+                <button type="submit" className="adm-save-btn" disabled={convertLoading}>
+                  {convertLoading ? "Converting..." : "Convert to Admission"}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 

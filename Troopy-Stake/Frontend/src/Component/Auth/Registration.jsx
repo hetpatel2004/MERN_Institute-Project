@@ -102,35 +102,38 @@ function Registration() {
             </div>
 
             <div className="mb-3">
-              <label className="form-label fw-semibold">Full Name</label>
+              <label className="form-label fw-semibold">Full Name <span className="required-star">*</span></label>
               <input
                 type="text"
                 className="form-control py-3 input-custom"
                 placeholder="Enter full name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                required
               />
             </div>
 
             <div className="mb-3">
-              <label className="form-label fw-semibold">Email</label>
+              <label className="form-label fw-semibold">Email <span className="required-star">*</span></label>
               <input
                 type="email"
                 className="form-control py-3 input-custom"
                 placeholder="Enter email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </div>
 
             <div className="mb-4">
-              <label className="form-label fw-semibold">Password</label>
+              <label className="form-label fw-semibold">Password <span className="required-star">*</span></label>
               <input
                 type="password"
                 className="form-control py-3 input-custom"
                 placeholder="Enter password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
             </div>
 

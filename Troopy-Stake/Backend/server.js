@@ -18,6 +18,8 @@ const roleUserRoutes = require("./routes/roleUserRoutes");
 const roleAccessRoutes = require("./routes/roleAccessRoutes");
 const topicContentRoutes = require("./routes/topicContentRoutes");
 const batchRoutes = require("./routes/batchRoutes");
+const followUpRoutes = require("./routes/followUpRoutes");
+const admissionRoutes = require("./routes/admissionRoutes");
 const app = express();
 
 app.use(
@@ -57,6 +59,8 @@ app.use("/api/leads", leadRoutes);
 app.use("/api/role-access", roleUserRoutes);
 app.use("/api/role-access", roleAccessRoutes);
 app.use("/api/topic-content", topicContentRoutes);
+app.use("/api/follow-ups", followUpRoutes);
+app.use("/api/admissions", admissionRoutes);
 
 const PORT = process.env.PORT || 5000;
 

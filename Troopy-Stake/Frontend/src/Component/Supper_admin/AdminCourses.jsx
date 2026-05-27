@@ -293,7 +293,7 @@ function AdminCourses() {
 
           <div className="row">
             <div className="col-md-4 mb-3">
-              <label>Category Name</label>
+              <label>Category Name <span className="required-star">*</span></label>
               <input
                 type="text"
                 className="form-control"
@@ -301,11 +301,12 @@ function AdminCourses() {
                 value={formData.category_name}
                 onChange={handleChange}
                 placeholder="Web Development"
+                required
               />
             </div>
 
             <div className="col-md-4 mb-3">
-              <label>Course Title</label>
+              <label>Course Title <span className="required-star">*</span></label>
               <input
                 type="text"
                 className="form-control"
@@ -313,11 +314,12 @@ function AdminCourses() {
                 value={formData.title}
                 onChange={handleChange}
                 placeholder="HTML"
+                required
               />
             </div>
 
             <div className="col-md-4 mb-3">
-              <label>Slug</label>
+              <label>Slug <span className="required-star">*</span></label>
               <input
                 type="text"
                 className="form-control"
@@ -325,6 +327,7 @@ function AdminCourses() {
                 value={formData.slug}
                 onChange={handleChange}
                 placeholder="html"
+                required
               />
             </div>
 

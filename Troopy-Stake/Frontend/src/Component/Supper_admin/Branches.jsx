@@ -198,11 +198,12 @@ function Branches() {
           <form onSubmit={handleCreateBranch}>
             <div className="institute-form-grid">
               <div className="full-width">
-                <label>Select Institute</label>
+                <label>Select Institute <span className="required-star">*</span></label>
                 <select
                   name="institute_id"
                   value={formData.institute_id}
                   onChange={handleChange}
+                  required
                 >
                   <option value="">Select Institute</option>
                   {institutes.map((item) => (
@@ -214,62 +215,68 @@ function Branches() {
               </div>
 
               <div>
-                <label>Branch Name</label>
+                <label>Branch Name <span className="required-star">*</span></label>
                 <input
                   type="text"
                   name="branch_name"
                   value={formData.branch_name}
                   onChange={handleChange}
+                  required
                 />
               </div>
 
               <div>
-                <label>City</label>
+                <label>City <span className="required-star">*</span></label>
                 <input
                   type="text"
                   name="city"
                   value={formData.city}
                   onChange={handleChange}
+                  required
                 />
               </div>
 
               <div className="full-width">
-                <label>Address</label>
+                <label>Address <span className="required-star">*</span></label>
                 <input
                   type="text"
                   name="address"
                   value={formData.address}
                   onChange={handleChange}
+                  required
                 />
               </div>
 
               <div>
-                <label>Admin Name</label>
+                <label>Admin Name <span className="required-star">*</span></label>
                 <input
                   type="text"
                   name="admin_name"
                   value={formData.admin_name}
                   onChange={handleChange}
+                  required
                 />
               </div>
 
               <div>
-                <label>Admin Email</label>
+                <label>Admin Email <span className="required-star">*</span></label>
                 <input
                   type="email"
                   name="admin_email"
                   value={formData.admin_email}
                   onChange={handleChange}
+                  required
                 />
               </div>
 
               <div className="full-width">
-                <label>Admin Password</label>
+                <label>Admin Password <span className="required-star">*</span></label>
                 <input
                   type="text"
                   name="admin_password"
                   value={formData.admin_password}
                   onChange={handleChange}
+                  required
                 />
               </div>
 

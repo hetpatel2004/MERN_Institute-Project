@@ -227,10 +227,11 @@ function MenuManager() {
 
       <form className="menu-manager-form" onSubmit={handleAddOrUpdateMenu}>
         <div>
-          <label>Menu Section</label>
+          <label>Menu Section <span className="required-star">*</span></label>
           <select
             value={form.section}
             onChange={(e) => setForm({ ...form, section: e.target.value })}
+            required
           >
             {DEFAULT_SECTIONS.map((section) => (
               <option key={section} value={section}>
@@ -241,22 +242,24 @@ function MenuManager() {
         </div>
 
         <div>
-          <label>Menu Name</label>
+          <label>Menu Name <span className="required-star">*</span></label>
           <input
             type="text"
             placeholder="Example: Student ID Card"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
+            required
           />
         </div>
 
         <div>
-          <label>Route Path</label>
+          <label>Route Path <span className="required-star">*</span></label>
           <input
             type="text"
             placeholder="Example: student-id-card"
             value={form.path}
             onChange={(e) => setForm({ ...form, path: e.target.value })}
+            required
           />
         </div>
 

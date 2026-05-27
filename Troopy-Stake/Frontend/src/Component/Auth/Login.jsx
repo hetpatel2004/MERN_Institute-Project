@@ -138,24 +138,26 @@ function Login() {
 
           <form onSubmit={handleLogin}>
             <div className="mb-3">
-              <label className="form-label fw-semibold">Email</label>
+              <label className="form-label fw-semibold">Email <span className="required-star">*</span></label>
               <input
                 type="email"
                 className="form-control py-3 input-custom"
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </div>
 
             <div className="mb-4">
-              <label className="form-label fw-semibold">Password</label>
+              <label className="form-label fw-semibold">Password <span className="required-star">*</span></label>
               <input
                 type="password"
                 className="form-control py-3 input-custom"
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
             </div>
 

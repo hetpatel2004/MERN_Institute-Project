@@ -119,7 +119,7 @@ function Batches() {
 
             <div className="batch-input-grid">
               <label>
-                Batch Name *
+                Batch Name <span className="required-star">*</span>
                 <input
                   name="batchName"
                   value={form.batchName}
@@ -130,7 +130,7 @@ function Batches() {
               </label>
 
               <label>
-                Batch Code *
+                Batch Code <span className="required-star">*</span>
                 <input
                   name="batchCode"
                   value={form.batchCode}
@@ -141,7 +141,7 @@ function Batches() {
               </label>
 
               <label>
-                Course Name *
+                Course Name <span className="required-star">*</span>
                 <input
                   name="courseName"
                   value={form.courseName}
@@ -202,7 +202,7 @@ function Batches() {
 
             <div className="batch-input-grid">
               <label>
-                Start Date *
+                Start Date <span className="required-star">*</span>
                 <input
                   type="date"
                   name="startDate"
@@ -213,7 +213,7 @@ function Batches() {
               </label>
 
               <label>
-                Classes Per Week *
+                Classes Per Week <span className="required-star">*</span>
                 <input
                   type="number"
                   name="classesPerWeek"
@@ -225,7 +225,7 @@ function Batches() {
               </label>
 
               <label>
-                Total Classes *
+                Total Classes <span className="required-star">*</span>
                 <input
                   type="number"
                   name="totalClasses"

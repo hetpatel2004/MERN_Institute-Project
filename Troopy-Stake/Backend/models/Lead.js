@@ -46,6 +46,7 @@ const leadSchema = new mongoose.Schema(
         "Interested",
         "Follow-up",
         "Admitted",
+        "Converted",
         "Not Interested",
       ],
       default: "New",

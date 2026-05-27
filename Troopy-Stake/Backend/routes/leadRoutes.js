@@ -1,7 +1,45 @@
 const express = require("express");
 const Lead = require("../models/Lead");
+const FollowUp = require("../models/FollowUp");
 
 const router = express.Router();
+
+const syncFollowUp = async (lead) => {
+  try {
+    const existing = await FollowUp.findOne({ relatedId: lead._id.toString(), relatedType: "Lead" });
+
+    if (lead.followUpDate) {
+      const followUpData = {
+        title: `Follow-up: ${lead.studentName}`,
+        description: lead.notes || `Follow-up for lead ${lead.studentName}`,
+        relatedType: "Lead",
+        relatedId: lead._id.toString(),
+        userName: lead.studentName,
+        userEmail: lead.email || "",
+        status: "Pending",
+        followUpDate: lead.followUpDate,
+        createdBy: lead.counsellor || "System",
+        priority:
+          lead.priority === "Hot"
+            ? "High"
+            : lead.priority === "Warm"
+              ? "Medium"
+              : "Low",
+        note: lead.notes || "",
+      };
+
+      if (existing) {
+        await FollowUp.findByIdAndUpdate(existing._id, followUpData, { new: true });
+      } else {
+        await FollowUp.create(followUpData);
+      }
+    } else if (existing) {
+      await FollowUp.findByIdAndDelete(existing._id);
+    }
+  } catch (err) {
+    console.error("FollowUp sync error:", err.message);
+  }
+};
 
 // GET all leads
 router.get("/", async (req, res) => {
@@ -38,6 +76,7 @@ router.get("/:id", async (req, res) => {
 router.post("/", async (req, res) => {
   try {
     const lead = await Lead.create(req.body);
+    await syncFollowUp(lead);
     res.status(201).json(lead);
   } catch (error) {
     res.status(400).json({
@@ -59,6 +98,7 @@ router.put("/:id", async (req, res) => {
       return res.status(404).json({ message: "Lead not found" });
     }
 
+    await syncFollowUp(lead);
     res.status(200).json(lead);
   } catch (error) {
     res.status(400).json({
@@ -77,6 +117,7 @@ router.delete("/:id", async (req, res) => {
       return res.status(404).json({ message: "Lead not found" });
     }
 
+    await FollowUp.deleteOne({ relatedId: lead._id.toString(), relatedType: "Lead" });
     res.status(200).json({ message: "Lead deleted successfully" });
   } catch (error) {
     res.status(500).json({
