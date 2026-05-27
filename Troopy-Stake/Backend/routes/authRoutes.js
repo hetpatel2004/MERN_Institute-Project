@@ -21,6 +21,12 @@ router.post("/register", async (req, res) => {
       });
     }
 
+    if (role === "counsellor") {
+      return res.status(403).json({
+        message: "Counsellors are created by Super Admin only.",
+      });
+    }
+
     if (!role) role = "student";
 
     const existingUser = await User.findOne({

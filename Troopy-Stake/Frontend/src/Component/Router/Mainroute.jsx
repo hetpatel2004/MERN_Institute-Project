@@ -21,6 +21,7 @@ import ModuleDetail from "../Supper_admin/Course/ModuleDetail";
 import Leads from "../Supper_admin/Leads/Leads";
 import FollowUps from "../Supper_admin/FollowUps/FollowUps";
 import Admissions from "../Supper_admin/CRM/Admissions";
+import Counsellors from "../Supper_admin/Counsellors";
 import RoleAccessPage from "../Supper_admin/Roles/RoleAccessPage";
 
 import InstituteDetails from "../Supper_admin/InstituteDetails";
@@ -284,6 +285,17 @@ function Mainroute() {
           <ProtectedRoute role="superadmin">
             <SuperAdmin page="admissions">
               <Admissions />
+            </SuperAdmin>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/superadmin/counsellors"
+        element={
+          <ProtectedRoute role="superadmin">
+            <SuperAdmin page="counsellors">
+              <Counsellors />
             </SuperAdmin>
           </ProtectedRoute>
         }

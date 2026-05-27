@@ -23,6 +23,7 @@ const admissionRoutes = require("./routes/admissionRoutes");
 const studentRoutes = require("./routes/studentRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const instituteCoursePurchaseRoutes = require("./routes/instituteCoursePurchaseRoutes");
+const counsellorRoutes = require("./routes/counsellorRoutes");
 const app = express();
 
 app.use(
@@ -67,6 +68,7 @@ app.use("/api/admissions", admissionRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/institute-course-purchases", instituteCoursePurchaseRoutes);
+app.use("/api/counsellors", counsellorRoutes);
 
 const PORT = process.env.PORT || 5000;
 
