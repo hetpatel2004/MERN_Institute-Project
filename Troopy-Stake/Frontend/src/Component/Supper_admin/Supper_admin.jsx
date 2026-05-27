@@ -225,7 +225,7 @@ const superAdminMenuSections = [
 function Supper_admin({ children, page }) {
   const navigate = useNavigate();
 
-  const [courseOpen, setCourseOpen] = useState(page === "course");
+
   const [customMenus, setCustomMenus] = useState([]);
 
   const [openMenus, setOpenMenus] = useState({
@@ -307,36 +307,10 @@ function Supper_admin({ children, page }) {
             Institute
           </NavLink>
 
-          <div>
-            <button
-              type="button"
-              className={`sa-course-dropdown-btn ${
-                page === "course" ? "active" : ""
-              }`}
-              onClick={() => setCourseOpen(!courseOpen)}
-            >
-              <BookOpen size={20} />
-              <span>Course</span>
-
-              <span style={{ marginLeft: "auto" }}>
-                {courseOpen ? (
-                  <ChevronUp size={16} />
-                ) : (
-                  <ChevronDown size={16} />
-                )}
-              </span>
-            </button>
-
-            {courseOpen && (
-              <div className="sa-course-submenu">
-                <NavLink to="/superadmin/course">All Courses</NavLink>
-                {/* <NavLink to="/superadmin/course/create">Create Course</NavLink> */}
-                <NavLink to="/superadmin/course/all-modules">
-                  All Courses & Modules
-                </NavLink>
-              </div>
-            )}
-          </div>
+          <NavLink to="/superadmin/course">
+            <BookOpen size={20} />
+            Course
+          </NavLink>
 
           <NavLink to={ROUTES.superAdminCompany}>
             <BriefcaseBusiness size={20} />
