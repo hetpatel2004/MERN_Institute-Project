@@ -215,14 +215,20 @@ const superAdminMenuSections = [
     key: "settings",
     icon: Settings,
     items: [
-      { name: "Branches", path: "/superadmin/branches", icon: Building2 },
       { name: "Users", path: ROUTES.superAdminUsers, icon: UsersIcon },
       { name: "Roles", path: "/superadmin/roles", icon: Shield },
       { name: "Menus", path: "/superadmin/menus", icon: Menu },
       { name: "Integrations", path: "/superadmin/integrations", icon: Plug },
     ],
   },
-  ,
+  {
+    title: "OTHER",
+    key: "other",
+    icon: Menu,
+    items: [
+      { name: "Branches", path: "/superadmin/branches", icon: Building2 },
+    ],
+  },
 ];
 
 function Supper_admin({ children, page }) {
@@ -231,6 +237,7 @@ function Supper_admin({ children, page }) {
 
   const { dark, toggle: toggleTheme } = useTheme();
   const [customMenus, setCustomMenus] = useState([]);
+  const [defaultMenus, setDefaultMenus] = useState([]);
 
   const [openMenus, setOpenMenus] = useState({
     crm: true,
@@ -241,6 +248,7 @@ function Supper_admin({ children, page }) {
     analytics: true,
     operations: true,
     settings: true,
+    other: true,
   });
 
   const [institutes, setInstitutes] = useState([]);
@@ -252,6 +260,9 @@ function Supper_admin({ children, page }) {
       const savedMenus =
         JSON.parse(localStorage.getItem("superAdminExtraMenus")) || [];
       setCustomMenus(savedMenus);
+      const savedDefaults =
+        JSON.parse(localStorage.getItem("superAdminDefaultMenus"));
+      setDefaultMenus(savedDefaults || []);
     };
 
     loadCustomMenus();
@@ -301,25 +312,34 @@ function Supper_admin({ children, page }) {
         </div>
 
         <div className="sa-menu">
-          <NavLink to={ROUTES.superAdminDashboard}>
-            <LayoutDashboard size={20} />
-            Dashboard
-          </NavLink>
-
-          <NavLink to={ROUTES.superAdminInstitute}>
-            <Building2 size={20} />
-            Institute
-          </NavLink>
-
-          <NavLink to="/superadmin/course">
-            <BookOpen size={20} />
-            Course
-          </NavLink>
-
-          <NavLink to={ROUTES.superAdminCompany}>
-            <BriefcaseBusiness size={20} />
-            Company
-          </NavLink>
+          {(() => {
+            const vis = {};
+            [...defaultMenus, ...customMenus].forEach((m) => { vis[m.path] = m.visible !== false; });
+            return (
+              <>
+                {vis[ROUTES.superAdminDashboard] !== false && (
+                  <NavLink to={ROUTES.superAdminDashboard}>
+                    <LayoutDashboard size={20} /> Dashboard
+                  </NavLink>
+                )}
+                {vis[ROUTES.superAdminInstitute] !== false && (
+                  <NavLink to={ROUTES.superAdminInstitute}>
+                    <Building2 size={20} /> Institute
+                  </NavLink>
+                )}
+                {vis["/superadmin/course"] !== false && (
+                  <NavLink to="/superadmin/course">
+                    <BookOpen size={20} /> Course
+                  </NavLink>
+                )}
+                {vis[ROUTES.superAdminCompany] !== false && (
+                  <NavLink to={ROUTES.superAdminCompany}>
+                    <BriefcaseBusiness size={20} /> Company
+                  </NavLink>
+                )}
+              </>
+            );
+          })()}
 
           {superAdminMenuSections.map((section) => {
             const SectionIcon = section.icon;
@@ -330,9 +350,16 @@ function Supper_admin({ children, page }) {
                 name: menu.name,
                 path: menu.path,
                 icon: Menu,
+                visible: menu.visible,
               }));
 
-            const finalItems = [...section.items, ...sectionCustomMenus];
+            const visibilityMap = {};
+            [...defaultMenus, ...customMenus].forEach((m) => {
+              visibilityMap[m.path] = m.visible !== false;
+            });
+
+            const finalItems = [...section.items, ...sectionCustomMenus]
+              .filter((item) => visibilityMap[item.path] !== false);
 
             return (
               <div className="sa-menu-section" key={section.key}>

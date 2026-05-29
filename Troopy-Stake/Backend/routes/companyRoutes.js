@@ -175,4 +175,53 @@ router.put("/:id", async (req, res) => {
   }
 });
 
+// ADD branch to existing company
+router.post("/:id/branches", async (req, res) => {
+  try {
+    const { branch_name, admin_email, admin_password } = req.body;
+
+    if (!branch_name || !admin_email || !admin_password) {
+      return res.status(400).json({ message: "Branch name, admin email and password are required" });
+    }
+
+    const company = await Company.findById(req.params.id);
+    if (!company) return res.status(404).json({ message: "Company not found" });
+
+    const existingUser = await User.findOne({ email: admin_email });
+    if (existingUser) {
+      return res.status(400).json({ message: `Company admin email already exists: ${admin_email}` });
+    }
+
+    const hashedPassword = await bcrypt.hash(admin_password, 10);
+
+    const companyAdmin = await User.create({
+      company_id: company._id,
+      name: `${branch_name} Admin`,
+      email: admin_email,
+      password: hashedPassword,
+      role: "companyadmin",
+      isApproved: true,
+    });
+
+    const newBranch = {
+      branch_name,
+      admin_email,
+      admin_id: companyAdmin._id,
+    };
+
+    company.branches.push(newBranch);
+    await company.save();
+
+    const populated = await Company.findById(company._id)
+      .populate("branches.admin_id", "email role loginInfo");
+
+    res.status(201).json({ message: "Branch added successfully", company: populated });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to add branch",
+      error: error.message,
+    });
+  }
+});
+
 module.exports = router;

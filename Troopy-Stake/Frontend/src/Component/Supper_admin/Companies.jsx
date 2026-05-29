@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Building2, Search, Trash2, RefreshCcw } from "lucide-react";
+import { Building2, Search, Trash2, RefreshCcw, X, Plus } from "lucide-react";
 import "./Supper_admin.css";
+import "./Branches.css";
 
 function Companies() {
   const [companies, setCompanies] = useState([]);
   const [search, setSearch] = useState("");
   const [message, setMessage] = useState("");
   const [editId, setEditId] = useState(null);
+  const [selectedCompany, setSelectedCompany] = useState(null);
+  const [branchForm, setBranchForm] = useState({ branch_name: "", admin_email: "", admin_password: "" });
 
   const emptyForm = {
     name: "",
@@ -128,6 +131,23 @@ function Companies() {
     setEditId(null);
   };
 
+  const handleAddBranchToCompany = async (e) => {
+    e.preventDefault();
+    if (!branchForm.branch_name || !branchForm.admin_email || !branchForm.admin_password) {
+      return alert("All branch fields are required");
+    }
+    try {
+      await axios.post(`http://localhost:5000/api/companies/${selectedCompany._id}/branches`, branchForm);
+      alert("Branch added successfully");
+      setBranchForm({ branch_name: "", admin_email: "", admin_password: "" });
+      getCompanies();
+      const updated = await axios.get(`http://localhost:5000/api/companies`);
+      setSelectedCompany(updated.data.find((c) => c._id === selectedCompany._id));
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to add branch");
+    }
+  };
+
   const getLoginInfo = (branch) => {
     return branch?.admin_id?.loginInfo || branch?.admin_loginInfo || {};
   };
@@ -202,7 +222,11 @@ function Companies() {
             <tbody>
               {filteredCompanies.length > 0 ? (
                 filteredCompanies.map((item) => (
-                  <tr key={item._id}>
+                  <tr
+                    key={item._id}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => setSelectedCompany(item)}
+                  >
                     <td>
                       <Building2 size={17} color="#0f766e" />{" "}
                       <strong>{item.name}</strong>
@@ -306,7 +330,7 @@ function Companies() {
                         : "No company admin data"}
                     </td>
 
-                    <td>
+                    <td onClick={(e) => e.stopPropagation()}>
                       <button
                         className="sa-icon-btn edit"
                         onClick={() => handleEdit(item)}
@@ -475,6 +499,95 @@ function Companies() {
           </div>
         </form>
       </div>
+
+      {selectedCompany && (
+        <div className="br-overlay" onClick={() => { setSelectedCompany(null); setBranchForm({ branch_name: "", admin_email: "", admin_password: "" }); }}>
+          <div className="br-modal br-modal-wide" onClick={(e) => e.stopPropagation()}>
+            <div className="br-modal-header">
+              <h2><Building2 size={20} /> {selectedCompany.name}</h2>
+              <button className="br-modal-close" onClick={() => { setSelectedCompany(null); setBranchForm({ branch_name: "", admin_email: "", admin_password: "" }); }}>
+                <X size={20} />
+              </button>
+            </div>
+            <div className="br-modal-body">
+              <div className="br-detail-grid">
+                <div className="br-detail-section">
+                  <h4>Company Details</h4>
+                  <div className="br-detail-rows">
+                    <div className="br-detail-row">
+                      <span className="br-detail-label">HR Name</span>
+                      <span className="br-detail-value">{selectedCompany.HR_name}</span>
+                    </div>
+                    <div className="br-detail-row">
+                      <span className="br-detail-label">Email</span>
+                      <span className="br-detail-value">{selectedCompany.contact_email}</span>
+                    </div>
+                    <div className="br-detail-row">
+                      <span className="br-detail-label">Phone</span>
+                      <span className="br-detail-value">{selectedCompany.contact_phone}</span>
+                    </div>
+                    <div className="br-detail-row">
+                      <span className="br-detail-label">Job Roles</span>
+                      <span className="br-detail-value">{selectedCompany.job_roles}</span>
+                    </div>
+                    <div className="br-detail-row">
+                      <span className="br-detail-label">Package</span>
+                      <span className="br-detail-value">{selectedCompany.package_range}</span>
+                    </div>
+                    <div className="br-detail-row">
+                      <span className="br-detail-label">Branches</span>
+                      <span className="br-detail-value">{selectedCompany.branches?.length || 0}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="br-detail-section">
+                  <h4>Existing Branches</h4>
+                  {selectedCompany.branches?.length > 0 ? (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                      {selectedCompany.branches.map((b, i) => (
+                        <div key={i} style={{ padding: "8px 10px", background: "var(--bg-card)", borderRadius: "8px", border: "1px solid var(--border-light)", fontSize: "13px" }}>
+                          <strong>{b.branch_name}</strong>
+                          <div style={{ color: "var(--text-muted)", fontSize: "11px" }}>{b.admin_email}</div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p style={{ color: "var(--text-muted)", fontSize: "13px" }}>No branches yet</p>
+                  )}
+                </div>
+              </div>
+
+              <div style={{ marginTop: "20px", paddingTop: "20px", borderTop: "1px solid var(--border-color)" }}>
+                <h4 style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "15px", fontWeight: 800, margin: "0 0 14px" }}>
+                  <Plus size={16} /> Create Branch
+                </h4>
+                <form onSubmit={handleAddBranchToCompany}>
+                  <div className="br-form-row">
+                    <div className="br-form-group">
+                      <label>Branch Name <span className="br-req">*</span></label>
+                      <input required value={branchForm.branch_name} onChange={(e) => setBranchForm({ ...branchForm, branch_name: e.target.value })} placeholder="Enter branch name" />
+                    </div>
+                    <div className="br-form-group">
+                      <label>Admin Email <span className="br-req">*</span></label>
+                      <input required type="email" value={branchForm.admin_email} onChange={(e) => setBranchForm({ ...branchForm, admin_email: e.target.value })} placeholder="Admin login email" />
+                    </div>
+                  </div>
+                  <div className="br-form-row">
+                    <div className="br-form-group">
+                      <label>Admin Password <span className="br-req">*</span></label>
+                      <input required type="password" value={branchForm.admin_password} onChange={(e) => setBranchForm({ ...branchForm, admin_password: e.target.value })} placeholder="Admin login password" />
+                    </div>
+                  </div>
+                  <div className="br-modal-footer" style={{ padding: "12px 0 0", borderTop: "none" }}>
+                    <button type="submit" className="br-save-btn"><Plus size={16} /> Create Branch</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
