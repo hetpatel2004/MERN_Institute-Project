@@ -4,6 +4,7 @@ const cors = require("cors");
 const path = require("path");
 require("dotenv").config();
 require("./config/tigerdb");
+const Branch = require("./models/Branch");
 
 const authRoutes = require("./routes/authRoutes");
 const instituteRoutes = require("./routes/instituteRoutes");
@@ -81,8 +82,10 @@ app.listen(PORT, () => {
 
 mongoose
   .connect(MONGO_URL)
-  .then(() => {
+  .then(async () => {
     console.log("MongoDB connected successfully");
+    await Branch.syncIndexes();
+    console.log("Branch indexes synced — stale indexes dropped");
   })
   .catch((error) => {
     console.log("MongoDB connection error:", error.message);

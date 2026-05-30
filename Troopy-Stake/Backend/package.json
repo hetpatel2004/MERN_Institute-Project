@@ -1,13 +1,15 @@
 {
-  "name": "backend",
+  "name": "institute-management-backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "server.js",
+  "description": "Backend API for Institute Management System",
+  "main": "src/server.js",
   "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "lint": "eslint src/"
   },
-  "keywords": [],
+  "keywords": ["institute", "management", "education", "crm"],
   "author": "",
   "license": "ISC",
   "dependencies": {

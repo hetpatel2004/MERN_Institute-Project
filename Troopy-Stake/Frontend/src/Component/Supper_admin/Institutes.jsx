@@ -7,6 +7,7 @@ import {
   BookOpen, Users, GraduationCap, IndianRupee, CreditCard,
   Globe, MapPin, Phone, Mail, ChevronDown,
 } from "lucide-react";
+import InstituteBranchesModal from "./InstituteBranchesModal";
 import "./Institute.css";
 
 const API = "http://localhost:5000/api/institutes";
@@ -41,6 +42,7 @@ function Institutes() {
   const [form, setForm] = useState(defaultForm);
   const [actionOpen, setActionOpen] = useState(null);
   const [selected, setSelected] = useState([]);
+  const [branchModalInstitute, setBranchModalInstitute] = useState(null);
   const limit = 10;
 
   useEffect(() => { fetchStats(); fetchInstitutes(); }, []);
@@ -230,8 +232,14 @@ function Institutes() {
                 <tr><td colSpan={15} className="inst-empty">No institutes found</td></tr>
               ) : (
                 institutes.map((inst) => (
-                  <tr key={inst._id} className={inst.status === "Inactive" ? "inst-row-inactive" : ""}>
-                    <td><input type="checkbox" checked={selected.includes(inst._id)} onChange={() => handleSelect(inst._id)} /></td>
+                  <tr key={inst._id}
+                    className={inst.status === "Inactive" ? "inst-row-inactive" : ""}
+                    style={{ cursor: "pointer" }}
+                    onClick={(e) => {
+                      if (e.target.type === "checkbox" || e.target.closest(".inst-action-wrap")) return;
+                      setBranchModalInstitute(inst);
+                    }}>
+                    <td onClick={(e) => e.stopPropagation()}><input type="checkbox" checked={selected.includes(inst._id)} onChange={() => handleSelect(inst._id)} /></td>
                     <td className="inst-id">{inst.instituteId || "-"}</td>
                     <td>
                       {inst.logo ? <img src={inst.logo} alt="" className="inst-logo" /> : <div className="inst-logo-placeholder"><Building2 size={18} /></div>}
@@ -260,7 +268,7 @@ function Institutes() {
                             <button onClick={() => { openEdit(inst); }}>
                               <Edit size={15} /> Edit Institute
                             </button>
-                            <button onClick={() => navigate(`/superadmin/institutes/${inst._id}/branches`)}>
+                            <button onClick={() => setBranchModalInstitute(inst)}>
                               <Building2 size={15} /> Manage Branches
                             </button>
                             <button onClick={() => navigate(`/superadmin/institutes/${inst._id}/students`)}>
@@ -437,6 +445,14 @@ function Institutes() {
             </form>
           </div>
         </div>
+      )}
+
+      {branchModalInstitute && (
+        <InstituteBranchesModal
+          instituteId={branchModalInstitute._id}
+          instituteName={branchModalInstitute.name}
+          onClose={() => setBranchModalInstitute(null)}
+        />
       )}
     </div>
   );

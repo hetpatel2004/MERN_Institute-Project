@@ -518,79 +518,86 @@ function Leads() {
                 </div>
 
                 <div className="lead-column-body">
-                  {statusLeads.map((lead) => (
-                    <div
-                      className="lead-card"
-                      key={lead._id}
-                      onClick={() => setSelectedLead(lead)}
-                    >
-                      <div className="lead-card-top">
-                        <div className="avatar">{getInitials(lead.studentName)}</div>
-                        <div>
-                          <h4>{lead.studentName}</h4>
-                          <p>{lead.phone}</p>
+                  {statusLeads.length === 0 ? (
+                    <div className="lead-column-empty" onClick={openAddModal}>
+                      <div className="plus-icon">+</div>
+                      <span>Add Lead</span>
+                    </div>
+                  ) : (
+                    statusLeads.map((lead) => (
+                      <div
+                        className="lead-card"
+                        key={lead._id}
+                        onClick={() => setSelectedLead(lead)}
+                      >
+                        <div className="lead-card-top">
+                          <div className="avatar">{getInitials(lead.studentName)}</div>
+                          <div>
+                            <h4>{lead.studentName}</h4>
+                            <p>{lead.phone}</p>
+                          </div>
+                        </div>
+
+                        <span className="course-badge">{lead.course}</span>
+
+                        <p className="small-info">{lead.source}</p>
+                        <p className="small-info">{lead.counsellor || "Unassigned"}</p>
+                        <p className="small-info">
+                          {lead.followUpDate
+                            ? new Date(lead.followUpDate).toLocaleDateString()
+                            : "No follow-up"}
+                        </p>
+
+                        <div className="lead-card-actions">
+                          {lead.status === "Converted" ? (
+                            <span className="converted-badge">Converted</span>
+                          ) : (
+                            <>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleWhatsApp(lead.phone);
+                                }}
+                              >
+                                <MessageCircle size={14} />
+                                WhatsApp
+                              </button>
+
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleCall(lead.phone);
+                                }}
+                              >
+                                <Phone size={14} />
+                                Call
+                              </button>
+
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openEditModal(lead);
+                                }}
+                              >
+                                <Pencil size={14} />
+                              </button>
+
+                              <button
+                                className="convert-btn"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openConvert(lead);
+                                }}
+                                title="Convert to Admission"
+                              >
+                                <UserCheck size={14} />
+                              </button>
+                            </>
+                          )}
                         </div>
                       </div>
-
-                      <span className="course-badge">{lead.course}</span>
-
-                      <p className="small-info">{lead.source}</p>
-                      <p className="small-info">{lead.counsellor || "Unassigned"}</p>
-                      <p className="small-info">
-                        {lead.followUpDate
-                          ? new Date(lead.followUpDate).toLocaleDateString()
-                          : "No follow-up"}
-                      </p>
-
-                      <div className="lead-card-actions">
-                        {lead.status === "Converted" ? (
-                          <span className="converted-badge">Converted</span>
-                        ) : (
-                          <>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleWhatsApp(lead.phone);
-                              }}
-                            >
-                              <MessageCircle size={15} />
-                              WhatsApp
-                            </button>
-
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleCall(lead.phone);
-                              }}
-                            >
-                              <Phone size={15} />
-                              Call
-                            </button>
-
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                openEditModal(lead);
-                              }}
-                            >
-                              <Pencil size={15} />
-                            </button>
-
-                            <button
-                              className="convert-btn"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                openConvert(lead);
-                              }}
-                              title="Convert to Admission"
-                            >
-                              <UserCheck size={15} />
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </div>
             );

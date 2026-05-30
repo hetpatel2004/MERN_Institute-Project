@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
-  Building2, Plus, Search, Eye, Pencil, Trash2, X, ChevronDown,
+  Building2, Plus, Search, X, ChevronLeft, ChevronRight,
   Phone, Mail, MapPin, User, Shield, Power, KeyRound, BookOpen,
   Users, GraduationCap, IndianRupee, Target, MessageCircle, Calendar,
-  Clock, Layers, School, FileText,
+  Clock, Layers, School, FileText, Eye, Pencil, Trash2,
 } from "lucide-react";
+import BranchTable from "./BranchTable";
 import "./Branches.css";
 
 const API = "http://localhost:5000/api/branches";
@@ -19,12 +20,10 @@ const defaultForm = {
 
 function Branches() {
   const [branches, setBranches] = useState([]);
-  const [institutes, setInstitutes] = useState([]);
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
-  const [selectedInst, setSelectedInst] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
@@ -35,26 +34,19 @@ function Branches() {
   const [deleteId, setDeleteId] = useState(null);
   const [resetId, setResetId] = useState(null);
   const [resetPassword, setResetPassword] = useState("");
+  const [institutes, setInstitutes] = useState([]);
   const [actionOpen, setActionOpen] = useState(null);
 
   const limit = 20;
 
   useEffect(() => { fetchInstitutes(); }, []);
-  useEffect(() => { fetchBranches(); }, [page, filterStatus, selectedInst]);
-
-  const fetchInstitutes = async () => {
-    try {
-      const res = await axios.get(INST_API);
-      setInstitutes(res.data.institutes || res.data || []);
-    } catch (err) { console.error(err); }
-  };
+  useEffect(() => { fetchBranches(); }, [page, filterStatus]);
 
   const fetchBranches = async () => {
     try {
       setLoading(true);
       const params = { page, limit };
       if (filterStatus) params.status = filterStatus;
-      if (selectedInst) params.instituteId = selectedInst;
       if (search.trim()) params.search = search.trim();
       const res = await axios.get(API, { params });
       setBranches(res.data.branches || []);
@@ -63,6 +55,13 @@ function Branches() {
       setTotalItems(res.data.total);
     } catch (err) { console.error("Failed to load branches", err); }
     finally { setLoading(false); }
+  };
+
+  const fetchInstitutes = async () => {
+    try {
+      const res = await axios.get(INST_API);
+      setInstitutes(res.data.institutes || res.data || []);
+    } catch (err) { console.error(err); }
   };
 
   useEffect(() => {
@@ -139,9 +138,6 @@ function Branches() {
     } catch (err) { alert(err.response?.data?.message || "Operation failed"); }
   };
 
-  const selectedInstData = institutes.find((i) => (i._id === selectedInst));
-  const instBranches = branches.filter((b) => b.instituteId?._id === selectedInst || b.instituteId === selectedInst);
-
   const statCards = [
     { label: "Total Institutes", value: stats.totalInstitutes || 0, icon: Building2, color: "#2563eb" },
     { label: "Total Branches", value: stats.totalBranches || 0, icon: Building2, color: "#0f766e" },
@@ -157,8 +153,15 @@ function Branches() {
       <div className="br-header">
         <div>
           <h1>Branches</h1>
-          <p className="br-subtitle">Manage all branches under institutes</p>
+          <p className="br-subtitle">Manage all branches across all institutes</p>
         </div>
+        <button className="br-add-btn" onClick={() => {
+          setForm(defaultForm);
+          setEditing(null);
+          setShowModal(true);
+        }}>
+          <Plus size={18} /> Add Branch
+        </button>
       </div>
 
       <div className="br-stats">
@@ -190,127 +193,28 @@ function Branches() {
         </div>
       </div>
 
-      <div className="br-inst-select-section">
-        <div className="br-inst-select-row">
-          <label>Select Institute:</label>
-          <select value={selectedInst} onChange={(e) => { setSelectedInst(e.target.value); setPage(1); }}>
-            <option value="">-- Select an Institute --</option>
-            {institutes.map((inst) => (
-              <option key={inst._id} value={inst._id}>{inst.name} ({inst.code})</option>
-            ))}
-          </select>
-        </div>
-
-        {selectedInstData && (
-          <div className="br-inst-info">
-            <div className="br-inst-info-left">
-              <h3>{selectedInstData.name}</h3>
-              <p><MapPin size={14} /> {selectedInstData.city} | Code: {selectedInstData.code}</p>
-              <p className="br-branch-count">{instBranches.length} branch{instBranches.length !== 1 ? "es" : ""} under this institute</p>
-            </div>
-            <button className="br-add-btn" onClick={() => {
-              setForm({ ...defaultForm, instituteId: selectedInst });
-              setEditing(null);
-              setShowModal(true);
-            }}>
-              <Plus size={18} /> Add Branch
-            </button>
-          </div>
-        )}
-
-        {!selectedInst && (
-          <div className="br-no-inst">
-            <Building2 size={40} />
-            <h3>Please select an institute first</h3>
-            <p>Select an institute above to manage its branches, or create a new institute from the Institutes page.</p>
-          </div>
-        )}
-      </div>
-
       <div className="br-table-card">
-        <div className="br-table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Branch</th>
-                <th>Institute</th>
-                <th>City</th>
-                <th>Admin / Email</th>
-                <th>Phone</th>
-                <th>Students</th>
-                <th>Admissions</th>
-                <th>Leads</th>
-                <th>Counsellors</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr><td colSpan={11} className="br-empty">Loading...</td></tr>
-              ) : branches.length === 0 ? (
-                <tr><td colSpan={11} className="br-empty">No branches found</td></tr>
-              ) : branches.map((b) => (
-                <tr key={b._id} className={b.status !== "Active" ? "br-row-inactive" : ""}>
-                  <td>
-                    <div className="br-name-cell">
-                      <div className="br-avatar-placeholder"><Building2 size={16} /></div>
-                      <div>
-                        <div className="br-name">{b.branchName}</div>
-                        <div className="br-code">{b.branchCode}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td>{b.instituteId?.name || "N/A"}</td>
-                  <td>{b.city || "-"}</td>
-                  <td>
-                    <div className="br-admin-info">
-                      <span>{b.adminId?.name || "No admin"}</span>
-                      {b.adminId?.email && <span className="br-email-text">{b.adminId.email}</span>}
-                    </div>
-                  </td>
-                  <td>{b.phone || "-"}</td>
-                  <td><span className="br-count">{b.studentCount || 0}</span></td>
-                  <td><span className="br-count">{b.admissionCount || 0}</span></td>
-                  <td><span className="br-count">{b.leadCount || 0}</span></td>
-                  <td><span className="br-count">{b.counsellorCount || 0}</span></td>
-                  <td>
-                    <span className={`br-status br-${(b.status || "active").toLowerCase()}`}>{b.status}</span>
-                  </td>
-                  <td>
-                    <div className="br-action-wrap">
-                      <button className="br-action-btn" onClick={() => setActionOpen(actionOpen === b._id ? null : b._id)}>
-                        <ChevronDown size={16} />
-                      </button>
-                      {actionOpen === b._id && (
-                        <div className="br-dropdown">
-                          <button onClick={() => { handleView(b); setActionOpen(null); }}><Eye size={15} /> View Details</button>
-                          <button onClick={() => { handleEdit(b); setActionOpen(null); }}><Pencil size={15} /> Edit</button>
-                          <button className="br-dropdown-danger" onClick={() => { setDeleteId(b._id); setActionOpen(null); }}><Trash2 size={15} /> Delete</button>
-                          <button onClick={() => { handleToggleStatus(b._id); setActionOpen(null); }}>
-                            <Power size={15} /> {b.status === "Active" ? "Deactivate" : "Activate"}
-                          </button>
-                          <button onClick={() => { setResetId(b._id); setResetPassword(""); setActionOpen(null); }}>
-                            <KeyRound size={15} /> Reset Admin Password
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <BranchTable
+          branches={branches}
+          loading={loading}
+          actionOpen={actionOpen}
+          setActionOpen={setActionOpen}
+          onView={handleView}
+          onEdit={handleEdit}
+          onDelete={(b) => setDeleteId(b._id)}
+          onToggleStatus={handleToggleStatus}
+          onResetPassword={(b) => { setResetId(b._id); setResetPassword(""); }}
+          emptyMessage="No branches found"
+        />
         {totalPages > 1 && (
           <div className="br-pagination">
             <span>Showing {((page - 1) * limit) + 1}-{Math.min(page * limit, totalItems)} of {totalItems}</span>
             <div className="br-page-btns">
-              <button disabled={page <= 1} onClick={() => setPage(page - 1)}>Prev</button>
+              <button disabled={page <= 1} onClick={() => setPage(page - 1)}><ChevronLeft size={16} /></button>
               {Array.from({ length: totalPages }, (_, i) => (
                 <button key={i + 1} className={page === i + 1 ? "active" : ""} onClick={() => setPage(i + 1)}>{i + 1}</button>
               ))}
-              <button disabled={page >= totalPages} onClick={() => setPage(page + 1)}>Next</button>
+              <button disabled={page >= totalPages} onClick={() => setPage(page + 1)}><ChevronRight size={16} /></button>
             </div>
           </div>
         )}
@@ -379,7 +283,6 @@ function Branches() {
                     <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="Branch email" />
                   </div>
                 </div>
-
                 <h4 className="br-section-title" style={{ marginTop: 24 }}><User size={16} /> Branch Admin Details</h4>
                 {!editing && <p className="br-section-note">Create a Branch Admin who can login and manage this branch.</p>}
                 <div className="br-form-row">
@@ -444,7 +347,6 @@ function Branches() {
                     <Row label="Status" value={viewItem.branch?.status} badge />
                   </div>
                 </div>
-
                 <div className="br-detail-section">
                   <h4><School size={16} /> Institute Information</h4>
                   <div className="br-detail-rows">
@@ -455,7 +357,6 @@ function Branches() {
                     <Row label="Phone" value={viewItem.branch?.instituteId?.phone} />
                   </div>
                 </div>
-
                 <div className="br-detail-section">
                   <h4><User size={16} /> Branch Admin</h4>
                   <div className="br-detail-rows">
@@ -476,7 +377,6 @@ function Branches() {
                     </>
                   )}
                 </div>
-
                 {viewItem.students?.length > 0 && (
                   <Section title={`Students (${viewItem.students.length})`} icon={Users}>
                     <MiniTable headers={["Name", "Email", "Phone"]}>
@@ -486,7 +386,6 @@ function Branches() {
                     </MiniTable>
                   </Section>
                 )}
-
                 {viewItem.admissions?.length > 0 && (
                   <Section title={`Admissions (${viewItem.admissions.length})`} icon={GraduationCap}>
                     <MiniTable headers={["Student", "Course", "Amount", "Status"]}>
@@ -501,7 +400,6 @@ function Branches() {
                     </MiniTable>
                   </Section>
                 )}
-
                 {viewItem.leads?.length > 0 && (
                   <Section title={`Leads (${viewItem.leads.length})`} icon={Target}>
                     <MiniTable headers={["Name", "Phone", "Course", "Status"]}>
@@ -516,7 +414,6 @@ function Branches() {
                     </MiniTable>
                   </Section>
                 )}
-
                 {viewItem.counsellors?.length > 0 && (
                   <Section title={`Counsellors (${viewItem.counsellors.length})`} icon={User}>
                     <MiniTable headers={["Name", "Email", "Phone"]}>
@@ -526,7 +423,6 @@ function Branches() {
                     </MiniTable>
                   </Section>
                 )}
-
                 {viewItem.followUps?.length > 0 && (
                   <Section title={`Follow-ups (${viewItem.followUps.length})`} icon={MessageCircle}>
                     <MiniTable headers={["Title", "Status", "Date"]}>
@@ -540,7 +436,6 @@ function Branches() {
                     </MiniTable>
                   </Section>
                 )}
-
                 {viewItem.batches?.length > 0 && (
                   <Section title={`Batches (${viewItem.batches.length})`} icon={Layers}>
                     <MiniTable headers={["Name", "Timing"]}>
@@ -550,7 +445,6 @@ function Branches() {
                     </MiniTable>
                   </Section>
                 )}
-
                 {viewItem.courses?.length > 0 && (
                   <Section title={`Purchased Courses (${viewItem.courses.length})`} icon={BookOpen}>
                     <MiniTable headers={["Course", "Status"]}>
