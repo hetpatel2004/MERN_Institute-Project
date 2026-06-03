@@ -34,6 +34,7 @@ const InstitutePurchasedCourses = lazy(() => import("../Component/Supper_admin/I
 const UserDashboard = lazy(() => import("../Component/User_dashboard/UserDashboard"));
 const Batches = lazy(() => import("../Component/Supper_admin/Batches/Batches"));
 const Campaigns = lazy(() => import("../Component/Supper_admin/Campaign/Campaigns"));
+const HolidayCalendar = lazy(() => import("../Component/Supper_admin/HolidayCalendar/HolidayCalendar"));
 
 function DynamicSuperAdminPage() {
   const { menuSlug } = useParams();
@@ -100,6 +101,7 @@ export default function AppRoutes() {
       <Route path="/superadmin/menus" element={<ProtectedRoute role="superadmin">{withSA(MenuManager, "menus")}</ProtectedRoute>} />
       <Route path="/superadmin/batches" element={<ProtectedRoute role="superadmin">{withSA(Batches, "batches")}</ProtectedRoute>} />
       <Route path="/superadmin/branches" element={<ProtectedRoute role="superadmin">{withSA(Branches, "branches")}</ProtectedRoute>} />
+      <Route path="/superadmin/holidays" element={<ProtectedRoute role="superadmin">{withSA(HolidayCalendar, "holidays")}</ProtectedRoute>} />
 
       <Route path="/superadmin/:menuSlug" element={<ProtectedRoute role="superadmin">{withSA(DynamicSuperAdminPage, "dynamic")}</ProtectedRoute>} />
 

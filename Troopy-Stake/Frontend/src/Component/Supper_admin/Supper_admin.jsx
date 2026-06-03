@@ -202,7 +202,7 @@ const superAdminMenuSections = [
     items: [
       { name: "Staff", path: "/superadmin/staff", icon: UserRoundCog },
       { name: "Attendance", path: "/superadmin/attendance", icon: Clock },
-      { name: "Holidays", path: "/superadmin/holidays", icon: CalendarDays },
+      { name: "Holiday", path: "/superadmin/holidays", icon: CalendarDays },
       {
         name: "Login Approvals",
         path: "/superadmin/login-approvals",

@@ -20,6 +20,7 @@ const roleAccessRoutes = require("./roleAccessRoutes");
 const roleUserRoutes = require("./roleUserRoutes");
 const topicContentRoutes = require("./topicContentRoutes");
 const campaignRoutes = require("./campaignRoutes");
+const holidayRoutes = require("./holidayRoutes");
 
 const router = express.Router();
 
@@ -43,5 +44,6 @@ router.use("/role-access", roleAccessRoutes);
 router.use("/role-access", roleUserRoutes);
 router.use("/topic-content", topicContentRoutes);
 router.use("/campaigns", campaignRoutes);
+router.use("/holidays", holidayRoutes);
 
 module.exports = router;
