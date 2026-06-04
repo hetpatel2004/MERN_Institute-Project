@@ -12,4 +12,5 @@ export const holidayService = {
   getNotificationLogs: (holidayId) => api.get(`/holidays/notifications/${holidayId}`),
   getRoleCounts: () => api.get("/holidays/role-counts"),
   preload: (year) => api.post("/holidays/preload", { year }),
+  bulkCreate: (data) => api.post("/holidays/bulk", data),
 };

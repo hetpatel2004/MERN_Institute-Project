@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Search, Plus, Download, ChevronLeft, ChevronRight, Filter, X, CalendarDays, Flag, Bell, CalendarCheck, Calendar as CalendarIcon, ChevronDown, Trash2, FileSpreadsheet, FileText } from "lucide-react";
+import { Search, Plus, Download, ChevronLeft, ChevronRight, Filter, X, CalendarDays, Flag, Bell, CalendarCheck, Calendar as CalendarIcon, ChevronDown, Trash2, FileSpreadsheet, FileText, Upload } from "lucide-react";
 import { holidayService } from "../../../services/holidayService";
 import HolidayModal from "./HolidayModal";
 import HolidayDetails from "./HolidayDetails";
+import BulkUploadModal from "./BulkUploadModal";
 import "./HolidayCalendar.css";
 
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -45,6 +46,7 @@ function HolidayCalendar() {
   const [notifCount, setNotifCount] = useState(0);
   const [bellOpen, setBellOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [toasts, setToasts] = useState([]);
 
   const addToast = (msg, type = "success") => {
@@ -145,13 +147,15 @@ function HolidayCalendar() {
     for (let d = 1; d <= daysInMonth; d++) {
       const dayHolidays = getHolidaysForDate(year, month, d);
       const isToday = new Date().getFullYear() === year && new Date().getMonth() === month && new Date().getDate() === d;
+      const cellColor = dayHolidays.length ? HOLIDAY_COLORS[dayHolidays[0].holidayType] : null;
       cells.push(
         <div key={d} className={`hl-cal-day ${isToday ? "hl-cal-today" : ""} ${dayHolidays.length ? "hl-cal-has-holiday" : ""}`}
+          style={cellColor ? { background: cellColor.bg } : {}}
           onClick={() => dayHolidays.length && handleHolidayClick(dayHolidays[0])}
           title={dayHolidays.length ? dayHolidays.map((h) => h.holidayName).join(", ") : ""}>
-          <span className="hl-cal-day-num">{d}</span>
+          <span className="hl-cal-day-num" style={cellColor ? { color: cellColor.text } : {}}>{d}</span>
           {dayHolidays.slice(0, 2).map((h, i) => (
-            <span key={i} className="hl-cal-holiday-label" style={{ background: HOLIDAY_COLORS[h.holidayType]?.bg, color: HOLIDAY_COLORS[h.holidayType]?.text }}>
+            <span key={i} className="hl-cal-holiday-label" style={{ background: HOLIDAY_COLORS[h.holidayType]?.bg, color: HOLIDAY_COLORS[h.holidayType]?.text, borderLeft: `3px solid ${HOLIDAY_COLORS[h.holidayType]?.dot}` }}>
               {h.holidayName}
             </span>
           ))}
@@ -166,14 +170,16 @@ function HolidayCalendar() {
     const weekDays = getWeekDays();
     return weekDays.map((d, i) => {
       const dayHolidays = getHolidaysForDate(d.getFullYear(), d.getMonth(), d.getDate());
+      const cellColor = dayHolidays.length ? HOLIDAY_COLORS[dayHolidays[0].holidayType] : null;
       const isToday = new Date().toDateString() === d.toDateString();
       return (
-        <div key={i} className={`hl-week-day ${isToday ? "hl-cal-today" : ""}`}
+        <div key={i} className={`hl-week-day ${isToday ? "hl-cal-today" : ""} ${dayHolidays.length ? "hl-cal-has-holiday" : ""}`}
+          style={cellColor ? { background: cellColor.bg } : {}}
           onClick={() => dayHolidays.length && handleHolidayClick(dayHolidays[0])}>
-          <div className="hl-week-day-name">{DAYS[d.getDay()]}</div>
-          <div className="hl-week-day-date">{d.getDate()}</div>
+          <div className="hl-week-day-name" style={cellColor ? { color: cellColor.text } : {}}>{DAYS[d.getDay()]}</div>
+          <div className="hl-week-day-date" style={cellColor ? { color: cellColor.text, fontWeight: 900 } : {}}>{d.getDate()}</div>
           {dayHolidays.map((h, j) => (
-            <span key={j} className="hl-cal-holiday-label" style={{ background: HOLIDAY_COLORS[h.holidayType]?.bg, color: HOLIDAY_COLORS[h.holidayType]?.text, display: "block", marginTop: 2 }}>
+            <span key={j} className="hl-cal-holiday-label" style={{ background: HOLIDAY_COLORS[h.holidayType]?.bg, color: HOLIDAY_COLORS[h.holidayType]?.text, display: "block", marginTop: 2, borderLeft: `3px solid ${HOLIDAY_COLORS[h.holidayType]?.dot}` }}>
               {h.holidayName}
             </span>
           ))}
@@ -198,7 +204,7 @@ function HolidayCalendar() {
               const h = monthHolidays.find((h) => new Date(h.holidayDate).getDate() === d + 1);
               return (
                 <span key={d} className={`hl-year-day ${h ? "has-holiday" : ""}`}
-                  style={h ? { background: HOLIDAY_COLORS[h.holidayType]?.bg, color: HOLIDAY_COLORS[h.holidayType]?.text } : {}}
+                  style={h ? { background: HOLIDAY_COLORS[h.holidayType]?.bg, color: HOLIDAY_COLORS[h.holidayType]?.text, border: `2px solid ${HOLIDAY_COLORS[h.holidayType]?.dot}` } : {}}
                   onClick={() => h && handleHolidayClick(h)} title={h?.holidayName}>
                   {d + 1}
                 </span>
@@ -289,6 +295,20 @@ function HolidayCalendar() {
       addToast(`Exported ${data.length} holidays as ${format.toUpperCase()}`);
     } catch (err) {
       addToast("Export failed", "error");
+    }
+  };
+
+  const handleBulkUpload = async (holidays) => {
+    try {
+      const res = await holidayService.bulkCreate({ holidays });
+      addToast(res.data.message);
+      fetchHolidays();
+      fetchStats();
+      fetchNotifications();
+      return res.data;
+    } catch (err) {
+      addToast("Bulk upload failed", "error");
+      throw err;
     }
   };
 
@@ -586,6 +606,9 @@ function HolidayCalendar() {
               </>
             )}
           </div>
+          <button className="hl-preload-btn" onClick={() => setShowBulkUpload(true)} title="Bulk upload holidays from file">
+            <Upload size={16} /> Bulk Upload
+          </button>
           <button className="hl-add-btn" onClick={() => { setEditing(null); setShowModal(true); }}><Plus size={18} /> Add Holiday</button>
         </div>
       </div>
@@ -605,6 +628,8 @@ function HolidayCalendar() {
       {showModal && <HolidayModal show={showModal} onClose={() => { setShowModal(false); setEditing(null); }} onSave={handleSave} editing={editing} />}
 
       {showDetails && <HolidayDetails holiday={detailsHoliday} onClose={() => { setShowDetails(false); setDetailsHoliday(null); }} onEdit={(h) => { setShowDetails(false); setEditing(h); setShowModal(true); }} />}
+
+      {showBulkUpload && <BulkUploadModal onClose={() => setShowBulkUpload(false)} onUpload={handleBulkUpload} />}
 
       <div className="hl-toast-container">
         {toasts.map((t) => (
