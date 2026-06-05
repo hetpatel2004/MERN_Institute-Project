@@ -21,6 +21,9 @@ const roleUserRoutes = require("./roleUserRoutes");
 const topicContentRoutes = require("./topicContentRoutes");
 const campaignRoutes = require("./campaignRoutes");
 const holidayRoutes = require("./holidayRoutes");
+const feeRoutes = require("./feeRoutes");
+const expenseRoutes = require("./expenseRoutes");
+const invoiceRoutes = require("./invoiceRoutes");
 
 const router = express.Router();
 
@@ -45,5 +48,8 @@ router.use("/role-access", roleUserRoutes);
 router.use("/topic-content", topicContentRoutes);
 router.use("/campaigns", campaignRoutes);
 router.use("/holidays", holidayRoutes);
+router.use("/fees", feeRoutes);
+router.use("/expenses", expenseRoutes);
+router.use("/invoices", invoiceRoutes);
 
 module.exports = router;

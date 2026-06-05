@@ -5,3 +5,8 @@ export { courseService } from "./courseService";
 export { leadService } from "./leadService";
 export { userService } from "./userService";
 export { companyService } from "./companyService";
+export { holidayService } from "./holidayService";
+export { campaignService } from "./campaignService";
+export { feeService } from "./feeService";
+export { expenseService } from "./expenseService";
+export { invoiceService } from "./invoiceService";

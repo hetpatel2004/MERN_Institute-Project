@@ -35,6 +35,9 @@ const UserDashboard = lazy(() => import("../Component/User_dashboard/UserDashboa
 const Batches = lazy(() => import("../Component/Supper_admin/Batches/Batches"));
 const Campaigns = lazy(() => import("../Component/Supper_admin/Campaign/Campaigns"));
 const HolidayCalendar = lazy(() => import("../Component/Supper_admin/HolidayCalendar/HolidayCalendar"));
+const Fees = lazy(() => import("../Component/Supper_admin/Finance/Fees"));
+const Expenses = lazy(() => import("../Component/Supper_admin/Finance/Expenses"));
+const Invoices = lazy(() => import("../Component/Supper_admin/Finance/Invoices"));
 
 function DynamicSuperAdminPage() {
   const { menuSlug } = useParams();
@@ -102,6 +105,9 @@ export default function AppRoutes() {
       <Route path="/superadmin/batches" element={<ProtectedRoute role="superadmin">{withSA(Batches, "batches")}</ProtectedRoute>} />
       <Route path="/superadmin/branches" element={<ProtectedRoute role="superadmin">{withSA(Branches, "branches")}</ProtectedRoute>} />
       <Route path="/superadmin/holidays" element={<ProtectedRoute role="superadmin">{withSA(HolidayCalendar, "holidays")}</ProtectedRoute>} />
+      <Route path="/superadmin/fees" element={<ProtectedRoute role="superadmin">{withSA(Fees, "fees")}</ProtectedRoute>} />
+      <Route path="/superadmin/expenses" element={<ProtectedRoute role="superadmin">{withSA(Expenses, "expenses")}</ProtectedRoute>} />
+      <Route path="/superadmin/invoices" element={<ProtectedRoute role="superadmin">{withSA(Invoices, "invoices")}</ProtectedRoute>} />
 
       <Route path="/superadmin/:menuSlug" element={<ProtectedRoute role="superadmin">{withSA(DynamicSuperAdminPage, "dynamic")}</ProtectedRoute>} />
 
