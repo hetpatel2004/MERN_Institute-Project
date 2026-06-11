@@ -24,6 +24,18 @@ const holidayRoutes = require("./holidayRoutes");
 const feeRoutes = require("./feeRoutes");
 const expenseRoutes = require("./expenseRoutes");
 const invoiceRoutes = require("./invoiceRoutes");
+const taskRoutes = require("./taskRoutes");
+const dailyReportRoutes = require("./dailyReportRoutes");
+const templateRoutes = require("./templateRoutes");
+const broadcastRoutes = require("./broadcastRoutes");
+const placementRoutes = require("./placementRoutes");
+const programRoutes = require("./programRoutes");
+const courseCategoryRoutes = require("./courseCategoryRoutes");
+const facultyRoutes = require("./facultyRoutes");
+const examRoutes = require("./examRoutes");
+const staffRoutes = require("./staffRoutes");
+const attendanceRoutes = require("./attendanceRoutes");
+const loginApprovalRoutes = require("./loginApprovalRoutes");
 
 const router = express.Router();
 
@@ -51,5 +63,17 @@ router.use("/holidays", holidayRoutes);
 router.use("/fees", feeRoutes);
 router.use("/expenses", expenseRoutes);
 router.use("/invoices", invoiceRoutes);
+router.use("/tasks", taskRoutes);
+router.use("/daily-reports", dailyReportRoutes);
+router.use("/templates", templateRoutes);
+router.use("/broadcasts", broadcastRoutes);
+router.use("/placements", placementRoutes);
+router.use("/programs", programRoutes);
+router.use("/course-categories", courseCategoryRoutes);
+router.use("/faculties", facultyRoutes);
+router.use("/exams", examRoutes);
+router.use("/staff", staffRoutes);
+router.use("/attendance", attendanceRoutes);
+router.use("/login-approvals", loginApprovalRoutes);
 
 module.exports = router;

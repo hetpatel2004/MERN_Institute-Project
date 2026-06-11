@@ -38,6 +38,26 @@ const HolidayCalendar = lazy(() => import("../Component/Supper_admin/HolidayCale
 const Fees = lazy(() => import("../Component/Supper_admin/Finance/Fees"));
 const Expenses = lazy(() => import("../Component/Supper_admin/Finance/Expenses"));
 const Invoices = lazy(() => import("../Component/Supper_admin/Finance/Invoices"));
+const Tasks = lazy(() => import("../Component/Supper_admin/Tasks/Tasks"));
+const DailyReports = lazy(() => import("../Component/Supper_admin/DailyReports/DailyReports"));
+const WhatsAppInbox = lazy(() => import("../Component/Supper_admin/Communication/WhatsAppInbox"));
+const QrCodeGenerator = lazy(() => import("../Component/Supper_admin/Communication/QrCodeGenerator"));
+const Templates = lazy(() => import("../Component/Supper_admin/Communication/Templates"));
+const Broadcasts = lazy(() => import("../Component/Supper_admin/Communication/Broadcasts"));
+const Students = lazy(() => import("../Component/Supper_admin/Students/Students"));
+const Placements = lazy(() => import("../Component/Supper_admin/Placements/Placements"));
+const Programs = lazy(() => import("../Component/Supper_admin/Programs/Programs"));
+const CourseCategories = lazy(() => import("../Component/Supper_admin/CourseCategories/CourseCategories"));
+const Faculties = lazy(() => import("../Component/Supper_admin/Faculties/Faculties"));
+const Exams = lazy(() => import("../Component/Supper_admin/Exams/Exams"));
+const LeadAnalytics = lazy(() => import("../Component/Supper_admin/Analytics/LeadAnalytics"));
+const Revenue = lazy(() => import("../Component/Supper_admin/Analytics/Revenue"));
+const Performance = lazy(() => import("../Component/Supper_admin/Analytics/Performance"));
+const Reports = lazy(() => import("../Component/Supper_admin/Analytics/Reports"));
+const Staff = lazy(() => import("../Component/Supper_admin/Staff/Staff"));
+const Attendance = lazy(() => import("../Component/Supper_admin/Attendance/Attendance"));
+const LoginApprovals = lazy(() => import("../Component/Supper_admin/LoginApprovals/LoginApprovals"));
+const Integrations = lazy(() => import("../Component/Supper_admin/Integrations/Integrations"));
 
 function DynamicSuperAdminPage() {
   const { menuSlug } = useParams();
@@ -108,6 +128,26 @@ export default function AppRoutes() {
       <Route path="/superadmin/fees" element={<ProtectedRoute role="superadmin">{withSA(Fees, "fees")}</ProtectedRoute>} />
       <Route path="/superadmin/expenses" element={<ProtectedRoute role="superadmin">{withSA(Expenses, "expenses")}</ProtectedRoute>} />
       <Route path="/superadmin/invoices" element={<ProtectedRoute role="superadmin">{withSA(Invoices, "invoices")}</ProtectedRoute>} />
+      <Route path="/superadmin/tasks" element={<ProtectedRoute role="superadmin">{withSA(Tasks, "tasks")}</ProtectedRoute>} />
+      <Route path="/superadmin/daily-reports" element={<ProtectedRoute role="superadmin">{withSA(DailyReports, "daily-reports")}</ProtectedRoute>} />
+      <Route path="/superadmin/whatsapp-inbox" element={<ProtectedRoute role="superadmin">{withSA(WhatsAppInbox, "whatsapp-inbox")}</ProtectedRoute>} />
+      <Route path="/superadmin/qr-codes" element={<ProtectedRoute role="superadmin">{withSA(QrCodeGenerator, "qr-codes")}</ProtectedRoute>} />
+      <Route path="/superadmin/templates" element={<ProtectedRoute role="superadmin">{withSA(Templates, "templates")}</ProtectedRoute>} />
+      <Route path="/superadmin/broadcasts" element={<ProtectedRoute role="superadmin">{withSA(Broadcasts, "broadcasts")}</ProtectedRoute>} />
+      <Route path="/superadmin/students" element={<ProtectedRoute role="superadmin">{withSA(Students, "students")}</ProtectedRoute>} />
+      <Route path="/superadmin/placements" element={<ProtectedRoute role="superadmin">{withSA(Placements, "placements")}</ProtectedRoute>} />
+      <Route path="/superadmin/programs" element={<ProtectedRoute role="superadmin">{withSA(Programs, "programs")}</ProtectedRoute>} />
+      <Route path="/superadmin/course-categories" element={<ProtectedRoute role="superadmin">{withSA(CourseCategories, "course-categories")}</ProtectedRoute>} />
+      <Route path="/superadmin/faculties" element={<ProtectedRoute role="superadmin">{withSA(Faculties, "faculties")}</ProtectedRoute>} />
+      <Route path="/superadmin/exams" element={<ProtectedRoute role="superadmin">{withSA(Exams, "exams")}</ProtectedRoute>} />
+      <Route path="/superadmin/lead-analytics" element={<ProtectedRoute role="superadmin">{withSA(LeadAnalytics, "lead-analytics")}</ProtectedRoute>} />
+      <Route path="/superadmin/revenue" element={<ProtectedRoute role="superadmin">{withSA(Revenue, "revenue")}</ProtectedRoute>} />
+      <Route path="/superadmin/performance" element={<ProtectedRoute role="superadmin">{withSA(Performance, "performance")}</ProtectedRoute>} />
+      <Route path="/superadmin/reports" element={<ProtectedRoute role="superadmin">{withSA(Reports, "reports")}</ProtectedRoute>} />
+      <Route path="/superadmin/staff" element={<ProtectedRoute role="superadmin">{withSA(Staff, "staff")}</ProtectedRoute>} />
+      <Route path="/superadmin/attendance" element={<ProtectedRoute role="superadmin">{withSA(Attendance, "attendance")}</ProtectedRoute>} />
+      <Route path="/superadmin/login-approvals" element={<ProtectedRoute role="superadmin">{withSA(LoginApprovals, "login-approvals")}</ProtectedRoute>} />
+      <Route path="/superadmin/integrations" element={<ProtectedRoute role="superadmin">{withSA(Integrations, "integrations")}</ProtectedRoute>} />
 
       <Route path="/superadmin/:menuSlug" element={<ProtectedRoute role="superadmin">{withSA(DynamicSuperAdminPage, "dynamic")}</ProtectedRoute>} />
 
