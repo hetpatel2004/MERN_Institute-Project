@@ -15,7 +15,6 @@ const DEFAULT_SECTIONS = [
 const DEFAULT_MENUS = [
   { id: "default-1", section: "Main", name: "Dashboard", path: "/superadmin/dashboard", type: "Default", visible: true },
   { id: "default-2", section: "Main", name: "Institute", path: "/superadmin/institute", type: "Default", visible: true },
-  { id: "default-3", section: "Main", name: "Course", path: "/superadmin/course", type: "Default", visible: true },
   { id: "default-4", section: "Main", name: "Company", path: "/superadmin/company", type: "Default", visible: true },
 
   { id: "default-5", section: "CRM & Leads", name: "Leads", path: "/superadmin/leads", type: "Default", visible: true },
@@ -33,7 +32,7 @@ const DEFAULT_MENUS = [
 
   { id: "default-16", section: "Students", name: "Students", path: "/superadmin/students", type: "Default", visible: true },
   { id: "default-17", section: "Students", name: "Batches", path: "/superadmin/batches", type: "Default", visible: true },
-  { id: "default-18", section: "Students", name: "Courses", path: "/superadmin/course", type: "Default", visible: true },
+  { id: "default-18", section: "Students", name: "Courses", path: "/superadmin/courses", type: "Default", visible: true },
   { id: "default-19", section: "Students", name: "Placements", path: "/superadmin/placements", type: "Default", visible: true },
 
   { id: "default-20", section: "Academics", name: "Programs", path: "/superadmin/programs", type: "Default", visible: true },

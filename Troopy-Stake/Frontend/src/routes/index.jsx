@@ -148,6 +148,7 @@ export default function AppRoutes() {
       <Route path="/superadmin/attendance" element={<ProtectedRoute role="superadmin">{withSA(Attendance, "attendance")}</ProtectedRoute>} />
       <Route path="/superadmin/login-approvals" element={<ProtectedRoute role="superadmin">{withSA(LoginApprovals, "login-approvals")}</ProtectedRoute>} />
       <Route path="/superadmin/integrations" element={<ProtectedRoute role="superadmin">{withSA(Integrations, "integrations")}</ProtectedRoute>} />
+      <Route path="/superadmin/courses" element={<ProtectedRoute role="superadmin">{withSA(CourseAllCourses, "course")}</ProtectedRoute>} />
 
       <Route path="/superadmin/:menuSlug" element={<ProtectedRoute role="superadmin">{withSA(DynamicSuperAdminPage, "dynamic")}</ProtectedRoute>} />
 

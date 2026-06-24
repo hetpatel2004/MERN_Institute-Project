@@ -240,4 +240,27 @@ router.get("/role-users/:roleCode", async (req, res) => {
     }
 });
 
+/* =========================================
+   GET PERMISSIONS BY ROLE CODE
+========================================= */
+
+router.get("/permissions/:roleCode", async (req, res) => {
+    try {
+        const { roleCode } = req.params;
+        const role = await Role.findOne({ roleCode: roleCode.toUpperCase() });
+
+        if (!role) {
+            return res.status(404).json({
+                message: "Role not found",
+            });
+        }
+
+        res.json(role.permissions || {});
+    } catch (err) {
+        res.status(500).json({
+            message: err.message,
+        });
+    }
+});
+
 module.exports = router;

@@ -45,9 +45,18 @@ import {
 } from "lucide-react";
 
 import { ROUTES } from "../../constants/routes";
-import { clearAuthData } from "../../utils/storage";
+import { clearAuthData, getUser } from "../../utils/storage";
 import { useTheme } from "../../context/ThemeContext";
 import "./Supper_admin.css";
+
+const ROLE_TO_CODE = {
+  superadmin: "SUPER_ADMIN",
+  instituteadmin: "INSTITUTE_ADMIN",
+  branchadmin: "BRANCH_ADMIN",
+  companyadmin: "COMPANY_ADMIN",
+  student: "STUDENT",
+  counsellor: "COUNSELLOR",
+};
 
 function Dashboard({ institutes, courses, companies, navigate }) {
   const totalStudents = institutes.reduce(
@@ -151,7 +160,7 @@ const superAdminMenuSections = [
     items: [
       { name: "Students", path: "/superadmin/students", icon: GraduationCap },
       { name: "Batches", path: "/superadmin/batches", icon: Layers },
-      { name: "Courses", path: ROUTES.superAdminCourse, icon: BookOpen },
+      { name: "Courses", path: "/superadmin/courses", icon: BookOpen },
       { name: "Placements", path: "/superadmin/placements", icon: Award },
     ],
   },
@@ -238,6 +247,7 @@ function Supper_admin({ children, page }) {
   const { dark, toggle: toggleTheme } = useTheme();
   const [customMenus, setCustomMenus] = useState([]);
   const [defaultMenus, setDefaultMenus] = useState([]);
+  const [rolePermissions, setRolePermissions] = useState(null);
 
   const [openMenus, setOpenMenus] = useState({
     crm: true,
@@ -274,9 +284,30 @@ function Supper_admin({ children, page }) {
     };
   }, []);
 
+  useEffect(() => {
+    const user = getUser();
+    if (!user?.role) return;
+    const roleCode = ROLE_TO_CODE[user.role.toLowerCase()];
+    if (!roleCode) return;
+    fetch(`http://localhost:5000/api/role-access/permissions/${roleCode}`)
+      .then((r) => r.json())
+      .then((data) => setRolePermissions(data))
+      .catch(() => setRolePermissions({}));
+  }, []);
+
   const handleLogout = () => {
     clearAuthData();
     navigate(ROUTES.login, { replace: true });
+  };
+
+  const user = getUser();
+  const userRole = (user?.role || "").toLowerCase();
+  const isSuperAdmin = userRole === "superadmin";
+
+  const isMenuAllowed = (name) => {
+    if (!rolePermissions) return false;
+    if (isSuperAdmin) return true;
+    return rolePermissions[name]?.view === true;
   };
 
   const toggleMenu = (key) => {
@@ -317,22 +348,17 @@ function Supper_admin({ children, page }) {
             [...defaultMenus, ...customMenus].forEach((m) => { vis[m.path] = m.visible !== false; });
             return (
               <>
-                {vis[ROUTES.superAdminDashboard] !== false && (
+                {isMenuAllowed("Dashboard") && vis[ROUTES.superAdminDashboard] !== false && (
                   <NavLink to={ROUTES.superAdminDashboard}>
                     <LayoutDashboard size={20} /> Dashboard
                   </NavLink>
                 )}
-                {vis[ROUTES.superAdminInstitute] !== false && (
+                {isMenuAllowed("Institute") && vis[ROUTES.superAdminInstitute] !== false && (
                   <NavLink to={ROUTES.superAdminInstitute}>
                     <Building2 size={20} /> Institute
                   </NavLink>
                 )}
-                {vis["/superadmin/course"] !== false && (
-                  <NavLink to="/superadmin/course">
-                    <BookOpen size={20} /> Course
-                  </NavLink>
-                )}
-                {vis[ROUTES.superAdminCompany] !== false && (
+                {isMenuAllowed("Company") && vis[ROUTES.superAdminCompany] !== false && (
                   <NavLink to={ROUTES.superAdminCompany}>
                     <BriefcaseBusiness size={20} /> Company
                   </NavLink>
@@ -359,7 +385,14 @@ function Supper_admin({ children, page }) {
             });
 
             const finalItems = [...section.items, ...sectionCustomMenus]
-              .filter((item) => visibilityMap[item.path] !== false);
+              .filter((item) => visibilityMap[item.path] !== false)
+              .filter((item) => isMenuAllowed(item.name));
+
+            const sectionAllowed = !isSuperAdmin
+              ? section.items.some((item) => isMenuAllowed(item.name))
+              : true;
+
+            if (!sectionAllowed && finalItems.length === 0) return null;
 
             return (
               <div className="sa-menu-section" key={section.key}>

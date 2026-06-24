@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   BookOpen,
@@ -14,26 +14,61 @@ import { useNavigate } from "react-router-dom";
 import { clearAuthData, getUser } from "../../utils/storage";
 import "./UserDashboard.css";
 
+const ROLE_TO_CODE = {
+  superadmin: "SUPER_ADMIN",
+  instituteadmin: "INSTITUTE_ADMIN",
+  branchadmin: "BRANCH_ADMIN",
+  companyadmin: "COMPANY_ADMIN",
+  student: "STUDENT",
+  counsellor: "COUNSELLOR",
+};
+
 function UserDashboard() {
   const user = getUser();
   const navigate = useNavigate();
-
+  const [rolePermissions, setRolePermissions] = useState(null);
   const [activeMenu, setActiveMenu] = useState("Dashboard");
 
+  useEffect(() => {
+    if (!user?.role) return;
+    const roleCode = ROLE_TO_CODE[user.role.toLowerCase()];
+    if (!roleCode) return;
+    fetch(`http://localhost:5000/api/role-access/permissions/${roleCode}`)
+      .then((r) => {
+        if (!r.ok) throw new Error("API error");
+        return r.json();
+      })
+      .then((data) => setRolePermissions(data))
+      .catch(() => setRolePermissions({}));
+  }, [user?.role]);
+
+  const isMenuAllowed = (menu) => {
+    if (!rolePermissions) return menu.name === "Dashboard";
+    const userRole = (user?.role || "").toLowerCase();
+    if (userRole === "superadmin") return true;
+    if (menu.permKey) {
+      return rolePermissions[menu.permKey]?.view === true;
+    }
+    return Object.keys(rolePermissions).length > 0;
+  };
+
   const allMenus = [
-    { name: "Dashboard", icon: <LayoutDashboard size={20} /> },
-    { name: "Institute", icon: <Building2 size={20} /> },
-    { name: "Course", icon: <BookOpen size={20} /> },
-    { name: "Company", icon: <BriefcaseBusiness size={20} /> },
-    { name: "Students", icon: <Users size={20} /> },
-    { name: "Reports", icon: <FileText size={20} /> },
-    { name: "Settings", icon: <Settings size={20} /> },
+    { name: "Dashboard", permKey: "Dashboard", icon: <LayoutDashboard size={20} /> },
+    { name: "Institute", permKey: null, icon: <Building2 size={20} /> },
+    { name: "Course", permKey: "Courses", icon: <BookOpen size={20} /> },
+    { name: "Company", permKey: null, icon: <BriefcaseBusiness size={20} /> },
+    { name: "Students", permKey: "Students", icon: <Users size={20} /> },
+    { name: "Reports", permKey: "Reports", icon: <FileText size={20} /> },
+    { name: "Settings", permKey: null, icon: <Settings size={20} /> },
   ];
 
-  const allowedMenus =
-    user?.menuAccess?.length > 0
-      ? allMenus.filter((menu) => user.menuAccess.includes(menu.name))
-      : allMenus.filter((menu) => menu.name === "Dashboard");
+  const allowedMenus = allMenus.filter((menu) => isMenuAllowed(menu));
+
+  useEffect(() => {
+    if (!allowedMenus.find((m) => m.name === activeMenu)) {
+      setActiveMenu(allowedMenus[0]?.name || "Dashboard");
+    }
+  }, [rolePermissions]);
 
   const handleLogout = () => {
     clearAuthData();

@@ -4,6 +4,158 @@
     min-height: 100vh;
 }
 
+.rap-row-clickable {
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.rap-row-clickable:hover {
+    background: #f0f4ff !important;
+}
+
+.rap-row-active {
+    background: #e8f0fe !important;
+    outline: 2px solid #2563eb;
+    outline-offset: -2px;
+}
+
+.rap-role-name-cell {
+    font-weight: 600;
+    color: #2563eb;
+    cursor: pointer;
+}
+
+.rap-role-name-cell:hover {
+    text-decoration: underline;
+}
+
+.rap-badge-editing {
+    font-size: 12px;
+    font-weight: 600;
+    color: #ea580c;
+    background: #fff7ed;
+    padding: 3px 10px;
+    border-radius: 999px;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+.rap-role-name-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #2563eb;
+    background: #eff6ff;
+    padding: 3px 10px;
+    border-radius: 999px;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+.rap-save-perms-btn {
+    background: #059669;
+    color: white;
+    border: none;
+    padding: 9px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.rap-save-perms-btn:hover {
+    background: #047857;
+}
+
+.rap-empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #9ca3af;
+    font-size: 15px;
+}
+
+.rap-menu-summary {
+    max-width: 160px;
+}
+
+.rap-menu-dots {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.rap-dot-on {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.rap-dot-off {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    background: #f3f4f6;
+    color: #d1d5db;
+}
+
+.rap-menu-visual-card {
+    margin-top: 24px;
+}
+
+.rap-visual-hint {
+    color: #6b7280;
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+.rap-visual-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+}
+
+.rap-visual-section {
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 14px;
+    border: 1px solid #e5e7eb;
+}
+
+.rap-visual-empty {
+    opacity: 0.5;
+}
+
+.rap-visual-section-title {
+    font-weight: 700;
+    font-size: 13px;
+    color: #374151;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.rap-visual-item {
+    font-size: 13px;
+    color: #059669;
+    padding: 3px 0;
+}
+
+.rap-visual-na {
+    color: #9ca3af;
+    font-style: italic;
+}
+
 .rap-page-header {
     display: flex;
     justify-content: space-between;
